@@ -487,3 +487,10 @@ Thay vì dùng ảnh mẫu, hãy upload ảnh thật từ máy tính của bạn
 ---
 **CHÚC BẠN TEST HỆ THỐNG THÀNH CÔNG! ✅🏆🔥**
 
+CÁC LỆNH GIT THƯỜNG DÙNG
+- Tải code lần đầu: git clone <url>
+- Cập nhật code mới từ GitHub: git pull origin main
+- Lưu và đẩy code lên GitHub:
+  1. git add .
+  2. git commit -m "mô tả"
+  3. git push origin main
