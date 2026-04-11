@@ -1,0 +1,37 @@
+# OS files
+.DS_Store
+Thumbs.db
+db.lock
+
+# Build artifacts
+**/target/
+**/build/
+**/bin/
+**/out/
+
+# Dependency folders
+**/node_modules/
+**/.mvn/wrapper/maven-wrapper.jar
+
+# Configuration / Secrets
+**/.env
+**/.env.local
+**/application-*.properties
+**/application-*.yml
+!**/application.properties
+!**/application.yml
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.DS_Store
+*.iml
+
+# Log files
+*.log
+**/logs/
+
+# Optional: Remove if you want to keep data in repo (not recommended)
+**/data/

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Atelier Admin | Quản lý Danh mục</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "secondary": "#e9c349",
+                        "on-background": "#dae2fd",
+                        "error-container": "#93000a",
+                        "on-tertiary-fixed": "#002116",
+                        "on-error": "#690005",
+                        "surface-container-lowest": "#060e20",
+                        "on-primary-container": "#798098",
+                        "inverse-on-surface": "#283044",
+                        "primary-fixed": "#dae2fd",
+                        "on-secondary-fixed-variant": "#574500",
+                        "tertiary-fixed": "#a6f2d1",
+                        "outline": "#909097",
+                        "on-tertiary": "#003828",
+                        "error": "#ffb4ab",
+                        "on-secondary-container": "#342800",
+                        "surface-variant": "#2d3449",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "surface-bright": "#31394d",
+                        "primary-container": "#0f172a",
+                        "on-tertiary-fixed-variant": "#00513b",
+                        "tertiary-container": "#001c12",
+                        "outline-variant": "#45464d",
+                        "surface-tint": "#bec6e0",
+                        "tertiary": "#8bd6b6",
+                        "surface-dim": "#0b1326",
+                        "on-error-container": "#ffdad6",
+                        "primary": "#bec6e0",
+                        "on-secondary-fixed": "#241a00",
+                        "on-secondary": "#3c2f00",
+                        "on-primary": "#283044",
+                        "on-surface-variant": "#c6c6cd",
+                        "inverse-primary": "#565e74",
+                        "surface-container-highest": "#2d3449",
+                        "secondary-fixed": "#ffe088",
+                        "on-surface": "#dae2fd",
+                        "surface-container-high": "#222a3d",
+                        "tertiary-fixed-dim": "#8bd6b6",
+                        "secondary-fixed-dim": "#e9c349",
+                        "surface-container": "#171f33",
+                        "on-tertiary-container": "#448e72",
+                        "surface": "#0b1326",
+                        "inverse-surface": "#dae2fd",
+                        "background": "#0b1326",
+                        "on-primary-fixed": "#131b2e",
+                        "secondary-container": "#af8d11",
+                        "surface-container-low": "#131b2e",
+                        "primary-fixed-dim": "#bec6e0"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"],
+                        "manrope": ["Manrope"]
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0b1326; }
+        ::-webkit-scrollbar-thumb { background: #2d3449; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #45464d; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-secondary/30">
+<!-- SideNavBar Component -->
+<aside class="h-screen w-72 fixed left-0 top-0 bg-slate-900/60 backdrop-blur-xl flex flex-col py-8 px-6 z-40 shadow-[40px_0_60px_-15px_rgba(218,226,253,0.06)] font-manrope antialiased">
+<div class="mb-10 px-4">
+<span class="text-xl font-bold tracking-tight text-white uppercase">Digital Atelier</span>
+<p class="text-xs text-blue-200/60 font-medium">Quản trị hệ thống</p>
+</div>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl transition-colors text-slate-400 hover:text-white hover:bg-white/5" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-sm font-medium">Tổng quan</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl transition-colors text-slate-400 hover:text-white hover:bg-white/5" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="text-sm font-medium">Sản phẩm</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl transition-all text-amber-400 font-bold border-r-2 border-amber-400 bg-slate-800/40" href="#">
+<span class="material-symbols-outlined" data-icon="category">category</span>
+<span class="text-sm font-bold">Danh mục</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl transition-colors text-slate-400 hover:text-white hover:bg-white/5" href="#">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+<span class="text-sm font-medium">Đơn hàng</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl transition-colors text-slate-400 hover:text-white hover:bg-white/5" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="text-sm font-medium">Khách hàng</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl transition-colors text-slate-400 hover:text-white hover:bg-white/5" href="#">
+<span class="material-symbols-outlined" data-icon="reviews">reviews</span>
+<span class="text-sm font-medium">Đánh giá</span>
+</a>
+</nav>
+<div class="mt-auto flex flex-col gap-2 pt-6 border-t border-slate-800/20">
+<button class="w-full bg-gradient-to-br from-secondary to-secondary-container text-on-secondary px-4 py-3 rounded-xl font-bold flex items-center justify-center gap-2 scale-98 active:opacity-80 transition-transform mb-4">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+                Thêm Sản Phẩm
+            </button>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-sm font-medium">Cài đặt</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+<span class="text-sm font-medium">Hỗ trợ</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-72 min-h-screen p-12">
+<!-- Header Section -->
+<header class="flex justify-between items-end mb-12">
+<div>
+<h1 class="text-4xl font-extrabold font-headline tracking-tight text-on-surface mb-2">Quản lý Danh mục</h1>
+<p class="text-on-surface-variant font-medium">Định nghĩa và tổ chức hệ thống phân loại sản phẩm cho cửa hàng.</p>
+</div>
+<div class="flex gap-4">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-primary-container" data-icon="search">search</span>
+<input class="bg-surface-container-lowest border-none rounded-xl pl-12 pr-6 py-3 text-sm focus:ring-2 focus:ring-secondary/40 w-64 transition-all" placeholder="Lọc danh mục..." type="text"/>
+</div>
+<button class="bg-surface-container-high hover:bg-surface-container-highest px-6 py-3 rounded-xl text-primary font-bold flex items-center gap-2 transition-all active:scale-95">
+<span class="material-symbols-outlined" data-icon="filter_list">filter_list</span>
+                    Bộ lọc
+                </button>
+</div>
+</header>
+<!-- Category Grid / Table Layout -->
+<div class="bg-surface-container-low rounded-2xl overflow-hidden shadow-xl border border-outline-variant/5">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-high/50">
+<th class="px-8 py-5 text-xs font-bold uppercase tracking-widest text-on-primary-container font-headline">Mã ID</th>
+<th class="px-8 py-5 text-xs font-bold uppercase tracking-widest text-on-primary-container font-headline">Tên Danh mục</th>
+<th class="px-8 py-5 text-xs font-bold uppercase tracking-widest text-on-primary-container font-headline">Mô tả</th>
+<th class="px-8 py-5 text-xs font-bold uppercase tracking-widest text-on-primary-container font-headline text-center">Sản phẩm</th>
+<th class="px-8 py-5 text-xs font-bold uppercase tracking-widest text-on-primary-container font-headline text-right">Thao tác</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10">
+<!-- Row 1 -->
+<tr class="group hover:bg-surface-container-highest/30 transition-colors">
+<td class="px-8 py-6 font-mono text-xs text-secondary/70">#CAT-8812</td>
+<td class="px-8 py-6">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center text-secondary border border-outline-variant/20">
+<span class="material-symbols-outlined" data-icon="diamond">diamond</span>
+</div>
+<span class="font-bold text-on-surface">Thời trang Cao cấp</span>
+</div>
+</td>
+<td class="px-8 py-6 text-on-surface-variant text-sm max-w-xs truncate">Trang phục thiết kế riêng thủ công sử dụng lụa cao cấp và họa tiết thêu tinh xảo.</td>
+<td class="px-8 py-6 text-center">
+<span class="bg-tertiary-container text-tertiary px-3 py-1 rounded-full text-xs font-bold">142</span>
+</td>
+<td class="px-8 py-6 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-surface-container-highest rounded-lg text-primary transition-colors active:scale-90" title="Chỉnh sửa">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+<button class="p-2 hover:bg-error-container/20 rounded-lg text-error transition-colors active:scale-90" title="Xóa">
+<span class="material-symbols-outlined" data-icon="delete">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="group hover:bg-surface-container-highest/30 transition-colors">
+<td class="px-8 py-6 font-mono text-xs text-secondary/70">#CAT-4429</td>
+<td class="px-8 py-6">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center text-secondary border border-outline-variant/20">
+<span class="material-symbols-outlined" data-icon="watch">watch</span>
+</div>
+<span class="font-bold text-on-surface">Đồng hồ</span>
+</div>
+</td>
+<td class="px-8 py-6 text-on-surface-variant text-sm max-w-xs truncate">Những tuyệt tác đồng hồ cơ khí và phiên bản giới hạn đặc biệt.</td>
+<td class="px-8 py-6 text-center">
+<span class="bg-tertiary-container text-tertiary px-3 py-1 rounded-full text-xs font-bold">86</span>
+</td>
+<td class="px-8 py-6 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-surface-container-highest rounded-lg text-primary transition-colors active:scale-90" title="Chỉnh sửa">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+<button class="p-2 hover:bg-error-container/20 rounded-lg text-error transition-colors active:scale-90" title="Xóa">
+<span class="material-symbols-outlined" data-icon="delete">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="group hover:bg-surface-container-highest/30 transition-colors">
+<td class="px-8 py-6 font-mono text-xs text-secondary/70">#CAT-1032</td>
+<td class="px-8 py-6">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center text-secondary border border-outline-variant/20">
+<span class="material-symbols-outlined" data-icon="auto_awesome">auto_awesome</span>
+</div>
+<span class="font-bold text-on-surface">Nước hoa</span>
+</div>
+</td>
+<td class="px-8 py-6 text-on-surface-variant text-sm max-w-xs truncate">Các mùi hương đặc trưng được phát triển bởi các chuyên gia nước hoa tại Grasse.</td>
+<td class="px-8 py-6 text-center">
+<span class="bg-tertiary-container text-tertiary px-3 py-1 rounded-full text-xs font-bold">54</span>
+</td>
+<td class="px-8 py-6 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-surface-container-highest rounded-lg text-primary transition-colors active:scale-90" title="Chỉnh sửa">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+<button class="p-2 hover:bg-error-container/20 rounded-lg text-error transition-colors active:scale-90" title="Xóa">
+<span class="material-symbols-outlined" data-icon="delete">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="group hover:bg-surface-container-highest/30 transition-colors">
+<td class="px-8 py-6 font-mono text-xs text-secondary/70">#CAT-9021</td>
+<td class="px-8 py-6">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center text-secondary border border-outline-variant/20">
+<span class="material-symbols-outlined" data-icon="chair">chair</span>
+</div>
+<span class="font-bold text-on-surface">Nội thất Atelier</span>
+</div>
+</td>
+<td class="px-8 py-6 text-on-surface-variant text-sm max-w-xs truncate">Đồ nội thất đặt riêng và các vật phẩm trang trí thủ công cho không gian sang trọng.</td>
+<td class="px-8 py-6 text-center">
+<span class="bg-tertiary-container text-tertiary px-3 py-1 rounded-full text-xs font-bold">218</span>
+</td>
+<td class="px-8 py-6 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-surface-container-highest rounded-lg text-primary transition-colors active:scale-90" title="Chỉnh sửa">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+<button class="p-2 hover:bg-error-container/20 rounded-lg text-error transition-colors active:scale-90" title="Xóa">
+<span class="material-symbols-outlined" data-icon="delete">delete</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer / Pagination -->
+<div class="px-8 py-4 bg-surface-container-high/30 flex justify-between items-center text-sm text-on-primary-container font-medium">
+<span>Hiển thị 4 trong số 24 danh mục</span>
+<div class="flex gap-2">
+<button class="px-4 py-2 hover:bg-surface-container-highest rounded-lg transition-colors active:scale-95 disabled:opacity-30" disabled="">
+<span class="material-symbols-outlined text-base" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="w-10 h-10 bg-secondary text-on-secondary rounded-lg font-bold">1</button>
+<button class="w-10 h-10 hover:bg-surface-container-highest rounded-lg transition-colors active:scale-95">2</button>
+<button class="w-10 h-10 hover:bg-surface-container-highest rounded-lg transition-colors active:scale-95">3</button>
+<button class="px-4 py-2 hover:bg-surface-container-highest rounded-lg transition-colors active:scale-95">
+<span class="material-symbols-outlined text-base" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Quick Stats Bento Section -->
+<section class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="bg-surface-container-low p-8 rounded-2xl border border-outline-variant/10 relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-8 text-secondary/10 group-hover:scale-110 transition-transform duration-500">
+<span class="material-symbols-outlined text-8xl" data-icon="trending_up">trending_up</span>
+</div>
+<h3 class="text-on-primary-container text-xs font-bold uppercase tracking-widest mb-4">Tổng giá trị tồn kho</h3>
+<p class="text-3xl font-extrabold font-headline text-on-surface">2.4 Triệu $</p>
+<div class="mt-4 flex items-center gap-2 text-tertiary text-xs font-bold">
+<span class="material-symbols-outlined text-sm" data-icon="arrow_upward">arrow_upward</span>
+<span>Tăng 12.5% so với tháng trước</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-8 rounded-2xl border border-outline-variant/10 relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-8 text-secondary/10 group-hover:scale-110 transition-transform duration-500">
+<span class="material-symbols-outlined text-8xl" data-icon="category">category</span>
+</div>
+<h3 class="text-on-primary-container text-xs font-bold uppercase tracking-widest mb-4">Danh mục hoạt động</h3>
+<p class="text-3xl font-extrabold font-headline text-on-surface">24</p>
+<div class="mt-4 flex items-center gap-2 text-on-primary-container text-xs font-bold">
+<span class="material-symbols-outlined text-sm" data-icon="sync">sync</span>
+<span>Cập nhật 2 giờ trước</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-8 rounded-2xl border border-outline-variant/10 relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-8 text-secondary/10 group-hover:scale-110 transition-transform duration-500">
+<span class="material-symbols-outlined text-8xl" data-icon="verified">verified</span>
+</div>
+<h3 class="text-on-primary-container text-xs font-bold uppercase tracking-widest mb-4">Danh mục nổi bật</h3>
+<p class="text-3xl font-extrabold font-headline text-on-surface">6</p>
+<div class="mt-4 flex items-center gap-2 text-secondary text-xs font-bold">
+<span class="material-symbols-outlined text-sm" data-icon="star" style='font-variation-settings: "FILL" 1;'>star</span>
+<span>Đang có khuyến mãi</span>
+</div>
+</div>
+</section>
+<!-- Footer Component -->
+<footer class="mt-24 border-t border-[#45464d]/15 py-12">
+<div class="flex flex-col md:flex-row justify-between items-center gap-8 max-w-[1440px] mx-auto">
+<div class="flex flex-col items-center md:items-start">
+<span class="text-sm font-bold text-[#bec6e0] font-headline uppercase tracking-tighter">Digital Atelier</span>
+<p class="text-[#c6c6cd] text-xs mt-2">© 2024 Digital Atelier. Bảo lưu mọi quyền.</p>
+</div>
+<div class="flex gap-8">
+<a class="text-[#c6c6cd] hover:text-[#bec6e0] text-xs tracking-wide uppercase font-['Inter'] hover:underline decoration-[#e9c349] underline-offset-4 transition-all" href="#">Chính sách Bảo mật</a>
+<a class="text-[#c6c6cd] hover:text-[#bec6e0] text-xs tracking-wide uppercase font-['Inter'] hover:underline decoration-[#e9c349] underline-offset-4 transition-all" href="#">Điều khoản Dịch vụ</a>
+<a class="text-[#c6c6cd] hover:text-[#bec6e0] text-xs tracking-wide uppercase font-['Inter'] hover:underline decoration-[#e9c349] underline-offset-4 transition-all" href="#">Giao hàng &amp; Trả hàng</a>
+<a class="text-[#c6c6cd] hover:text-[#bec6e0] text-xs tracking-wide uppercase font-['Inter'] hover:underline decoration-[#e9c349] underline-offset-4 transition-all" href="#">Phát triển Bền vững</a>
+</div>
+</div>
+</footer>
+</main>
+<!-- Glassmorphism Modal Overlay -->
+<div class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-surface/60 backdrop-blur-sm hidden">
+<div class="bg-surface-container-high w-full max-w-lg rounded-2xl shadow-2xl border border-outline-variant/20 p-8">
+<div class="flex justify-between items-center mb-8">
+<h2 class="text-2xl font-extrabold font-headline tracking-tight text-on-surface">Danh mục mới</h2>
+<button class="text-on-primary-container hover:text-on-surface p-2 rounded-lg transition-colors">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</div>
+<form class="space-y-6">
+<div>
+<label class="block text-xs font-bold uppercase tracking-widest text-on-primary-container mb-2">Tên Danh mục</label>
+<input class="w-full bg-surface-container-lowest border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-secondary/40 transition-all text-on-surface" placeholder="vd: Phụ kiện Hiếm" type="text"/>
+</div>
+<div>
+<label class="block text-xs font-bold uppercase tracking-widest text-on-primary-container mb-2">Mô tả</label>
+<textarea class="w-full bg-surface-container-lowest border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-secondary/40 transition-all text-on-surface resize-none" placeholder="Mô tả bộ sưu tập danh mục..." rows="4"></textarea>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-xs font-bold uppercase tracking-widest text-on-primary-container mb-2">Tiền tố ID Nội bộ</label>
+<input class="w-full bg-surface-container-lowest border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-secondary/40 transition-all text-on-surface" placeholder="CAT-" type="text"/>
+</div>
+<div>
+<label class="block text-xs font-bold uppercase tracking-widest text-on-primary-container mb-2">Biểu tượng</label>
+<select class="w-full bg-surface-container-lowest border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-secondary/40 transition-all text-on-surface">
+<option>Kim cương (Diamond)</option>
+<option>Đồng hồ (Watch)</option>
+<option>Phong cách (Style)</option>
+<option>Danh mục (Category)</option>
+</select>
+</div>
+</div>
+<div class="pt-4 flex gap-4">
+<button class="flex-1 bg-surface-container-highest text-on-surface font-bold py-3 rounded-xl hover:bg-surface-bright transition-colors" type="button">Hủy</button>
+<button class="flex-1 bg-gradient-to-br from-secondary to-secondary-container text-on-secondary font-bold py-3 rounded-xl shadow-lg shadow-secondary/10 active:scale-95 transition-transform" type="submit">Lưu Danh mục</button>
+</div>
+</form>
+</div>
+</div>
+</body></html>

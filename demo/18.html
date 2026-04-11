@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>OBSIDIAN | Hồ Sơ Người Dùng</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;600;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary-fixed-dim": "#bec6e0",
+              "on-surface": "#dae2fd",
+              "outline": "#909097",
+              "on-secondary-fixed": "#241a00",
+              "on-background": "#dae2fd",
+              "on-tertiary": "#003828",
+              "secondary-container": "#af8d11",
+              "on-secondary": "#3c2f00",
+              "tertiary-fixed-dim": "#8bd6b6",
+              "secondary": "#e9c349",
+              "surface-dim": "#0b1326",
+              "on-secondary-container": "#342800",
+              "secondary-fixed": "#ffe088",
+              "on-primary-container": "#798098",
+              "on-tertiary-fixed": "#002116",
+              "surface-variant": "#2d3449",
+              "surface-bright": "#31394d",
+              "surface-tint": "#bec6e0",
+              "surface-container-high": "#222a3d",
+              "on-secondary-fixed-variant": "#574500",
+              "error": "#ffb4ab",
+              "tertiary-container": "#001c12",
+              "inverse-surface": "#dae2fd",
+              "surface-container-low": "#131b2e",
+              "outline-variant": "#45464d",
+              "on-primary-fixed": "#131b2e",
+              "tertiary": "#8bd6b6",
+              "on-primary": "#283044",
+              "primary-fixed": "#dae2fd",
+              "primary-container": "#0f172a",
+              "primary": "#bec6e0",
+              "surface-container": "#171f33",
+              "on-error-container": "#ffdad6",
+              "surface": "#0b1326",
+              "surface-container-highest": "#2d3449",
+              "on-error": "#690005",
+              "secondary-fixed-dim": "#e9c349",
+              "on-tertiary-container": "#448e72",
+              "on-surface-variant": "#c6c6cd",
+              "background": "#0b1326",
+              "tertiary-fixed": "#a6f2d1",
+              "on-primary-fixed-variant": "#3f465c",
+              "inverse-primary": "#565e74",
+              "error-container": "#93000a",
+              "on-tertiary-fixed-variant": "#00513b",
+              "surface-container-lowest": "#060e20",
+              "inverse-on-surface": "#283044"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(34, 42, 61, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-secondary selection:text-on-secondary">
+<!-- Sidebar Navigation -->
+<aside class="fixed left-0 top-0 bottom-0 py-8 flex flex-col h-screen w-72 bg-[#131b2e] border-r border-[#45464d]/15 font-['Inter'] font-medium text-sm z-40">
+<nav class="flex-1 space-y-1">
+<a class="flex items-center space-x-3 py-3 text-[#e9c349] border-l-2 border-[#e9c349] pl-6 bg-[#222a3d]/50 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="badge">badge</span>
+<span>Thông tin cá nhân</span>
+</a>
+<a class="flex items-center space-x-3 py-3 text-[#c6c6cd] pl-6 hover:bg-[#222a3d] hover:text-[#bec6e0] transition-all translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span>Lịch sử đơn hàng</span>
+</a>
+<a class="flex items-center space-x-3 py-3 text-[#c6c6cd] pl-6 hover:bg-[#222a3d] hover:text-[#bec6e0] transition-all translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="grade">grade</span>
+<span>Đánh giá của tôi</span>
+</a>
+</nav>
+<div class="px-6 mt-auto pb-10 space-y-1">
+<a class="flex items-center space-x-3 py-3 text-[#c6c6cd] pl-4 hover:bg-[#222a3d] transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+<a class="flex items-center space-x-3 py-3 text-[#c6c6cd] pl-4 hover:bg-[#222a3d] transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="contact_support">contact_support</span>
+<span>Support</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-72 p-12 min-h-screen bg-surface">
+<div class="max-w-6xl mx-auto">
+<!-- Header Profile Info -->
+<div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+<div class="flex items-center gap-8">
+<div class="relative group">
+<div class="absolute -inset-1 bg-gradient-to-tr from-secondary to-transparent rounded-full opacity-25 blur"></div>
+<img alt="Large Profile" class="relative w-32 h-32 rounded-full object-cover border-2 border-outline-variant/20 shadow-2xl" data-alt="Professional portrait of a sophisticated man with slight stubble, wearing a charcoal turtleneck against a dark moody architectural background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCItJ_G9tExt3Tq-AQ5HEgX4JiUKsrSfnj68K_cXK3lEpu5nJXxA__7jUbZwW8aN9zQoCnxZBtK2QSKLqiKbrhNzQDp023Vumk4a_MYmw7tz7hD7TZWIJ1aw8tReRNCUjwwu4MnXQWgM29u1ojpoay54H-5DJb8R09I5GRYaOBi1WY710t8wLI1NiJFUmPlXcdEWZ15bdfFSixwIymzeXDKNnvamrj2ltNd2XD0h9qYjPKObXfLsVnK7dVKHQH19za3bdEhH2Ch1w"/>
+</div>
+<div>
+<h1 class="font-headline text-5xl font-extrabold tracking-tighter text-on-surface mb-2">Julian Voss</h1>
+<p class="text-on-surface-variant font-medium">julian.voss@obsidian.com</p>
+<div class="flex items-center mt-3 gap-3">
+<span class="px-3 py-1 rounded-full bg-surface-container-highest text-[10px] font-bold tracking-widest text-primary uppercase border border-outline-variant/10">#USR-88219</span>
+<span class="flex items-center gap-1 text-[10px] text-tertiary font-bold uppercase tracking-widest">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span> Tài khoản xác thực
+                        </span>
+</div>
+</div>
+</div>
+<button class="px-8 py-3 bg-gradient-to-br from-primary to-primary-container text-on-primary-fixed font-bold rounded-xl shadow-lg hover:scale-[1.02] transition-transform active:scale-95">
+                Chỉnh sửa hồ sơ
+            </button>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Personal Info Section -->
+<div class="lg:col-span-3">
+<h2 class="font-headline text-xl font-bold mb-6 text-on-surface/80 flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">person</span>
+                    Thông tin cá nhân
+                </h2>
+<div class="glass-panel rounded-3xl p-8 border border-outline-variant/10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+<div class="space-y-1">
+<label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Họ</label>
+<div class="text-lg font-medium text-on-surface">Voss</div>
+</div>
+<div class="space-y-1">
+<label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Tên</label>
+<div class="text-lg font-medium text-on-surface">Julian</div>
+</div>
+<div class="space-y-1">
+<label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Email</label>
+<div class="text-lg font-medium text-on-surface">julian.voss@obsidian.com</div>
+</div>
+<div class="space-y-1">
+<label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Số điện thoại</label>
+<div class="text-lg font-medium text-on-surface">+84 901 234 567</div>
+</div>
+</div>
+</div>
+<!-- Address Info Section -->
+<div class="lg:col-span-3">
+<h2 class="font-headline text-xl font-bold mb-6 text-on-surface/80 flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">location_on</span>
+                    Thông tin địa chỉ
+                </h2>
+<div class="relative overflow-hidden glass-panel rounded-3xl p-8 border border-outline-variant/10">
+<!-- Subtle Background Graphic -->
+<div class="absolute -right-12 -bottom-12 opacity-[0.03] pointer-events-none">
+<span class="material-symbols-outlined text-[240px]">map</span>
+</div>
+<div class="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-12">
+<div class="space-y-1">
+<label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Quốc gia</label>
+<div class="text-lg font-medium text-on-surface">Việt Nam</div>
+</div>
+<div class="space-y-1">
+<label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Khu vực / Thành phố</label>
+<div class="text-lg font-medium text-on-surface">Hồ Chí Minh</div>
+</div>
+<div class="space-y-1">
+<label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Mã bưu điện</label>
+<div class="text-lg font-medium text-on-surface">700000</div>
+</div>
+<div class="md:col-span-2 space-y-1">
+<label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Tên đường</label>
+<div class="text-lg font-medium text-on-surface">Lê Lợi, Bến Nghé</div>
+</div>
+<div class="space-y-1">
+<label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Số nhà</label>
+<div class="text-lg font-medium text-on-surface">Tòa nhà Bitexco, Tầng 42</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Aesthetic Placeholder / Decorative Grid Item -->
+<div class="lg:col-span-1 glass-panel rounded-3xl p-8 border border-outline-variant/10 flex flex-col justify-center text-center">
+<div class="mb-4">
+<span class="material-symbols-outlined text-4xl text-secondary" style="font-variation-settings: 'wght' 200;">verified_user</span>
+</div>
+<h3 class="font-headline font-bold text-lg text-primary mb-2">Bảo mật tài khoản</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed">Xác thực hai yếu tố đang hoạt động để bảo vệ tài sản số của bạn.</p>
+</div>
+<div class="lg:col-span-2 relative h-48 rounded-3xl overflow-hidden border border-outline-variant/10 group">
+<img alt="Abstract texture" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Luxurious abstract silk texture with deep navy and slate grey folds, shimmering gold particles catching soft ambient light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDWo_HawLM4NL4Pzs3x2H4DbpJIsnjJYzjEFzfDRLweEnCkk7jduH6SIOD0ykcF2Ha25sFSnq5IBi_xIlFWBFVR6UBJAYHsu9LzycDr_ObEDhNRbzlGPS9UUnkZAW63XYVNaIpjHzKAVW7BqqmaK62jqQVPRJg2wJZ1drLFYUReTc7ZQYPBKa9vEIp3VWTlKOkDfm0SUW9P3pwytE2nFyx6fRpqtlfRIHEqmWgHMvvpd44j_wjQTZaMcGgI266UmZd3OIyLJO_bog"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-dim to-transparent flex items-end p-8">
+<p class="text-xs font-bold tracking-widest text-secondary uppercase">Khám phá bộ sưu tập mới nhất</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Visual Polish: Subtle Background Gradients -->
+<div class="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none overflow-hidden">
+<div class="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-primary/5 blur-[120px]"></div>
+<div class="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-secondary/5 blur-[120px]"></div>
+</div>
+</body></html>

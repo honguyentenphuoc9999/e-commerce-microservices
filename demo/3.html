@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container": "#171f33",
+              "primary-fixed": "#dae2fd",
+              "surface-container-low": "#131b2e",
+              "on-tertiary": "#003828",
+              "tertiary": "#8bd6b6",
+              "secondary": "#e9c349",
+              "on-error": "#690005",
+              "surface-container-highest": "#2d3449",
+              "primary-container": "#0f172a",
+              "secondary-fixed": "#ffe088",
+              "surface-tint": "#bec6e0",
+              "on-surface-variant": "#c6c6cd",
+              "inverse-primary": "#565e74",
+              "error": "#ffb4ab",
+              "error-container": "#93000a",
+              "outline-variant": "#45464d",
+              "tertiary-fixed-dim": "#8bd6b6",
+              "background": "#0b1326",
+              "outline": "#909097",
+              "on-primary": "#283044",
+              "on-tertiary-container": "#448e72",
+              "tertiary-fixed": "#a6f2d1",
+              "on-background": "#dae2fd",
+              "inverse-on-surface": "#283044",
+              "surface-variant": "#2d3449",
+              "on-secondary-fixed": "#241a00",
+              "on-primary-fixed": "#131b2e",
+              "secondary-fixed-dim": "#e9c349",
+              "on-secondary-fixed-variant": "#574500",
+              "surface-bright": "#31394d",
+              "on-surface": "#dae2fd",
+              "on-secondary": "#3c2f00",
+              "tertiary-container": "#001c12",
+              "on-error-container": "#ffdad6",
+              "on-tertiary-fixed-variant": "#00513b",
+              "primary": "#bec6e0",
+              "surface-dim": "#0b1326",
+              "surface-container-lowest": "#060e20",
+              "secondary-container": "#af8d11",
+              "on-primary-container": "#798098",
+              "on-secondary-container": "#342800",
+              "surface-container-high": "#222a3d",
+              "on-primary-fixed-variant": "#3f465c",
+              "primary-fixed-dim": "#bec6e0",
+              "surface": "#0b1326",
+              "on-tertiary-fixed": "#002116",
+              "inverse-surface": "#dae2fd"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        .glass-card {
+            background: rgba(23, 31, 51, 0.4);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+        }
+        .premium-gradient {
+            background: linear-gradient(135deg, #bec6e0 0%, #0f172a 100%);
+        }
+        .tonal-nesting {
+            background: #131b2e;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-slate-950/60 backdrop-blur-xl flex justify-between items-center px-8 py-4 w-full shadow-2xl shadow-slate-950/50">
+<div class="text-xl font-bold tracking-tighter text-slate-100 font-manrope">Digital Atelier</div>
+<div class="flex items-center gap-6">
+<span class="material-symbols-outlined text-slate-400 hover:text-amber-400 transition-colors duration-300 cursor-pointer scale-95 active:scale-90 transition-transform">help_outline</span>
+</div>
+</nav>
+<main class="flex-grow flex items-center justify-center relative px-6 py-24 overflow-hidden">
+<!-- Background Ambient Glows -->
+<div class="absolute top-1/4 -left-20 w-96 h-96 bg-secondary/10 rounded-full blur-[120px] pointer-events-none"></div>
+<div class="absolute bottom-1/4 -right-20 w-96 h-96 bg-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
+<!-- Forgot Password Canvas -->
+<div class="w-full max-w-lg glass-card p-10 md:p-14 rounded-xl shadow-[40px_0_60px_rgba(218,226,253,0.06)] relative z-10">
+<div class="flex flex-col gap-8">
+<!-- Header -->
+<div class="flex flex-col gap-4">
+<h1 class="font-headline text-4xl font-extrabold tracking-tight text-on-surface">Khôi phục tài khoản</h1>
+<p class="text-on-surface-variant font-body leading-relaxed">
+                        Nhập địa chỉ email được liên kết với tài khoản của bạn và chúng tôi sẽ gửi cho bạn một liên kết để đặt lại mật khẩu.
+                    </p>
+</div>
+<!-- Form -->
+<form class="flex flex-col gap-6" onsubmit="return false;">
+<div class="flex flex-col gap-3">
+<label class="font-label text-xs uppercase tracking-widest text-on-surface-variant font-semibold">ĐỊA CHỈ EMAIL</label>
+<input class="w-full bg-surface-container-lowest border-none rounded-xl px-6 py-4 text-on-surface placeholder:text-outline/50 focus:ring-1 focus:ring-secondary/40 focus:bg-surface-container-low transition-all" placeholder="email@cua-ban.com" type="email"/>
+</div>
+<button class="premium-gradient text-on-primary font-headline font-bold py-5 rounded-xl transition-transform active:scale-[0.98] shadow-lg shadow-primary-container/20 group overflow-hidden relative">
+<span class="relative z-10">Gửi liên kết đặt lại</span>
+<div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+</button>
+</form>
+<!-- Footer Link -->
+<div class="flex justify-center pt-4">
+<a class="group flex items-center gap-2 text-on-surface-variant hover:text-secondary transition-colors duration-300 font-label text-sm uppercase tracking-widest" href="#">
+<span class="material-symbols-outlined text-sm">arrow_back</span>
+                        Quay lại Đăng nhập
+                        <span class="block h-px w-0 bg-secondary transition-all duration-300 group-hover:w-full absolute -bottom-1"></span>
+</a>
+</div>
+</div>
+</div>
+<!-- Decorative Background Element -->
+<div class="absolute inset-0 z-0 opacity-20 pointer-events-none">
+<img alt="abstract" class="w-full h-full object-cover" data-alt="abstract digital art with flowing ethereal waves of deep navy and charcoal smoke with subtle golden light particles" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAlxjZTVrny9ApTlEMMTM2Ed2Naw8Q47T0QnP3W9tNAeZt02uN_gr5Rb5SjeVVBoOUOKIInxWznLWb7we7mYi5u7lN2kL26HttuI620cUWGUzEd_IjMoA6wXq_-z2mwQInqSH4s1zVCi_PFFMjUMID_qOu_19m82NHaodC3hQpnS45eP7vV_e5mcdK-5Fq9BQqiW4LvZc8M4mPKuqSH2XOXIvQowzSqwhB3nb3v_1L1qN0uZE9EX8hmKqNmZeGSP-GnVvsGv4OcTw"/>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full py-12 mt-auto flex flex-col items-center justify-center gap-4 px-8 w-full border-t border-slate-800/20 bg-slate-950/30">
+<div class="flex flex-wrap justify-center gap-8 mb-4">
+<a class="font-inter text-sm text-slate-500 hover:text-slate-200 transition-colors opacity-80 hover:opacity-100" href="#">Chính sách Bảo mật</a>
+<a class="font-inter text-sm text-slate-500 hover:text-slate-200 transition-colors opacity-80 hover:opacity-100" href="#">Điều khoản Dịch vụ</a>
+<a class="font-inter text-sm text-slate-500 hover:text-slate-200 transition-colors opacity-80 hover:opacity-100" href="#">Liên hệ Hỗ trợ</a>
+</div>
+<p class="font-inter text-sm text-slate-500 opacity-80">© 2024 Digital Atelier. Bảo lưu mọi quyền.</p>
+</footer>
+</body></html>

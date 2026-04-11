@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary": "#e9c349",
+              "on-background": "#dae2fd",
+              "error-container": "#93000a",
+              "on-tertiary-fixed": "#002116",
+              "on-error": "#690005",
+              "surface-container-lowest": "#060e20",
+              "on-primary-container": "#798098",
+              "inverse-on-surface": "#283044",
+              "primary-fixed": "#dae2fd",
+              "on-secondary-fixed-variant": "#574500",
+              "tertiary-fixed": "#a6f2d1",
+              "outline": "#909097",
+              "on-tertiary": "#003828",
+              "error": "#ffb4ab",
+              "on-secondary-container": "#342800",
+              "surface-variant": "#2d3449",
+              "on-primary-fixed-variant": "#3f465c",
+              "surface-bright": "#31394d",
+              "primary-container": "#0f172a",
+              "on-tertiary-fixed-variant": "#00513b",
+              "tertiary-container": "#001c12",
+              "outline-variant": "#45464d",
+              "surface-tint": "#bec6e0",
+              "tertiary": "#8bd6b6",
+              "surface-dim": "#0b1326",
+              "on-error-container": "#ffdad6",
+              "primary": "#bec6e0",
+              "on-secondary-fixed": "#241a00",
+              "on-secondary": "#3c2f00",
+              "on-primary": "#283044",
+              "on-surface-variant": "#c6c6cd",
+              "inverse-primary": "#565e74",
+              "surface-container-highest": "#2d3449",
+              "secondary-fixed": "#ffe088",
+              "on-surface": "#dae2fd",
+              "surface-container-high": "#222a3d",
+              "tertiary-fixed-dim": "#8bd6b6",
+              "secondary-fixed-dim": "#e9c349",
+              "surface-container": "#171f33",
+              "on-tertiary-container": "#448e72",
+              "surface": "#0b1326",
+              "inverse-surface": "#dae2fd",
+              "background": "#0b1326",
+              "on-primary-fixed": "#131b2e",
+              "secondary-container": "#af8d11",
+              "surface-container-low": "#131b2e",
+              "primary-fixed-dim": "#bec6e0"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .glass-panel {
+        background: rgba(45, 52, 73, 0.4);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #45464d;
+        border-radius: 10px;
+      }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-secondary selection:text-on-secondary-container">
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 w-full z-50 bg-[#0b1326]/60 backdrop-blur-xl dark:bg-[#0b1326]/60 font-['Manrope'] tracking-tight antialiased no-border bg-gradient-to-b from-[#0b1326] to-transparent">
+<div class="flex justify-between items-center w-full px-8 py-4 max-w-[1440px] mx-auto">
+<div class="text-2xl font-black tracking-tighter text-[#bec6e0] uppercase">Atelier</div>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-[#e9c349] font-bold border-b-2 border-[#e9c349] pb-1 transition-all duration-300" href="#">Bộ Sưu Tập</a>
+<a class="text-[#c6c6cd] font-medium hover:text-[#bec6e0] transition-colors" href="#">Hàng Mới Về</a>
+<a class="text-[#c6c6cd] font-medium hover:text-[#bec6e0] transition-colors" href="#">Lưu Trữ</a>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative hidden lg:block">
+<input class="bg-surface-container-lowest border-none rounded-full py-2 pl-4 pr-10 text-sm focus:ring-1 focus:ring-secondary/40 w-64 placeholder:text-on-primary-container/50" placeholder="Tìm kiếm Atelier..." type="text"/>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-primary-container text-lg">search</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="hover:bg-[#222a3d]/50 transition-all duration-300 p-2 rounded-full scale-95 active:scale-90"><span class="material-symbols-outlined text-[#bec6e0]">shopping_cart</span></button>
+<button class="hover:bg-[#222a3d]/50 transition-all duration-300 p-2 rounded-full scale-95 active:scale-90"><span class="material-symbols-outlined text-[#bec6e0]">notifications</span></button>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center border border-outline-variant/15">
+<span class="material-symbols-outlined text-sm">person</span>
+</div>
+</div>
+</div>
+</div>
+</nav>
+<main class="pt-24 min-h-screen flex max-w-[1440px] mx-auto px-8 gap-8">
+<!-- Sidebar Filters -->
+<aside class="w-72 flex-shrink-0 hidden lg:block sticky top-24 h-[calc(100vh-8rem)]">
+<div class="flex flex-col gap-10">
+<!-- Search Input -->
+<div class="space-y-4">
+<h3 class="font-headline font-bold text-lg text-primary tracking-tight">Khám Phá</h3>
+<div class="relative">
+<input class="w-full bg-surface-container-low border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-secondary/20 placeholder:text-on-surface-variant/40" placeholder="Tên sản phẩm..." type="text"/>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+</div>
+</div>
+<!-- Categories -->
+<div class="space-y-4">
+<h3 class="font-headline font-bold text-sm uppercase tracking-widest text-on-surface-variant/60">Bộ Sưu Tập</h3>
+<div class="flex flex-col gap-1">
+<button class="flex items-center justify-between group px-4 py-2.5 rounded-xl bg-surface-container-high text-secondary">
+<span class="font-medium">Tất Cả Tuyển Tập</span>
+<span class="text-xs opacity-60">124</span>
+</button>
+<button class="flex items-center justify-between group px-4 py-2.5 rounded-xl hover:bg-surface-container-low transition-all">
+<span class="text-on-surface-variant group-hover:text-primary">Nghệ Thuật Sắp Đặt</span>
+<span class="text-xs text-on-surface-variant/40">18</span>
+</button>
+<button class="flex items-center justify-between group px-4 py-2.5 rounded-xl hover:bg-surface-container-low transition-all">
+<span class="text-on-surface-variant group-hover:text-primary">Hàng Dệt May</span>
+<span class="text-xs text-on-surface-variant/40">42</span>
+</button>
+<button class="flex items-center justify-between group px-4 py-2.5 rounded-xl hover:bg-surface-container-low transition-all">
+<span class="text-on-surface-variant group-hover:text-primary">Ánh Sáng</span>
+<span class="text-xs text-on-surface-variant/40">12</span>
+</button>
+<button class="flex items-center justify-between group px-4 py-2.5 rounded-xl hover:bg-surface-container-low transition-all">
+<span class="text-on-surface-variant group-hover:text-primary">Nội Thất</span>
+<span class="text-xs text-on-surface-variant/40">52</span>
+</button>
+</div>
+</div>
+<!-- Price Range -->
+<div class="space-y-6">
+<h3 class="font-headline font-bold text-sm uppercase tracking-widest text-on-surface-variant/60">Mức Giá</h3>
+<div class="px-2">
+<div class="h-1.5 w-full bg-surface-container-high rounded-full relative">
+<div class="absolute left-0 right-1/4 h-full bg-gradient-to-r from-primary to-secondary rounded-full"></div>
+<div class="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-on-surface rounded-full shadow-lg border-2 border-primary cursor-pointer"></div>
+<div class="absolute right-1/4 top-1/2 -translate-y-1/2 w-4 h-4 bg-on-surface rounded-full shadow-lg border-2 border-secondary cursor-pointer"></div>
+</div>
+<div class="flex justify-between mt-4 text-xs font-mono text-on-surface-variant">
+<span>0đ</span>
+<span>2.500.000đ</span>
+</div>
+</div>
+</div>
+<!-- Designer Preference -->
+<div class="space-y-4">
+<h3 class="font-headline font-bold text-sm uppercase tracking-widest text-on-surface-variant/60">Xưởng Thiết Kế</h3>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1.5 rounded-full bg-surface-container-low text-xs border border-outline-variant/15 text-on-surface-variant cursor-pointer hover:border-secondary transition-colors">Milan</span>
+<span class="px-3 py-1.5 rounded-full bg-surface-container-low text-xs border border-outline-variant/15 text-on-surface-variant cursor-pointer hover:border-secondary transition-colors">Copenhagen</span>
+<span class="px-3 py-1.5 rounded-full bg-secondary/10 text-xs border border-secondary/30 text-secondary cursor-pointer">Paris</span>
+<span class="px-3 py-1.5 rounded-full bg-surface-container-low text-xs border border-outline-variant/15 text-on-surface-variant cursor-pointer hover:border-secondary transition-colors">Tokyo</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- Content Area -->
+<section class="flex-grow pb-20">
+<!-- Header & Sorting -->
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+<div>
+<h1 class="font-headline text-4xl font-extrabold text-on-surface tracking-tight mb-2">Lưu Trữ Mùa Thu</h1>
+<p class="text-on-surface-variant font-body">Khám phá 124 tác phẩm độc bản dành cho người theo đuổi phong cách tối giản hiện đại.</p>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex bg-surface-container-low p-1 rounded-xl">
+<button class="p-2 rounded-lg bg-surface-container-high text-primary"><span class="material-symbols-outlined">grid_view</span></button>
+<button class="p-2 rounded-lg text-on-surface-variant/40 hover:text-on-surface-variant"><span class="material-symbols-outlined">view_agenda</span></button>
+</div>
+<div class="relative group">
+<button class="flex items-center gap-3 px-5 py-2.5 bg-surface-container-high rounded-xl text-sm font-medium border border-outline-variant/15 hover:border-primary/30 transition-all">
+<span>Sắp xếp: Phù hợp nhất</span>
+<span class="material-symbols-outlined text-lg">expand_more</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Results Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+<!-- Card 1 -->
+<div class="group relative flex flex-col bg-surface-container-low rounded-[2rem] overflow-hidden transition-all duration-500 hover:-translate-y-2">
+<div class="aspect-[4/5] overflow-hidden relative">
+<img alt="Điêu khắc tối giản" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="close-up of a minimalist ceramic sculpture with smooth curves and organic shape against a dark architectural background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuASy4a5H816ZTkJO24NUwWVpYAyERXNdoktejV4d6iE2RMwtROfE0EuX1DR46Hj7aWKVB0Ih3AuL7PMD3srxNjCdE-ODhjRcumm-hojav3r58dckQe123lYJyNTVFDzLzlujNVCu2IhZ6DAVbrH3IrKfDMqnRB4_j8X5X6QszfGxzJWvvCMqJlpMZY2tGskYfEGB8cjINQwCVpSDaZW2IM-wk6NzF_uAE-734eEs-MWE4Io4PP414YouYuYpvp50t6fIAozFXQAZA"/>
+<div class="absolute top-6 left-6 flex flex-col gap-2">
+<span class="glass-panel px-4 py-1.5 rounded-full text-[10px] uppercase font-bold tracking-widest text-secondary">Mới Về</span>
+</div>
+<button class="absolute top-6 right-6 w-10 h-10 rounded-full glass-panel flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+<span class="material-symbols-outlined text-on-surface text-xl">favorite</span>
+</button>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest to-transparent opacity-0 group-hover:opacity-60 transition-opacity duration-300"></div>
+<div class="absolute bottom-6 left-1/2 -translate-x-1/2 w-[80%] opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+<button class="w-full py-3 bg-primary text-on-primary font-bold rounded-full text-sm shadow-xl">Xem Nhanh</button>
+</div>
+</div>
+<div class="p-8 space-y-2">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline font-bold text-xl group-hover:text-secondary transition-colors">Bình Ether</h3>
+<p class="text-sm text-on-surface-variant">Xưởng Kopenhaavn</p>
+</div>
+<span class="font-headline font-bold text-lg text-primary">$420</span>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="group relative flex flex-col bg-surface-container-low rounded-[2rem] overflow-hidden transition-all duration-500 hover:-translate-y-2">
+<div class="aspect-[4/5] overflow-hidden relative">
+<img alt="Ghế bành hiện đại" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="sleek modern velvet lounge chair in deep emerald green positioned in a dimly lit luxury apartment with city lights background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJ2UeTPNjDO5FttL1ekVUEvuKJ8hI2TjzhRJxu8X4DPqXksnWtnBVXrlC9IwEwOclIke-5VZV0VOXbpAFH2Pb9Rqo7yEmAdsMTvHp8PAcgsyqIJm95GaPbuVSRw4PRoISgCl9T86xDsDmGsCPy9qptvW_WMLpBoX9HTkjlrgEQrW1fnzzoBDLq66US5FIA5B38J8tbfxZheqjGJv0vBumKyL7so5WyyNwHbTNmNjTMj3MowSyExa2R0BjmwK3s0iObmW67k8bmOQ"/>
+<div class="absolute top-6 left-6 flex flex-col gap-2">
+<span class="glass-panel px-4 py-1.5 rounded-full text-[10px] uppercase font-bold tracking-widest text-tertiary">Số Lượng Có Hạn</span>
+</div>
+<button class="absolute top-6 right-6 w-10 h-10 rounded-full glass-panel flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface text-xl">favorite</span>
+</button>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest to-transparent opacity-0 group-hover:opacity-60 transition-opacity duration-300"></div>
+<div class="absolute bottom-6 left-1/2 -translate-x-1/2 w-[80%] opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+<button class="w-full py-3 bg-primary text-on-primary font-bold rounded-full text-sm shadow-xl">Xem Nhanh</button>
+</div>
+</div>
+<div class="p-8 space-y-2">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline font-bold text-xl group-hover:text-secondary transition-colors">Ghế Obsidian</h3>
+<p class="text-sm text-on-surface-variant">Atelier Noire</p>
+</div>
+<span class="font-headline font-bold text-lg text-primary">$1,850</span>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="group relative flex flex-col bg-surface-container-low rounded-[2rem] overflow-hidden transition-all duration-500 hover:-translate-y-2">
+<div class="aspect-[4/5] overflow-hidden relative">
+<img alt="Đèn thả tối giản" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="abstract architectural shot of a modern glass pendant light with warm glowing filament in a dark moody interior" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHEpyxeZEIIXp39UysjCMTSMNgnulIEEujQJy464tqOHXvaYF15q8qjWNeA1AEwFMreTLpvytp-CWp-u3ObdCbSSIDWTw21K9dsoD8C71atszerJSznng7XFjHzIQ8MyAV5CZT5q4THpkj_5WjTCd9M26byly-u4C5Xk8uh3NhxH2IeyfrhZoM0JQ8iB-ldS12L-Te7k793l3KgHlf6zcmUNWmzBTv8WWD0N-bVuAH6bDmrTrvl1wCAZqWQDV55iWsXSgf0SIibQ"/>
+<button class="absolute top-6 right-6 w-10 h-10 rounded-full glass-panel flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+<span class="material-symbols-outlined text-on-surface text-xl">favorite</span>
+</button>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest to-transparent opacity-0 group-hover:opacity-60 transition-opacity duration-300"></div>
+<div class="absolute bottom-6 left-1/2 -translate-x-1/2 w-[80%] opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+<button class="w-full py-3 bg-primary text-on-primary font-bold rounded-full text-sm shadow-xl">Xem Nhanh</button>
+</div>
+</div>
+<div class="p-8 space-y-2">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline font-bold text-xl group-hover:text-secondary transition-colors">Đèn Solstice</h3>
+<p class="text-sm text-on-surface-variant">Lumina Collective</p>
+</div>
+<span class="font-headline font-bold text-lg text-primary">$720</span>
+</div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="group relative flex flex-col bg-surface-container-low rounded-[2rem] overflow-hidden transition-all duration-500 hover:-translate-y-2">
+<div class="aspect-[4/5] overflow-hidden relative">
+<img alt="Đồng hồ xa xỉ" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="overhead shot of a high-end designer wall clock with brushed gold finish on a dark textured slate wall" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFLPe4oJTxxBcLRSZyTUj7puklzHUfXp_N5xFZfYVTlmiUvmE_67u-pyT6T6tCFzHy70cn9ZKC_XWF6_kK66gbnMOJTsFDghM9qsH_l_LfIvXvRgx4kuzdadCb3byt0zzvmlqdFGNNtpvuuaYGw_Pw1sGV5I7EMY1Wr6dYOTbmIO8fHJY9scg_SzBsrmAbOARAtfqBUjhgDcQ0NGWXweHVWVun5NDqXPo6xZHES4KcvgziB8z00lohh_rz_9wwQt3kh9j5Vguhkw"/>
+<button class="absolute top-6 right-6 w-10 h-10 rounded-full glass-panel flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+<span class="material-symbols-outlined text-on-surface text-xl">favorite</span>
+</button>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest to-transparent opacity-0 group-hover:opacity-60 transition-opacity duration-300"></div>
+<div class="absolute bottom-6 left-1/2 -translate-x-1/2 w-[80%] opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+<button class="w-full py-3 bg-primary text-on-primary font-bold rounded-full text-sm shadow-xl">Xem Nhanh</button>
+</div>
+</div>
+<div class="p-8 space-y-2">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline font-bold text-xl group-hover:text-secondary transition-colors">Đồng Hồ Aura</h3>
+<p class="text-sm text-on-surface-variant">Precision Works</p>
+</div>
+<span class="font-headline font-bold text-lg text-primary">$1,100</span>
+</div>
+</div>
+</div>
+<!-- Card 5 -->
+<div class="group relative flex flex-col bg-surface-container-low rounded-[2rem] overflow-hidden transition-all duration-500 hover:-translate-y-2">
+<div class="aspect-[4/5] overflow-hidden relative">
+<img alt="Túi da" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="luxurious hand-stitched tan leather tote bag displayed on a white marble plinth with dramatic shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDr6PbEBvuVa0ymTugZMm7j4drpNWCSSSMEfmJkHnng2lYeTRb9ZkvRFpyiS1e1Br1Q_bwzVgPP2kNCToIVJEG7Fqi-nV4I-usO8i_fnTulUmhaHX4nt1LsZdZbD8L26gQMZShICjpQKtWblw4MYd6rvwmkJ6HrPG15w8765o-3BM9--WcVNQ1xTzjSG6gHU_xcdVzWAS7-ytus4LO4M31mMN_oj1OYp_Ypu0qD_NF8lChk_ZzS5sypapa-z4K9jwPNvsjMl14xrA"/>
+<div class="absolute top-6 left-6 flex flex-col gap-2">
+<span class="glass-panel px-4 py-1.5 rounded-full text-[10px] uppercase font-bold tracking-widest text-secondary">Biên Tập Viên Chọn</span>
+</div>
+<button class="absolute top-6 right-6 w-10 h-10 rounded-full glass-panel flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+<span class="material-symbols-outlined text-on-surface text-xl">favorite</span>
+</button>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest to-transparent opacity-0 group-hover:opacity-60 transition-opacity duration-300"></div>
+<div class="absolute bottom-6 left-1/2 -translate-x-1/2 w-[80%] opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+<button class="w-full py-3 bg-primary text-on-primary font-bold rounded-full text-sm shadow-xl">Xem Nhanh</button>
+</div>
+</div>
+<div class="p-8 space-y-2">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline font-bold text-xl group-hover:text-secondary transition-colors">Túi Saddle Tote</h3>
+<p class="text-sm text-on-surface-variant">Maison Leather</p>
+</div>
+<span class="font-headline font-bold text-lg text-primary">$950</span>
+</div>
+</div>
+</div>
+<!-- Card 6 -->
+<div class="group relative flex flex-col bg-surface-container-low rounded-[2rem] overflow-hidden transition-all duration-500 hover:-translate-y-2">
+<div class="aspect-[4/5] overflow-hidden relative">
+<img alt="Bộ gốm sứ" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="set of three organic-shaped matte black ceramic bowls resting on a rustic wooden surface with soft natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCroIN9u6UInT6Kojk_ickLGrkSSXByMO50I3EzDvNkugtAF9la3xMiQD7EjHiqocxaS8GPadvUsOb_7WBP0ppTWw0niJe1IE3MnIBwL7ejfqL23gnB7xsvctbMxdJwxASGbRvZB_kXLAa8uIzCRiZ-wy5V_bAfPLSdwE3HiU8Rh-ubGDV-KgrNNb56uCR_Ed8D9ulTqxNG1qCkNDI44_Hg2w9A4B04GZy7jrl7aH-jBEwLkpBS-1MCqvQnEHRGEBAaAYJkRHrmxQ"/>
+<button class="absolute top-6 right-6 w-10 h-10 rounded-full glass-panel flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+<span class="material-symbols-outlined text-on-surface text-xl">favorite</span>
+</button>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest to-transparent opacity-0 group-hover:opacity-60 transition-opacity duration-300"></div>
+<div class="absolute bottom-6 left-1/2 -translate-x-1/2 w-[80%] opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+<button class="w-full py-3 bg-primary text-on-primary font-bold rounded-full text-sm shadow-xl">Xem Nhanh</button>
+</div>
+</div>
+<div class="p-8 space-y-2">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline font-bold text-xl group-hover:text-secondary transition-colors">Bộ Ba Basalt</h3>
+<p class="text-sm text-on-surface-variant">Earth &amp; Fire</p>
+</div>
+<span class="font-headline font-bold text-lg text-primary">$180</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Pagination -->
+<div class="mt-20 flex justify-center items-center gap-4">
+<button class="w-12 h-12 rounded-full border border-outline-variant/15 flex items-center justify-center text-on-surface-variant hover:border-primary transition-all">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<div class="flex gap-2">
+<button class="w-12 h-12 rounded-full bg-primary text-on-primary font-bold">1</button>
+<button class="w-12 h-12 rounded-full hover:bg-surface-container-high transition-all font-bold">2</button>
+<button class="w-12 h-12 rounded-full hover:bg-surface-container-high transition-all font-bold">3</button>
+<span class="w-12 h-12 flex items-center justify-center text-on-surface-variant/40">...</span>
+<button class="w-12 h-12 rounded-full hover:bg-surface-container-high transition-all font-bold">12</button>
+</div>
+<button class="w-12 h-12 rounded-full border border-outline-variant/15 flex items-center justify-center text-on-surface-variant hover:border-primary transition-all">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full py-12 px-8 bg-[#0b1326] dark:bg-[#0b1326] border-t border-[#45464d]/15 mt-20">
+<div class="flex flex-col md:flex-row justify-between items-center gap-8 max-w-[1440px] mx-auto">
+<div class="text-sm font-bold text-[#bec6e0] tracking-tighter uppercase">Digital Atelier</div>
+<div class="flex flex-wrap justify-center gap-8">
+<a class="font-['Inter'] text-xs tracking-wide uppercase text-[#c6c6cd] hover:text-[#bec6e0] transition-all duration-300 hover:underline decoration-[#e9c349] underline-offset-4" href="#">Chính Sách Bảo Mật</a>
+<a class="font-['Inter'] text-xs tracking-wide uppercase text-[#c6c6cd] hover:text-[#bec6e0] transition-all duration-300 hover:underline decoration-[#e9c349] underline-offset-4" href="#">Điều Khoản Dịch Vụ</a>
+<a class="font-['Inter'] text-xs tracking-wide uppercase text-[#c6c6cd] hover:text-[#bec6e0] transition-all duration-300 hover:underline decoration-[#e9c349] underline-offset-4" href="#">Vận Chuyển &amp; Hoàn Trả</a>
+<a class="font-['Inter'] text-xs tracking-wide uppercase text-[#c6c6cd] hover:text-[#bec6e0] transition-all duration-300 hover:underline decoration-[#e9c349] underline-offset-4" href="#">Sự Bền Vững</a>
+</div>
+<div class="text-[#c6c6cd] font-['Inter'] text-xs tracking-wide uppercase">
+                © 2024 Digital Atelier. Bảo lưu mọi quyền.
+            </div>
+</div>
+</footer>
+<!-- Signature Floating Navigator -->
+<div class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50">
+<div class="surface-container-highest/60 bg-[#2d3449]/60 backdrop-blur-[20px] rounded-full px-6 py-3 flex items-center gap-8 shadow-2xl shadow-black/40 border border-white/5">
+<button class="flex flex-col items-center gap-1 group">
+<span class="material-symbols-outlined text-primary group-hover:text-secondary transition-colors">home</span>
+<span class="text-[10px] uppercase font-bold tracking-tighter text-on-surface-variant group-hover:text-on-surface">Trang Chủ</span>
+</button>
+<button class="flex flex-col items-center gap-1 group">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">explore</span>
+<span class="text-[10px] uppercase font-bold tracking-tighter text-secondary">Khám Phá</span>
+</button>
+<div class="w-px h-8 bg-outline-variant/20 mx-2"></div>
+<button class="flex flex-col items-center gap-1 group">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-on-surface transition-colors">shopping_bag</span>
+<span class="text-[10px] uppercase font-bold tracking-tighter text-on-surface-variant group-hover:text-on-surface">Giỏ Hàng</span>
+</button>
+<button class="flex flex-col items-center gap-1 group">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-on-surface transition-colors">person</span>
+<span class="text-[10px] uppercase font-bold tracking-tighter text-on-surface-variant group-hover:text-on-surface">Cá Nhân</span>
+</button>
+</div>
+</div>
+</body></html>

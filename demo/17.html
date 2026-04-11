@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Thanh toán | Atelier</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;600;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "secondary": "#e9c349",
+                        "on-background": "#dae2fd",
+                        "error-container": "#93000a",
+                        "on-tertiary-fixed": "#002116",
+                        "on-error": "#690005",
+                        "surface-container-lowest": "#060e20",
+                        "on-primary-container": "#798098",
+                        "inverse-on-surface": "#283044",
+                        "primary-fixed": "#dae2fd",
+                        "on-secondary-fixed-variant": "#574500",
+                        "tertiary-fixed": "#a6f2d1",
+                        "outline": "#909097",
+                        "on-tertiary": "#003828",
+                        "error": "#ffb4ab",
+                        "on-secondary-container": "#342800",
+                        "surface-variant": "#2d3449",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "surface-bright": "#31394d",
+                        "primary-container": "#0f172a",
+                        "on-tertiary-fixed-variant": "#00513b",
+                        "tertiary-container": "#001c12",
+                        "outline-variant": "#45464d",
+                        "surface-tint": "#bec6e0",
+                        "tertiary": "#8bd6b6",
+                        "surface-dim": "#0b1326",
+                        "on-error-container": "#ffdad6",
+                        "primary": "#bec6e0",
+                        "on-secondary-fixed": "#241a00",
+                        "on-secondary": "#3c2f00",
+                        "on-primary": "#283044",
+                        "on-surface-variant": "#c6c6cd",
+                        "inverse-primary": "#565e74",
+                        "surface-container-highest": "#2d3449",
+                        "secondary-fixed": "#ffe088",
+                        "on-surface": "#dae2fd",
+                        "surface-container-high": "#222a3d",
+                        "tertiary-fixed-dim": "#8bd6b6",
+                        "secondary-fixed-dim": "#e9c349",
+                        "surface-container": "#171f33",
+                        "on-tertiary-container": "#448e72",
+                        "surface": "#0b1326",
+                        "inverse-surface": "#dae2fd",
+                        "background": "#0b1326",
+                        "on-primary-fixed": "#131b2e",
+                        "secondary-container": "#af8d11",
+                        "surface-container-low": "#131b2e",
+                        "primary-fixed-dim": "#bec6e0"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-effect {
+            backdrop-filter: blur(12px);
+            background: rgba(11, 19, 38, 0.6);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-secondary selection:text-on-secondary">
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 w-full z-50 bg-[#0b1326]/60 backdrop-blur-xl transition-all duration-300">
+<div class="flex justify-between items-center w-full px-8 py-4 max-w-[1440px] mx-auto">
+<div class="text-2xl font-black tracking-tighter text-[#bec6e0] uppercase font-headline">
+                Atelier
+            </div>
+<div class="hidden md:flex items-center gap-8 text-[#c6c6cd] font-medium transition-colors font-label">
+<span class="text-[#e9c349] font-bold border-b-2 border-[#e9c349] pb-1">Thanh toán</span>
+<span class="hover:text-[#bec6e0] cursor-pointer">Bộ sưu tập</span>
+<span class="hover:text-[#bec6e0] cursor-pointer">Lưu trữ</span>
+</div>
+<div class="flex items-center gap-6">
+<span class="material-symbols-outlined text-[#bec6e0] cursor-pointer hover:scale-110 transition-transform">shopping_cart</span>
+<span class="material-symbols-outlined text-[#bec6e0] cursor-pointer hover:scale-110 transition-transform">person</span>
+</div>
+</div>
+</nav>
+<main class="pt-32 pb-24 px-6 md:px-12 max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12">
+<!-- Left Column: Checkout Forms -->
+<div class="lg:col-span-7 space-y-12">
+<!-- Progress Indicator -->
+<div class="flex items-center gap-4 mb-12">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-secondary text-on-secondary flex items-center justify-center font-bold text-sm">1</div>
+<span class="text-sm font-semibold tracking-wide uppercase text-on-surface">Giao hàng</span>
+</div>
+<div class="h-px w-12 bg-outline-variant/30"></div>
+<div class="flex items-center gap-2 opacity-40">
+<div class="w-8 h-8 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center font-bold text-sm">2</div>
+<span class="text-sm font-semibold tracking-wide uppercase">Thanh toán</span>
+</div>
+<div class="h-px w-12 bg-outline-variant/30"></div>
+<div class="flex items-center gap-2 opacity-40">
+<div class="w-8 h-8 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center font-bold text-sm">3</div>
+<span class="text-sm font-semibold tracking-wide uppercase">Xem lại</span>
+</div>
+</div>
+<!-- Shipping Section -->
+<section class="space-y-8">
+<header>
+<h1 class="text-4xl font-headline font-extrabold tracking-tight mb-2">Thông tin giao hàng</h1>
+<p class="text-on-surface-variant font-light">Nhập chi tiết giao hàng của bạn để nhận dịch vụ chăm sóc cao cấp.</p>
+</header>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="text-xs font-semibold uppercase tracking-widest text-on-surface-variant ml-1">Tên</label>
+<input class="w-full bg-surface-container-lowest border-none rounded-xl px-6 py-4 text-on-surface focus:ring-1 focus:ring-secondary/40 transition-all placeholder:text-surface-variant" placeholder="Nhập tên" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-semibold uppercase tracking-widest text-on-surface-variant ml-1">Họ</label>
+<input class="w-full bg-surface-container-lowest border-none rounded-xl px-6 py-4 text-on-surface focus:ring-1 focus:ring-secondary/40 transition-all placeholder:text-surface-variant" placeholder="Nhập họ" type="text"/>
+</div>
+<div class="md:col-span-2 space-y-2">
+<label class="text-xs font-semibold uppercase tracking-widest text-on-surface-variant ml-1">Địa chỉ</label>
+<input class="w-full bg-surface-container-lowest border-none rounded-xl px-6 py-4 text-on-surface focus:ring-1 focus:ring-secondary/40 transition-all placeholder:text-surface-variant" placeholder="Ví dụ: 123 Đường Lê Lợi, Quận 1" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-semibold uppercase tracking-widest text-on-surface-variant ml-1">Thành phố</label>
+<input class="w-full bg-surface-container-lowest border-none rounded-xl px-6 py-4 text-on-surface focus:ring-1 focus:ring-secondary/40 transition-all placeholder:text-surface-variant" placeholder="Hồ Chí Minh" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-semibold uppercase tracking-widest text-on-surface-variant ml-1">Mã bưu điện</label>
+<input class="w-full bg-surface-container-lowest border-none rounded-xl px-6 py-4 text-on-surface focus:ring-1 focus:ring-secondary/40 transition-all placeholder:text-surface-variant" placeholder="70000" type="text"/>
+</div>
+<div class="md:col-span-2 space-y-2">
+<label class="text-xs font-semibold uppercase tracking-widest text-on-surface-variant ml-1">Email liên hệ</label>
+<div class="relative">
+<input class="w-full bg-surface-container-lowest border-none rounded-xl px-6 py-4 text-on-surface focus:ring-1 focus:ring-secondary/40 transition-all placeholder:text-surface-variant pr-12" placeholder="email@vi-du.com" type="email"/>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-tertiary">check_circle</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Form Actions -->
+<div class="pt-8 flex items-center justify-between">
+<button class="flex items-center gap-2 text-on-surface-variant hover:text-on-surface transition-colors font-label uppercase tracking-widest text-xs font-bold">
+<span class="material-symbols-outlined text-sm">arrow_back_ios</span>
+                    Quay lại giỏ hàng
+                </button>
+<button class="bg-gradient-to-br from-primary to-primary-container text-on-primary px-10 py-5 rounded-full font-headline font-extrabold text-sm uppercase tracking-widest shadow-2xl shadow-primary/10 hover:scale-105 active:scale-95 transition-transform">
+                    Tiếp tục thanh toán
+                </button>
+</div>
+</div>
+<!-- Right Column: Order Summary -->
+<aside class="lg:col-span-5">
+<div class="sticky top-32 space-y-6">
+<div class="bg-surface-container-low rounded-3xl p-8 shadow-2xl shadow-black/40 border border-outline-variant/10">
+<h2 class="text-2xl font-headline font-extrabold mb-8 tracking-tight">Tóm tắt đơn hàng</h2>
+<!-- Item List -->
+<div class="space-y-8 mb-10">
+<!-- Item 1 -->
+<div class="flex gap-6 items-center">
+<div class="relative group">
+<div class="w-24 h-28 bg-surface-container-high rounded-2xl overflow-hidden">
+<img class="w-full h-full object-cover grayscale contrast-125" data-alt="high-end minimalist leather chair in a dark studio setting with dramatic architectural lighting and deep shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCCg9BI3jaFnt3bidQYPL2ws6uEGzC_VfvRNMVrcYTpvRE_b5BnXQCnHMs1xQ-HyY2nB03coBO11h3SRm6EF_K-qkwNVO5SFYdItOLwO9E_9SNIlShQhA1Yv4FMiyH_SJOAJ1r3V7RGqtjr7zzfXNl7dVaT2Fq-VkbE5AxyOEbKeEI7vmGQV7APk-W9x8suEh9XqiBwJtnamH7jgl_roNRC_a6C585aay3kp6UMaxAHbl-HzkEu-BTUHZwMRxCso6fZ2MNIkQ9Ikw"/>
+</div>
+<span class="absolute -top-2 -right-2 bg-secondary text-on-secondary text-[10px] font-bold px-2 py-1 rounded-full">1</span>
+</div>
+<div class="flex-1">
+<h4 class="font-headline font-bold text-on-surface">Ghế Obsidian Lounge</h4>
+<p class="text-xs text-on-surface-variant uppercase tracking-widest mt-1">Hoàn thiện mờ / Lớn</p>
+<p class="text-sm font-bold text-secondary mt-2">$2,450.00</p>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex gap-6 items-center">
+<div class="relative group">
+<div class="w-24 h-28 bg-surface-container-high rounded-2xl overflow-hidden">
+<img class="w-full h-full object-cover grayscale contrast-125" data-alt="luxury sculptural floor lamp with warm amber glow on a slate grey background with soft cinematic depth of field" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYMcPv7gd7nSpdNVgXdQVqfF0JU_sn2TAm4mSkt_rNtM6b4iPQjxjXOyOFwqaw5XUSaT0KfXZqNjq9j3R2NDM8Pjb0J6vmhTw6EQ96uvTn_FGUMA8p6cbrG9Iiy5d9eWG92KjxttHyU6RSYwBbh1yF3txxcSTL8F5Xm1EvszU-YTkAXi1UhEdXdVJA-2ivguIskmxlMk_dziS0Xv3qoeLFB0hsw5opPCAo-y0QoDZlgf0FY-JAxzYXgbnDkeq2HQemmkBaG7sS2Q"/>
+</div>
+<span class="absolute -top-2 -right-2 bg-secondary text-on-secondary text-[10px] font-bold px-2 py-1 rounded-full">2</span>
+</div>
+<div class="flex-1">
+<h4 class="font-headline font-bold text-on-surface">Đèn điêu khắc Auric</h4>
+<p class="text-xs text-on-surface-variant uppercase tracking-widest mt-1">Đồng thau xước</p>
+<p class="text-sm font-bold text-secondary mt-2">$1,120.00</p>
+</div>
+</div>
+</div>
+<!-- Pricing Breakdown -->
+<div class="space-y-4 pt-8 border-t border-outline-variant/15">
+<div class="flex justify-between text-sm">
+<span class="text-on-surface-variant">Tạm tính</span>
+<span class="text-on-surface font-semibold">$3,570.00</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-on-surface-variant">Vận chuyển</span>
+<span class="text-tertiary font-bold uppercase tracking-tighter">Miễn phí</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-on-surface-variant">Thuế ước tính</span>
+<span class="text-on-surface font-semibold">$285.60</span>
+</div>
+<div class="flex justify-between text-2xl font-headline font-extrabold pt-4 border-t border-outline-variant/15 text-on-surface">
+<span>Tổng cộng</span>
+<span>$3,855.60</span>
+</div>
+</div>
+</div>
+<!-- Promo Code -->
+<div class="bg-surface-container-lowest rounded-2xl p-4 flex gap-4">
+<input class="bg-transparent border-none focus:ring-0 text-sm flex-1 font-medium placeholder:text-surface-variant px-2" placeholder="Mã giảm giá" type="text"/>
+<button class="text-xs font-bold uppercase tracking-widest text-secondary hover:text-white transition-colors">Áp dụng</button>
+</div>
+<!-- Trust Badges -->
+<div class="flex items-center justify-center gap-6 opacity-40 grayscale py-4">
+<span class="material-symbols-outlined text-4xl">verified_user</span>
+<span class="material-symbols-outlined text-4xl">lock</span>
+<span class="material-symbols-outlined text-4xl">credit_card</span>
+</div>
+</div>
+</aside>
+</main>
+<!-- Footer -->
+<footer class="bg-[#0b1326] w-full py-12 px-8 border-t border-[#45464d]/15">
+<div class="flex flex-col md:flex-row justify-between items-center gap-8 max-w-[1440px] mx-auto font-label">
+<div class="text-sm font-bold text-[#bec6e0] font-headline uppercase tracking-tighter">
+                Digital Atelier
+            </div>
+<div class="flex flex-wrap justify-center gap-8 text-[10px] tracking-widest uppercase font-bold text-[#c6c6cd]">
+<a class="hover:underline decoration-[#e9c349] underline-offset-4 transition-all" href="#">Chính sách bảo mật</a>
+<a class="hover:underline decoration-[#e9c349] underline-offset-4 transition-all" href="#">Điều khoản dịch vụ</a>
+<a class="hover:underline decoration-[#e9c349] underline-offset-4 transition-all" href="#">Vận chuyển &amp; Trả hàng</a>
+<a class="hover:underline decoration-[#e9c349] underline-offset-4 transition-all" href="#">Bền vững</a>
+</div>
+<div class="text-[10px] text-[#c6c6cd] font-medium">
+                © 2024 Digital Atelier. Bảo lưu mọi quyền.
+            </div>
+</div>
+</footer>
+</body></html>

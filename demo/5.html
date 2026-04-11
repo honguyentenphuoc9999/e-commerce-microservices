@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Atelier | Chi Tiết Sản Phẩm</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;600;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary": "#e9c349",
+              "on-background": "#dae2fd",
+              "error-container": "#93000a",
+              "on-tertiary-fixed": "#002116",
+              "on-error": "#690005",
+              "surface-container-lowest": "#060e20",
+              "on-primary-container": "#798098",
+              "inverse-on-surface": "#283044",
+              "primary-fixed": "#dae2fd",
+              "on-secondary-fixed-variant": "#574500",
+              "tertiary-fixed": "#a6f2d1",
+              "outline": "#909097",
+              "on-tertiary": "#003828",
+              "error": "#ffb4ab",
+              "on-secondary-container": "#342800",
+              "surface-variant": "#2d3449",
+              "on-primary-fixed-variant": "#3f465c",
+              "surface-bright": "#31394d",
+              "primary-container": "#0f172a",
+              "on-tertiary-fixed-variant": "#00513b",
+              "tertiary-container": "#001c12",
+              "outline-variant": "#45464d",
+              "surface-tint": "#bec6e0",
+              "tertiary": "#8bd6b6",
+              "surface-dim": "#0b1326",
+              "on-error-container": "#ffdad6",
+              "primary": "#bec6e0",
+              "on-secondary-fixed": "#241a00",
+              "on-secondary": "#3c2f00",
+              "on-primary": "#283044",
+              "on-surface-variant": "#c6c6cd",
+              "inverse-primary": "#565e74",
+              "surface-container-highest": "#2d3449",
+              "secondary-fixed": "#ffe088",
+              "on-surface": "#dae2fd",
+              "surface-container-high": "#222a3d",
+              "tertiary-fixed-dim": "#8bd6b6",
+              "secondary-fixed-dim": "#e9c349",
+              "surface-container": "#171f33",
+              "on-tertiary-container": "#448e72",
+              "surface": "#0b1326",
+              "inverse-surface": "#dae2fd",
+              "background": "#0b1326",
+              "on-primary-fixed": "#131b2e",
+              "secondary-container": "#af8d11",
+              "surface-container-low": "#131b2e",
+              "primary-fixed-dim": "#bec6e0"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-panel {
+            background: rgba(45, 52, 73, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .sculpted-gradient {
+            background: linear-gradient(135deg, #bec6e0 0%, #0f172a 100%);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-secondary selection:text-on-secondary">
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 w-full z-50 bg-[#0b1326]/60 backdrop-blur-xl transition-all duration-300">
+<div class="flex justify-between items-center w-full px-8 py-4 max-w-[1440px] mx-auto font-['Manrope'] tracking-tight antialiased">
+<div class="text-2xl font-black tracking-tighter text-[#bec6e0] uppercase cursor-pointer">Atelier</div>
+<div class="hidden md:flex items-center gap-10">
+<a class="text-[#c6c6cd] font-medium hover:text-[#bec6e0] transition-colors" href="#">Bộ Sưu Tập</a>
+<a class="text-[#c6c6cd] font-medium hover:text-[#bec6e0] transition-colors" href="#">Sản Phẩm Mới</a>
+<a class="text-[#c6c6cd] font-medium hover:text-[#bec6e0] transition-colors" href="#">Lưu Trữ</a>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden lg:flex items-center bg-surface-container-low px-4 py-2 rounded-full ring-1 ring-outline-variant/15">
+<span class="material-symbols-outlined text-on-surface-variant text-sm mr-2" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-xs w-48 text-on-surface" placeholder="Tìm kiếm Atelier..." type="text"/>
+</div>
+<div class="flex gap-4">
+<button class="hover:bg-[#222a3d]/50 p-2 rounded-full transition-all scale-95 active:scale-90 text-[#bec6e0]">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+</button>
+<button class="hover:bg-[#222a3d]/50 p-2 rounded-full transition-all scale-95 active:scale-90 text-[#bec6e0]">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="hover:bg-[#222a3d]/50 p-2 rounded-full transition-all scale-95 active:scale-90 text-[#bec6e0]">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</button>
+</div>
+</div>
+</div>
+</nav>
+<main class="pt-32 pb-24 px-8 max-w-[1440px] mx-auto">
+<!-- Product Hero Section -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-16 mb-28">
+<!-- Left: Gallery Bento Grid -->
+<div class="lg:col-span-7 space-y-4">
+<div class="grid grid-cols-2 gap-4">
+<div class="col-span-2 aspect-[4/5] rounded-xl overflow-hidden bg-surface-container-low relative group">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="high-end minimal grey designer jacket on a clean architectural background with soft natural side lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxHjDwYBeF1M-KO72dD45P2cDOZKK2ZdVw77GrQKdF8Yy3kAGxsfx_3D7ifKaBf3CDaN895LLfI4dAJxfeuf0fIIUdti1BbL_I7u9ZYaWSfnq9F54378e_DVoC_0tg3yWp6_rrLmEqubGA7OZFfuADqgVKa25N11oVO1Z2RCQWwCQIdRj-KAZWBxrLPWuaHSOB2wwcNiSNH1EgeFJcdV1QUYeRx5ZxDYt6RJ9muJLOYkTLEAJB542umoD1LYJkrQ_I7GqgDYOHDA"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+</div>
+<div class="aspect-square rounded-xl overflow-hidden bg-surface-container-low">
+<img class="w-full h-full object-cover" data-alt="macro close-up of premium textured fabric weave showing delicate silver and slate threads with shallow depth of field" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbvcr3NUAigOrtCfB0cLpqP2Ml-2g5d74mHQp9fru2bURWTv5sr51vh2xhL5yyGVK916S_q1lTGobQGl8DMfTznXctGCtMZyXmmnI9qsv1dEwKUeJx06WjolNDZtJynA1_Dxr0_XI7quQddtnksLsrdKZeWCrWudj97cyjPMt6pktSLaV96XveOkj-RLkKM05QIhVEhsgpu9PHX-3xHGUfh2KNKf3Dc1AU-aKKoPz5c3kDSe5Mo7apLGdMyrRmjqNhybSwrnOdrg"/>
+</div>
+<div class="aspect-square rounded-xl overflow-hidden bg-surface-container-low">
+<img class="w-full h-full object-cover" data-alt="editorial shot of fashion model wearing the slate jacket in a brutalist concrete setting with harsh artistic shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuACOXWmR-RnABx1-s5Iwf-nMkN2XZPoHrQGyOiYJGjj2lUMBVg5cD_BIDVKxi8Aa0Qi2syuL-goCo7FY4MY1TorC65U-RhnG1NTt4g032Z_0VUMpnKA5h4Om-g4PJeFpsqM20G0bF9jRQgXQahorNWy_si78NkmtV84V9frMI2F5eXPYzAu8qFXtUMwWrFwEUJ5c-jseQoVQ9zXL9tL5BH-yQmmzEyMtwsGuK1RqCaKSWVxkQeZyJAsQE6t8GZ6J3SOoa6fDCYTFA"/>
+</div>
+</div>
+</div>
+<!-- Right: Product Information -->
+<div class="lg:col-span-5 flex flex-col justify-center">
+<div class="mb-2">
+<span class="text-secondary font-headline font-bold tracking-[0.2em] text-[10px] uppercase">Bộ Sưu Tập Mới 2024</span>
+</div>
+<h1 class="text-5xl font-headline font-extrabold tracking-tighter text-on-surface mb-4">Áo Khoác Sculpted Slate</h1>
+<div class="flex items-center gap-4 mb-8">
+<div class="flex items-center text-secondary">
+<span class="material-symbols-outlined text-sm" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" data-icon="star_half" style="font-variation-settings: 'FILL' 1;">star_half</span>
+<span class="ml-2 text-sm font-semibold text-on-surface">4.8</span>
+</div>
+<span class="h-1 w-1 bg-outline-variant/30 rounded-full"></span>
+<span class="text-on-surface-variant text-sm underline underline-offset-4 cursor-pointer hover:text-secondary transition-colors">128 Đánh giá</span>
+</div>
+<div class="text-3xl font-headline font-bold text-on-surface mb-8">
+                1.840,00 $
+            </div>
+<div class="space-y-6 mb-12">
+<p class="text-on-surface-variant leading-relaxed text-sm max-w-md">
+                    Được chế tác tỉ mỉ từ len hai mặt của Ý, Áo khoác Sculpted Slate có thiết kế vạt che cúc tinh tế và các đường may hoàn thiện thủ công. Một sản phẩm tôn vinh sự tối giản, tạo nên một phom dáng vừa mang tính kiến trúc vừa thanh thoát tự nhiên.
+                </p>
+<div class="flex items-center gap-2 py-2">
+<span class="material-symbols-outlined text-tertiary text-lg" data-icon="check_circle">check_circle</span>
+<span class="text-xs font-bold text-tertiary uppercase tracking-widest">Sẵn hàng &amp; Có thể giao ngay</span>
+</div>
+</div>
+<div class="space-y-8">
+<!-- Selectors -->
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-2">
+<label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest px-1">Số lượng</label>
+<div class="flex items-center justify-between bg-surface-container-low p-4 rounded-xl ring-1 ring-outline-variant/15">
+<button class="text-on-surface hover:text-secondary transition-colors"><span class="material-symbols-outlined" data-icon="remove">remove</span></button>
+<span class="font-bold">01</span>
+<button class="text-on-surface hover:text-secondary transition-colors"><span class="material-symbols-outlined" data-icon="add">add</span></button>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest px-1">Kích cỡ</label>
+<div class="flex items-center justify-between bg-surface-container-low p-4 rounded-xl ring-1 ring-outline-variant/15 cursor-pointer hover:ring-secondary/30 transition-all">
+<span class="font-bold">Large</span>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Actions -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<button class="sculpted-gradient text-on-primary py-5 rounded-xl font-bold uppercase tracking-widest text-xs hover:shadow-2xl hover:shadow-primary/10 transition-all active:scale-[0.98]">
+                        Thêm Vào Giỏ Hàng
+                    </button>
+<button class="bg-surface-container-highest border border-outline-variant/20 text-on-surface py-5 rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-surface-bright transition-all active:scale-[0.98]">
+                        Mua Ngay
+                    </button>
+</div>
+<div class="flex items-center justify-center gap-8 pt-4 border-t border-outline-variant/10">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-lg" data-icon="local_shipping">local_shipping</span>
+<span class="text-[10px] uppercase font-bold tracking-tighter">Giao hàng hỏa tốc miễn phí</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-lg" data-icon="published_with_changes">published_with_changes</span>
+<span class="text-[10px] uppercase font-bold tracking-tighter">Đổi trả trong 30 ngày</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Reviews & Ratings Section -->
+<section class="mt-32 pt-20 border-t border-outline-variant/15">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
+<!-- Aggregate Score -->
+<div class="lg:col-span-4">
+<h2 class="text-3xl font-headline font-extrabold tracking-tight mb-8">Ý Kiến Khách Hàng</h2>
+<div class="bg-surface-container-low p-10 rounded-3xl ring-1 ring-outline-variant/15">
+<div class="text-center mb-8">
+<div class="text-6xl font-headline font-black text-secondary mb-2">4.8</div>
+<div class="flex justify-center text-secondary mb-2">
+<span class="material-symbols-outlined" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" data-icon="star_half" style="font-variation-settings: 'FILL' 1;">star_half</span>
+</div>
+<p class="text-on-surface-variant text-xs font-bold uppercase tracking-widest">Dựa trên 128 đánh giá</p>
+</div>
+<div class="space-y-4">
+<!-- Progress bars -->
+<div class="flex items-center gap-4">
+<span class="text-[10px] font-bold w-4">5</span>
+<div class="flex-1 h-1 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[85%]"></div>
+</div>
+<span class="text-[10px] font-bold text-on-surface-variant">102</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-[10px] font-bold w-4">4</span>
+<div class="flex-1 h-1 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[12%]"></div>
+</div>
+<span class="text-[10px] font-bold text-on-surface-variant">15</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-[10px] font-bold w-4">3</span>
+<div class="flex-1 h-1 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[2%]"></div>
+</div>
+<span class="text-[10px] font-bold text-on-surface-variant">8</span>
+</div>
+<div class="flex items-center gap-4 opacity-30">
+<span class="text-[10px] font-bold w-4">2</span>
+<div class="flex-1 h-1 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-0"></div>
+</div>
+<span class="text-[10px] font-bold text-on-surface-variant">0</span>
+</div>
+<div class="flex items-center gap-4 opacity-30">
+<span class="text-[10px] font-bold w-4">1</span>
+<div class="flex-1 h-1 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[1%]"></div>
+</div>
+<span class="text-[10px] font-bold text-on-surface-variant">3</span>
+</div>
+</div>
+<button class="w-full mt-10 py-4 border border-outline-variant/30 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-surface-bright transition-all">
+                        Viết Đánh Giá
+                    </button>
+</div>
+</div>
+<!-- Detailed Reviews -->
+<div class="lg:col-span-8 space-y-12">
+<div class="flex justify-between items-center pb-6 border-b border-outline-variant/15">
+<div class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Sắp xếp theo: <span class="text-on-surface ml-2">Gần đây nhất</span></div>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer" data-icon="filter_list">filter_list</span>
+</div>
+<!-- Review Item 1 -->
+<div class="space-y-4">
+<div class="flex justify-between items-start">
+<div>
+<div class="flex text-secondary mb-2">
+<span class="material-symbols-outlined text-sm" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<h4 class="font-headline font-bold text-lg">Chất Lượng Vượt Trội</h4>
+</div>
+<span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">12 tháng 3, 2024</span>
+</div>
+<p class="text-on-surface-variant leading-relaxed text-sm">
+                        Độ rủ của chiếc áo khoác này là thứ mà tôi chỉ thường thấy ở những trang phục may đo riêng. Trọng lượng hoàn hảo—vừa vặn nhưng vẫn thông thoáng. Nó thực sự mang lại cảm giác như một tác phẩm nghệ thuật có thể mặc được.
+                    </p>
+<div class="flex items-center gap-4 pt-2">
+<div class="h-8 w-8 rounded-full bg-surface-container-high flex items-center justify-center border border-outline-variant/20">
+<span class="text-[10px] font-bold text-secondary">AM</span>
+</div>
+<div>
+<div class="text-xs font-bold text-on-surface uppercase tracking-wider">Alexander M.</div>
+<div class="text-[9px] font-bold text-tertiary uppercase tracking-widest">Nhà sưu tầm đã xác thực</div>
+</div>
+</div>
+</div>
+<!-- Review Item 2 -->
+<div class="space-y-4 pt-12 border-t border-outline-variant/10">
+<div class="flex justify-between items-start">
+<div>
+<div class="flex text-secondary mb-2">
+<span class="material-symbols-outlined text-sm" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" data-icon="star" style="font-variation-settings: 'FILL' 0;">star</span>
+</div>
+<h4 class="font-headline font-bold text-lg">Một Sản Phẩm Thiết Yếu Hiện Đại</h4>
+</div>
+<span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">28 tháng 2, 2024</span>
+</div>
+<p class="text-on-surface-variant leading-relaxed text-sm">
+                        Thiết kế và phom dáng tuyệt đẹp. Màu xám slate có chiều sâu và phức tạp, thay đổi nhẹ nhàng dưới các điều kiện ánh sáng khác nhau. Tôi trừ một sao vì việc giao hàng chậm hơn dự kiến hai ngày, nhưng bản thân sản phẩm thì không có gì để chê.
+                    </p>
+<div class="flex items-center gap-4 pt-2">
+<div class="h-8 w-8 rounded-full bg-surface-container-high flex items-center justify-center border border-outline-variant/20">
+<span class="text-[10px] font-bold text-secondary">EP</span>
+</div>
+<div>
+<div class="text-xs font-bold text-on-surface uppercase tracking-wider">Eleanor P.</div>
+<div class="text-[9px] font-bold text-on-surface-variant uppercase tracking-widest">Người mua đã xác thực</div>
+</div>
+</div>
+</div>
+<button class="w-full py-6 text-[10px] font-bold uppercase tracking-[0.3em] text-on-surface-variant hover:text-on-surface transition-all border-b border-outline-variant/10">
+                    Xem Thêm Đánh Giá
+                </button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-[#0b1326] w-full py-12 px-8 border-t border-[#45464d]/15">
+<div class="flex flex-col md:flex-row justify-between items-center gap-8 max-w-[1440px] mx-auto font-['Inter'] text-xs tracking-wide uppercase">
+<div class="text-sm font-bold text-[#bec6e0]">Digital Atelier</div>
+<div class="flex flex-wrap justify-center gap-8">
+<a class="text-[#c6c6cd] hover:text-[#bec6e0] hover:underline decoration-[#e9c349] underline-offset-4 transition-all duration-300" href="#">Chính Sách Bảo Mật</a>
+<a class="text-[#c6c6cd] hover:text-[#bec6e0] hover:underline decoration-[#e9c349] underline-offset-4 transition-all duration-300" href="#">Điều Khoản Dịch Vụ</a>
+<a class="text-[#c6c6cd] hover:text-[#bec6e0] hover:underline decoration-[#e9c349] underline-offset-4 transition-all duration-300" href="#">Giao Hàng &amp; Đổi Trả</a>
+<a class="text-[#c6c6cd] hover:text-[#bec6e0] hover:underline decoration-[#e9c349] underline-offset-4 transition-all duration-300" href="#">Phát Triển Bền Vững</a>
+</div>
+<div class="text-[#c6c6cd]">© 2024 Digital Atelier. Bảo lưu mọi quyền.</div>
+</div>
+</footer>
+</body></html>
