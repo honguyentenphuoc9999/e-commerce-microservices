@@ -8,6 +8,8 @@
 4. **Công cụ test:** Cài đặt Postman.
 5. **Dịch vụ:** Đảm bảo toàn bộ 7 Microservices đã được tải về.
 
+lệnh tắt các tiến trình java chạy ngầm
+taskkill /F /IM java.exe
 
 
 ---
