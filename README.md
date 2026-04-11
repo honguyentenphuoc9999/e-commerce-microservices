@@ -6,11 +6,12 @@
 2. **Database:** Cài đặt MySQL (Port 3306), tạo database tên `users`.
 3. **Caching:** Cài đặt Redis (Port 6379).
 4. **Công cụ test:** Cài đặt Postman.
-5. **Dịch vụ:** Đảm bảo toàn bộ 7 Microservices đã được tải về.
+5. **Dịch vụ:** Đảm bảo toàn bộ Microservices đã được tải về.
 
 lệnh tắt các tiến trình java chạy ngầm
 taskkill /F /IM java.exe
-
+lệnh chạy dbseed để có dữ liệu mẫu
+node db-seed.js
 
 ---
 
