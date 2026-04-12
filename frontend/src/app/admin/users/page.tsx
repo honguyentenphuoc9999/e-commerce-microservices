@@ -24,34 +24,29 @@ import {
   Shield
 } from "lucide-react";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
+import { adminService } from "@/services/adminService";
 
 const AdminUsers = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState<"add" | "edit">("add");
   const [selectedUser, setSelectedUser] = useState<any>(null);
 
-  const users = [
-    {
-      id: "#USR-88219",
-      name: "Elena Vance",
-      email: "elena.vance@atelier.io",
-      date: "12 thg 10, 2023",
-      lastLogin: "2h trước",
-      status: "Hoạt động",
-      statusColor: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20",
-      image: "https://lh3.googleusercontent.com/aida-public/AB6AXuD9nj2f61jnz2fO28GPt2yLDObZo5qJNjsySv_TvzZM5OkcVhpWDZdY0dmd-EREUAS9RJSkybtJC36JuM6BKwAM4ceGOQDlS4udo8KVNUFIsoUWEU4ur2TlJngMsx29rUgXJM2qatymmUs7TtkA2tcfqyNkrMVS97FAesKSJ9i7KH9C-BOIkbfjHEYjsAF8JgnIjzUh8EYnybFlr6r-LQjW0vB7ZRs6SLoUPPGabb9cfUtrXZmqkLuW2joorudt_F_rrvC0dhb5-w"
-    },
-    {
-      id: "#USR-88218",
-      name: "Marcus Thorne",
-      email: "m.thorne@design.com",
-      date: "04 thg 11, 2023",
-      lastLogin: "5 ngày trước",
-      status: "Ngừng hoạt động",
-      statusColor: "text-rose-400 bg-rose-400/10 border-rose-400/20",
-      image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCXbrrOt6c4WepRi4A6MQ3RBscMa7HKpD0CiW23V24qZiRlQx0ymJ3E-1eI6iHZEvkmfj0PtY7LDh9rkRmiaA2V0SCB_xMGrTTJv1JOjnxBtCv_muJfpWpV6ibm8nfg3Zae3OTKpTvLTgxTHwsGseAor8d0C1dRPcG_tkNTgt1DQbqKhV41vdt_mheXKzdIecO7J6wve5lUrTXFJgHh8X2r2I7ympDFQywaEAJMEoPKJ7FAKp9SMj5dF0XwVPxD_DoMWLZq7oh1wg"
-    }
-  ];
+  const { data: usersData = [], isLoading } = useQuery({
+    queryKey: ['admin-users'],
+    queryFn: adminService.getUsers
+  });
+
+  const users = Array.isArray(usersData) ? usersData.map((u: any) => ({
+    id: `#USR-${u.id}`,
+    name: u.userName,
+    email: u.userDetails?.email || "No email",
+    date: u.userDetails?.firstName ? `${u.userDetails.firstName} ${u.userDetails.lastName}` : "Chưa cập nhật",
+    lastLogin: u.role?.roleName || "USER",
+    status: u.active === 1 ? "Hoạt động" : "Ngừng hoạt động",
+    statusColor: u.active === 1 ? "text-emerald-400 bg-emerald-400/10 border-emerald-400/20" : "text-rose-400 bg-rose-400/10 border-rose-400/20",
+    image: `https://ui-avatars.com/api/?name=${u.userName}&background=random`
+  })) : [];
 
   const handleOpenModal = (type: "add" | "edit", user?: any) => {
     setModalType(type);
@@ -82,14 +77,25 @@ const AdminUsers = () => {
       </header>
 
       {/* Stats Bento Grid */}
-      <section className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-[#131b2e]/60 backdrop-blur-xl p-8 rounded-full border border-white/5 shadow-2xl flex items-center gap-6 group hover:translate-y-[-4px] transition-all duration-300">
            <div className="w-14 h-14 rounded-full bg-blue-400/10 flex items-center justify-center text-blue-400">
               <Users size={24} />
            </div>
            <div>
-              <div className="text-3xl font-black font-headline tracking-tighter text-white">1,284</div>
+              <div className="text-3xl font-black font-headline tracking-tighter text-white">{users.length}</div>
               <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Tổng người dùng</div>
+           </div>
+        </div>
+        <div className="bg-[#131b2e]/60 backdrop-blur-xl p-8 rounded-full border border-white/5 shadow-2xl flex items-center gap-6 group hover:translate-y-[-4px] transition-all duration-300">
+           <div className="w-14 h-14 rounded-full bg-[#e9c349]/10 flex items-center justify-center text-[#e9c349]">
+              <Shield size={24} />
+           </div>
+           <div>
+              <div className="text-3xl font-black font-headline tracking-tighter text-white">
+                {users.filter(u => u.lastLogin === 'ROLE_ADMIN').length}
+              </div>
+              <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Quản trị viên</div>
            </div>
         </div>
         <div className="bg-[#131b2e]/60 backdrop-blur-xl p-8 rounded-full border border-white/5 shadow-2xl flex items-center gap-6 group hover:translate-y-[-4px] transition-all duration-300">
@@ -97,26 +103,10 @@ const AdminUsers = () => {
               <ShieldCheck size={24} />
            </div>
            <div>
-              <div className="text-3xl font-black font-headline tracking-tighter text-white">842</div>
-              <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Thành viên xác minh</div>
-           </div>
-        </div>
-        <div className="bg-[#131b2e]/60 backdrop-blur-xl p-8 rounded-full border border-white/5 shadow-2xl flex items-center gap-6 group hover:translate-y-[-4px] transition-all duration-300">
-           <div className="w-14 h-14 rounded-full bg-[#e9c349]/10 flex items-center justify-center text-[#e9c349]">
-              <TrendingUp size={24} />
-           </div>
-           <div>
-              <div className="text-3xl font-black font-headline tracking-tighter text-white">+12%</div>
-              <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Tăng trưởng tháng</div>
-           </div>
-        </div>
-        <div className="bg-[#131b2e]/60 backdrop-blur-xl p-8 rounded-full border border-white/5 shadow-2xl flex items-center gap-6 group hover:translate-y-[-4px] transition-all duration-300">
-           <div className="w-14 h-14 rounded-full bg-rose-400/10 flex items-center justify-center text-rose-400">
-              <Lock size={24} />
-           </div>
-           <div>
-              <div className="text-3xl font-black font-headline tracking-tighter text-white">7</div>
-              <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Khiếu nại chờ</div>
+              <div className="text-3xl font-black font-headline tracking-tighter text-white">
+                {users.filter(u => u.lastLogin === 'ROLE_USER').length}
+              </div>
+              <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Khách hàng thực tế</div>
            </div>
         </div>
       </section>
@@ -145,7 +135,6 @@ const AdminUsers = () => {
         </div>
       </section>
 
-      {/* User Table Section */}
       <section>
         <div className="bg-[#131b2e] rounded-3xl overflow-hidden border border-white/5 shadow-3xl bg-linear-to-b from-[#131b2e] to-[#0b1326]">
           <table className="w-full text-left">
@@ -159,54 +148,63 @@ const AdminUsers = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {users.map((user) => (
-                <tr key={user.id} className="group hover:bg-white/[0.012] transition-colors">
-                  <td className="px-10 py-8">
-                    <div className="flex items-center gap-5">
-                      <div className="relative">
-                         <div className="absolute -inset-0.5 bg-gradient-to-tr from-[#e9c349] to-transparent rounded-full opacity-0 group-hover:opacity-30 blur-sm transition-opacity"></div>
-                         <img src={user.image} alt={user.name} className="relative w-12 h-12 rounded-full object-cover border-2 border-white/10 group-hover:border-[#e9c349]/40 transition-all shadow-2xl" />
-                      </div>
-                      <div>
-                        <div className="font-black text-white group-hover:text-[#e9c349] transition-colors text-base">{user.name}</div>
-                        <div className="text-xs text-slate-500 mt-1 font-mono uppercase tracking-tight">{user.id} / {user.email}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-10 py-8 text-center text-xs font-black uppercase text-slate-400 tracking-[0.2em]">Khách hàng VIP</td>
-                  <td className="px-10 py-8">
-                    <div className="text-sm font-bold text-slate-300">{user.date}</div>
-                    <div className="text-[10px] uppercase tracking-widest text-[#e9c349] mt-1.5 font-bold">Login: {user.lastLogin}</div>
-                  </td>
-                  <td className="px-10 py-8 text-center">
-                    <span className={`px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-inner inline-block ${user.statusColor}`}>
-                      {user.status}
-                    </span>
-                  </td>
-                  <td className="px-10 py-8 text-right">
-                    <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
-                      <button 
-                         onClick={() => handleOpenModal("edit", user)}
-                         className="p-3 bg-[#222a3d] rounded-xl text-slate-400 hover:text-[#e9c349] transition-all border border-white/5 shadow-2xl group-hover:scale-105"
-                      >
-                        <Edit size={18} />
-                      </button>
-                      <button className="p-3 bg-[#222a3d] rounded-xl text-slate-400 hover:text-emerald-400 transition-all border border-white/5 shadow-2xl group-hover:scale-105">
-                        <LockOpen size={18} />
-                      </button>
-                      <button className="p-3 bg-[#222a3d] rounded-xl text-slate-400 hover:text-rose-400 transition-all border border-white/5 shadow-2xl group-hover:scale-105">
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
-                  </td>
+              {isLoading ? (
+                <tr>
+                   <td colSpan={5} className="py-20 text-center">
+                      <div className="w-8 h-8 border-4 border-[#e9c349] border-t-transparent rounded-full animate-spin mx-auto"></div>
+                      <p className="text-xs text-slate-500 mt-4 tracking-widest uppercase font-black">Syncing digital identities...</p>
+                   </td>
                 </tr>
-              ))}
+              ) : (
+                users.map((user) => (
+                  <tr key={user.id} className="group hover:bg-white/[0.012] transition-colors">
+                    <td className="px-10 py-8">
+                      <div className="flex items-center gap-5">
+                        <div className="relative">
+                           <div className="absolute -inset-0.5 bg-gradient-to-tr from-[#e9c349] to-transparent rounded-full opacity-0 group-hover:opacity-30 blur-sm transition-opacity"></div>
+                           <img src={user.image} alt={user.name} className="relative w-12 h-12 rounded-full object-cover border-2 border-white/10 group-hover:border-[#e9c349]/40 transition-all shadow-2xl" />
+                        </div>
+                        <div>
+                          <div className="font-black text-white group-hover:text-[#e9c349] transition-colors text-base">{user.name}</div>
+                          <div className="text-xs text-slate-500 mt-1 font-mono uppercase tracking-tight">{user.id} / {user.email}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-10 py-8 text-center text-xs font-black uppercase text-slate-400 tracking-[0.2em]">{user.lastLogin}</td>
+                    <td className="px-10 py-8">
+                      <div className="text-sm font-bold text-slate-300">{user.date}</div>
+                      <div className="text-[10px] uppercase tracking-widest text-[#e9c349] mt-1.5 font-bold">Identity Active</div>
+                    </td>
+                    <td className="px-10 py-8 text-center">
+                      <span className={`px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-inner inline-block ${user.statusColor}`}>
+                        {user.status}
+                      </span>
+                    </td>
+                    <td className="px-10 py-8 text-right">
+                      <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
+                        <button 
+                           onClick={() => handleOpenModal("edit", user)}
+                           className="p-3 bg-[#222a3d] rounded-xl text-slate-400 hover:text-[#e9c349] transition-all border border-white/5 shadow-2xl group-hover:scale-105"
+                        >
+                          <Edit size={18} />
+                        </button>
+                        <button className="p-3 bg-[#222a3d] rounded-xl text-slate-400 hover:text-emerald-400 transition-all border border-white/5 shadow-2xl group-hover:scale-105">
+                          <LockOpen size={18} />
+                        </button>
+                        <button className="p-3 bg-[#222a3d] rounded-xl text-slate-400 hover:text-rose-400 transition-all border border-white/5 shadow-2xl group-hover:scale-105">
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
           
           {/* Pagination */}
           <div className="p-10 bg-[#171f33]/30 flex justify-between items-center border-t border-white/5">
-            <div className="text-[10px] uppercase tracking-[0.25em] text-slate-500 font-black">Hiển thị 1 đến 4 trên 1.284 người dùng</div>
+            <div className="text-[10px] uppercase tracking-[0.25em] text-slate-500 font-black">Hiển thị {users.length} người dùng thực tế</div>
             <div className="flex items-center gap-2">
               <button className="w-11 h-11 flex items-center justify-center rounded-2xl hover:bg-white/5 text-slate-500 transition-all border border-white/5 opacity-50 cursor-not-allowed">
                 <ChevronLeft size={20} />

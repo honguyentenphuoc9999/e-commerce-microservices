@@ -16,38 +16,30 @@ import {
   Pin,
   Image as ImageIcon
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { adminService } from "@/services/adminService";
 
 const AdminReviews = () => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  const reviews = [
-    {
-      id: "#REV-001",
-      product: "Chronos Gold Watch",
-      category: "Phụ kiện cao cấp",
-      user: "USR-101",
-      userName: "Anh Tuấn Nguyễn",
-      rating: 5,
-      date: "22/10/2023",
-      content: "Sản phẩm rất đẹp, đóng gói cẩn thận. Màu vàng của đồng hồ nhìn rất sang trọng và đẳng cấp, đúng như hình ảnh mô tả trên website. Giao hàng nhanh hơn dự kiến 2 ngày. Sẽ tiếp tục ủng hộ Digital Atelier trong tương lai.",
-      image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDEKHWmVixMTsi7liKzNGa6ADPelc9YfK9zXEZVhpO1QaxVApiDNrXIedvl9KmAz4sWErsWjlz5zV_Mk4kQTlwlyCgPRfsRCayEzDFkW1eURehE_5nm3lqvzRRIqk0GeLN8n2hHL24X6MwXIhqj7lwqMls0SAboQAlTBxi9KuUU0sjY287n-DtuMoJ4vuDDA-vt2KjaMYNOGnkdbIwbPYha5Rp6hfzKH6Q91hhfQipRuAATLQcqfdC99BY_hutzLJjlEmrvm-xj_g",
-      reviewPhotos: [
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuAQvfvO3ylwkXndht4azlmSz5ZOgHXZKeTlk7rI_0NYbZFzrMtSnfHO2JF7L0_zBIOj1PmZ6hkNGxo_bTCah0y2eeEAt0udafiPZgG3whwmd9DqXF6zaCQL3qexbBs3RTTxAgP1Q7xp4ZlnKhqklZxZjcYJNYhgidL3YVqBHEretgRS1jOhqWG_EmCv6gnxT9zEagBEKapS2nzOF-2AFnM2fhxDNhSKQe0A9HZ0r4ub2aerTQ_j2XO9IQ-RhGuJH_nG17v_NqzYcA",
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuBjraU9v6JGIxwKntbwyQYGuk_SD1IyHUAmddWZ3XezVb74xBPAi3biBaPZ_an2-Sm4ZJiiBHYunRwMM24La2hdft4XAry5HZ3Nz2ceh-q5Cz9T1PCfDF8dKWw2AxAy40sfKuJElb0OoVqY-m9j6tWznYUZXMCvUYJzFf1r2Ybb0eFHS_x_m7NFjtYxm1Ypxftf8k4DwYGRlKp7kgjkKEZXn9JP7FAEuAjIuhm0k6XhCef2Tz8oyt9rmwn9zWhAOZZ0T8ueFYl2jA"
-      ]
-    },
-    {
-      id: "#REV-002",
-      product: "Atelier Leather Bag",
-      category: "Túi xách & Da",
-      user: "USR-205",
-      userName: "Minh Hạnh",
-      rating: 4,
-      date: "21/10/2023",
-      content: "Trọng lượng và độ chính xác tuyệt vời. Dây đeo hơi cứng hơn so với mong đợi nhưng đang dần mềm ra.",
-      image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDIe5Ti0_sAkev2bJJ-WibZWJN1fpoUULKa9ZMPTN85-P1iDcEOT_YXJhwJEON7wCNixovTxW6uFTgOaCaPOTey-h4PH2sN3SseYOlko7CLaAbkZgQnLzPEM5UqujL5AjrtzPem-XgALUYxbmZ7mAozQIiXU3IFQKjMkHchaTmV-8yRrEf1qJYEBdYSp1nnHBC6OOJX2MIjfiDzPOCFJthKQgOpOP_HP5qzlkQMtbh_8cAVwt8pd9Fs3bN4AO6hEPEPd_Hg1ia09g"
-    }
-  ];
+  const { data: reviewsData = [], isLoading } = useQuery({
+    queryKey: ['admin-reviews'],
+    queryFn: adminService.getReviews
+  });
+
+  const reviews = Array.isArray(reviewsData) ? reviewsData.map((r: any) => ({
+    id: `#REV-${r.id}`,
+    product: r.productName || "Sản phẩm ẩn danh",
+    category: "Chưa phân loại",
+    user: `USR-${r.userId}`,
+    userName: r.userName || `Người dùng ${r.userId}`,
+    rating: r.rating || 0,
+    date: r.createdAt ? new Date(r.createdAt).toLocaleDateString('vi-VN') : new Date().toLocaleDateString('vi-VN'),
+    content: r.comment || "Khách hàng không để lại nhận xét.",
+    adminResponse: r.adminResponse,
+    image: "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&q=80&w=800",
+    reviewPhotos: []
+  })) : [];
 
   const toggleExpand = (id: string) => {
     setExpandedId(expandedId === id ? null : id);
@@ -83,36 +75,35 @@ const AdminReviews = () => {
           <div className="absolute top-0 right-0 w-32 h-32 bg-blue-400/5 rounded-full -mr-16 -mt-16 blur-3xl transition-all group-hover:bg-blue-400/10"></div>
           <p className="text-slate-500 font-bold text-[10px] uppercase tracking-widest mb-3">Tổng số đánh giá</p>
           <div className="flex items-end gap-3">
-            <h3 className="text-4xl font-headline font-black text-white tracking-tighter">1,284</h3>
-            <span className="text-emerald-400 text-sm font-bold flex items-center mb-1 gap-1">
-              <Star size={14} className="fill-emerald-400 text-emerald-400" />
-              +12%
-            </span>
+            <h3 className="text-4xl font-headline font-black text-white tracking-tighter">{reviews.length}</h3>
           </div>
           <div className="mt-6 h-1 w-full bg-[#171f33] rounded-full overflow-hidden border border-white/5 shadow-inner">
-            <div className="h-full bg-blue-400 w-3/4 rounded-full shadow-[0_0_8px_rgba(96,165,250,0.5)]"></div>
+            <div className="h-full bg-blue-400 w-full rounded-full shadow-[0_0_8px_rgba(96,165,250,0.5)]"></div>
           </div>
         </div>
         <div className="bg-[#131b2e] rounded-2xl p-8 relative overflow-hidden group border border-white/5 shadow-2xl">
           <div className="absolute top-0 right-0 w-32 h-32 bg-[#e9c349]/5 rounded-full -mr-16 -mt-16 blur-3xl transition-all group-hover:bg-[#e9c349]/10"></div>
           <p className="text-slate-500 font-bold text-[10px] uppercase tracking-widest mb-3">Điểm trung bình</p>
           <div className="flex items-end gap-3">
-            <h3 className="text-4xl font-headline font-black text-white tracking-tighter">4.8/5</h3>
+            <h3 className="text-4xl font-headline font-black text-white tracking-tighter">
+              {reviews.length > 0 ? (reviews.reduce((acc: number, r: any) => acc + r.rating, 0) / reviews.length).toFixed(1) : "0.0"}/5
+            </h3>
             <div className="flex text-[#e9c349] mb-1.5 gap-1">
-              {[...Array(4)].map((_, i) => <Star key={i} size={16} className="fill-[#e9c349] text-[#e9c349]" />)}
-              <StarHalf size={16} className="fill-[#e9c349] text-[#e9c349]" />
+              <Star size={16} className="fill-[#e9c349] text-[#e9c349]" />
             </div>
           </div>
-          <p className="text-[10px] text-slate-500 mt-5 italic uppercase tracking-wider">Dựa trên 1,284 phản hồi quý 4</p>
+          <p className="text-[10px] text-slate-500 mt-5 italic uppercase tracking-wider">Dựa trên dữ liệu thực tế</p>
         </div>
         <div className="bg-[#131b2e] rounded-2xl p-8 relative overflow-hidden group border border-white/5 shadow-2xl">
           <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-400/5 rounded-full -mr-16 -mt-16 blur-3xl transition-all group-hover:bg-emerald-400/10"></div>
-          <p className="text-slate-500 font-bold text-[10px] uppercase tracking-widest mb-3">Tỷ lệ hài lòng</p>
+          <p className="text-slate-500 font-bold text-[10px] uppercase tracking-widest mb-3">Lượt đánh giá tốt</p>
           <div className="flex items-end gap-3">
-            <h3 className="text-4xl font-headline font-black text-white tracking-tighter">94%</h3>
-            <span className="px-3 py-1 bg-emerald-400/10 text-emerald-400 text-[10px] font-black rounded-full mb-1.5 uppercase tracking-widest border border-emerald-400/20">Premium Status</span>
+            <h3 className="text-4xl font-headline font-black text-white tracking-tighter">
+              {reviews.filter((r: any) => r.rating >= 4).length}
+            </h3>
+            <span className="px-3 py-1 bg-emerald-400/10 text-emerald-400 text-[10px] font-black rounded-full mb-1.5 uppercase tracking-widest border border-emerald-400/20">Active</span>
           </div>
-          <p className="text-[10px] text-slate-500 mt-5 italic uppercase tracking-wider">Lượt đánh giá tích cực 4-5 sao</p>
+          <p className="text-[10px] text-slate-500 mt-5 italic uppercase tracking-wider">Đánh giá từ 4-5 sao</p>
         </div>
       </section>
 
@@ -149,7 +140,25 @@ const AdminReviews = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
-            {reviews.map((rev) => {
+            {isLoading ? (
+               <tr>
+                  <td colSpan={6} className="py-20 text-center">
+                     <div className="w-8 h-8 border-4 border-[#e9c349] border-t-transparent rounded-full animate-spin mx-auto"></div>
+                     <p className="text-xs text-slate-500 mt-4 tracking-widest uppercase font-black">Curating customer feedback...</p>
+                  </td>
+               </tr>
+            ) : reviews.length === 0 ? (
+               <tr>
+                  <td colSpan={6} className="py-24 text-center">
+                     <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <MessageSquare className="text-slate-600" size={28} />
+                     </div>
+                     <h3 className="text-xl font-headline font-black text-white italic">Không có đánh giá nào</h3>
+                     <p className="text-slate-500 text-xs mt-2 uppercase tracking-widest font-bold">Hệ thống chưa ghi nhận phản hồi nào từ người dùng</p>
+                  </td>
+               </tr>
+            ) : (
+              reviews.map((rev) => {
               const isExpanded = expandedId === rev.id;
               return (
                 <React.Fragment key={rev.id}>
@@ -205,12 +214,33 @@ const AdminReviews = () => {
                                 <div className="absolute top-0 left-0 w-8 h-8 -translate-x-4 -translate-y-4 opacity-10">
                                   <MessageSquare size={32} />
                                 </div>
-                                <p className="text-white text-lg leading-relaxed font-light italic bg-white/5 p-10 rounded-4xl border border-white/5 shadow-inner relative z-10">
-                                  "{rev.content}"
-                                </p>
+                                <div className="space-y-4">
+                                  <p className="text-white text-lg leading-relaxed font-light italic bg-white/5 p-10 rounded-4xl border border-white/5 shadow-inner relative z-10">
+                                    "{rev.content}"
+                                  </p>
+                                  {rev.adminResponse && (
+                                    <div className="ml-12 p-6 bg-[#e9c349]/10 border-l-4 border-[#e9c349] rounded-2xl animate-in fade-in slide-in-from-left-4">
+                                      <p className="text-[10px] font-black text-[#e9c349] uppercase tracking-widest mb-2 flex items-center gap-2">
+                                        <Shield size={12} /> Admin Phản hồi:
+                                      </p>
+                                      <p className="text-slate-300 text-sm italic">"{rev.adminResponse}"</p>
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                               <div className="mt-10 flex gap-6">
-                                <button className="px-10 py-4 rounded-xl bg-[#e9c349] text-[#0b1326] text-[11px] font-black uppercase tracking-[0.25em] shadow-2xl shadow-[#e9c349]/20 hover:scale-105 active:scale-95 transition-all">Trả lời khách hàng</button>
+                                <button 
+                                  onClick={() => {
+                                    const response = prompt("Nhập nội dung phản hồi khách hàng:");
+                                    if (response) {
+                                      adminService.respondToReview(rev.id.split('-')[1], response)
+                                        .then(() => alert("Đã gửi phản hồi thành công!"))
+                                        .catch(() => alert("Có lỗi xảy ra khi gửi phản hồi."));
+                                    }
+                                  }}
+                                  className="px-10 py-4 rounded-xl bg-[#e9c349] text-[#0b1326] text-[11px] font-black uppercase tracking-[0.25em] shadow-2xl shadow-[#e9c349]/20 hover:scale-105 active:scale-95 transition-all">
+                                  Trả lời khách hàng
+                                </button>
                                 <button className="px-10 py-4 rounded-xl bg-white/5 text-slate-300 text-[11px] font-black uppercase tracking-[0.25em] hover:text-white transition-all flex items-center gap-4 border border-white/5">
                                   <Pin size={16} />
                                   Ghim đánh giá
@@ -242,8 +272,9 @@ const AdminReviews = () => {
                   )}
                 </React.Fragment>
               );
-            })}
-          </tbody>
+            })
+          )}
+        </tbody>
         </table>
       </section>
 

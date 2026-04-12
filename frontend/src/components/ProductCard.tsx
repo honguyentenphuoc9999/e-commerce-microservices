@@ -3,6 +3,9 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Plus } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { shopService } from "@/services/shopService";
+import { useAuthStore } from "@/store/useAuthStore";
 
 interface ProductCardProps {
   id: string;
@@ -17,6 +20,28 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ 
   id, name, price, category, image, badge, badgeColor = "secondary" 
 }) => {
+  const { user } = useAuthStore();
+  const queryClient = useQueryClient();
+
+  const cartMutation = useMutation({
+    mutationFn: () => shopService.addToCart(id, 1),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+      alert(`Đã thêm ${name} vào giỏ hàng!`);
+    },
+    onError: () => {
+      alert("Vui lòng đăng nhập để thêm vào giỏ hàng.");
+    },
+  });
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!user) {
+        alert("Vui lòng đăng nhập để thực hiện hành động này.");
+        return;
+    }
+    cartMutation.mutate();
+  };
   return (
     <div className="group relative flex flex-col bg-[#131b2e] rounded-[2rem] overflow-hidden transition-all duration-500 hover:-translate-y-2 border border-white/5">
       <div className="aspect-[4/5] overflow-hidden relative">
@@ -46,9 +71,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
               Xem Chi Tiết
             </button>
           </Link>
-          <button className="w-full py-3.5 bg-white/10 backdrop-blur-md border border-white/20 text-white font-black rounded-xl text-[10px] uppercase tracking-[0.2em] hover:bg-white/20 transition-all flex items-center justify-center gap-2">
+          <button 
+            onClick={handleAddToCart}
+            disabled={cartMutation.isPending}
+            className="w-full py-3.5 bg-white/10 backdrop-blur-md border border-white/20 text-white font-black rounded-xl text-[10px] uppercase tracking-[0.2em] hover:bg-white/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+          >
             <Plus size={14} />
-            Thêm Vào Giỏ
+            {cartMutation.isPending ? "Đang thêm..." : "Thêm Vào Giỏ"}
           </button>
         </div>
       </div>

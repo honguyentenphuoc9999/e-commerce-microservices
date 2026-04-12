@@ -19,6 +19,12 @@ export const shopService = {
     return res.data;
   },
 
+  // Cập nhật số lượng sản phẩm (Tuyệt đối)
+  updateCartQuantity: async (productId: string | number, quantity: number) => {
+    const res = await apiClient.put(`/shop/cart?productId=${productId}&quantity=${quantity}`);
+    return res.data;
+  },
+
   // Thực hiện đặt hàng (Chốt đơn)
   // Trong Postman guide yêu cầu truyền userId vào param (VD: /api/shop/order/2)
   checkout: async (userId: string | number, voucherCodes?: string) => {
@@ -33,5 +39,16 @@ export const shopService = {
   getVietQrPayment: async (orderId: string | number) => {
     const res = await apiClient.post(`/payment/create-vietqr-payment/${orderId}`);
     return res.data; // Trả về { paymentUrl: "..." }
+  },
+
+  // --- ADMIN METHODS ---
+  adminGetAllOrders: async () => {
+    const res = await apiClient.get('/shop/orders');
+    return res.data;
+  },
+
+  adminUpdateOrderStatus: async (orderId: number | string, status: string) => {
+    const res = await apiClient.put(`/shop/orders/${orderId}/status?status=${status}`);
+    return res.data;
   }
 };

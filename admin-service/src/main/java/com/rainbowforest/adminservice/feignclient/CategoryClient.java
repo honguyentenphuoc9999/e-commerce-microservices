@@ -20,4 +20,7 @@ public interface CategoryClient {
 
     @DeleteMapping("/categories/{id}")
     Object deleteCategory(@PathVariable("id") Long id);
+
+    @PostMapping(value = "/admin/categories/upload-image/{id}", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    Object uploadCategoryImage(@PathVariable("id") Long id, @RequestPart("image") org.springframework.web.multipart.MultipartFile imageFile);
 }

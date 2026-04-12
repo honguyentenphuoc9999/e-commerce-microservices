@@ -14,7 +14,8 @@ import {
   ArrowRight,
   TrendingUp,
   Award,
-  Inbox
+  Inbox,
+  Shield
 } from "lucide-react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
@@ -111,12 +112,21 @@ const UserReviews = () => {
                 </div>
                 
                 <div className="bg-white/5 p-10 rounded-[2rem] border border-white/5 shadow-inner relative italic text-white text-lg font-light leading-relaxed group-hover:bg-[#e9c349]/5 transition-colors duration-500">
-                   "Chất lượng sản phẩm đúng như những gì tôi đánh giá."
+                   "{rev.comment || "Chất lượng sản phẩm đúng như những gì tôi đánh giá."}"
                    {/* Quote highlight */}
                    <div className="absolute -top-4 -left-4 w-12 h-12 bg-[#0b1326] rounded-full flex items-center justify-center text-[#e9c349]/40">
                       <MessageSquare size={24} />
                    </div>
                 </div>
+
+                {rev.adminResponse && (
+                  <div className="ml-10 p-6 bg-[#e9c349]/10 border-l-4 border-[#e9c349] rounded-2xl animate-in slide-in-from-left-4">
+                    <p className="text-[10px] font-black text-[#e9c349] uppercase tracking-widest mb-2 flex items-center gap-2">
+                      <Shield size={12} /> Admin Phản hồi:
+                    </p>
+                    <p className="text-slate-300 text-sm italic">"{rev.adminResponse}"</p>
+                  </div>
+                )}
                 
                 <div className="flex gap-4">
                   <button className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all bg-[#0b1326] px-8 py-3.5 rounded-xl border border-white/5 shadow-xl hover:bg-white/5">

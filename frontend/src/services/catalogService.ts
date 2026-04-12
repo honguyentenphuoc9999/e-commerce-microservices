@@ -4,6 +4,7 @@ export interface Category {
   id: number;
   categoryName: string;
   description: string;
+  image?: string;
 }
 
 export interface Product {
@@ -17,9 +18,9 @@ export interface Product {
 }
 
 export const catalogService = {
-  // Lấy toàn bộ danh mục sản phẩm 
+  // Lấy toàn bộ danh mục sản phẩm (Công khai)
   getCategories: async (): Promise<Category[]> => {
-    const res = await apiClient.get('/admin-bff/categories'); // Theo Postman HD 5
+    const res = await apiClient.get('/catalog/categories'); // Dùng public path thay vì admin-bff
     return res.data;
   },
 
@@ -85,5 +86,16 @@ export const catalogService = {
 
   adminDeleteCategory: async (id: number | string): Promise<void> => {
     await apiClient.delete(`/admin-bff/categories/${id}`);
+  },
+
+  adminUploadCategoryImage: async (id: number | string, file: File): Promise<Category> => {
+    const formData = new FormData();
+    formData.append('image', file);
+    const res = await apiClient.post(`/admin-bff/categories/upload-image/${id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return res.data;
   }
 };

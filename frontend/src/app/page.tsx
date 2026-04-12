@@ -5,7 +5,7 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
-import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Monitor, Smartphone, Tablet, Watch, Diamond } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { catalogService } from "@/services/catalogService";
@@ -98,26 +98,17 @@ const HomePage = () => {
               ))
             ) : (
               categories.slice(0, 3).map((cat: any, idx: number) => {
-                const colors = [
-                  "from-slate-400 to-slate-200",
-                  "from-blue-600 to-blue-400", 
-                  "from-slate-700 to-slate-900",
-                  "from-emerald-600 to-emerald-400",
-                  "from-amber-600 to-amber-400"
-                ];
-                const icons = [Monitor, Smartphone, Tablet, Watch, Diamond];
-                const Icon = icons[idx % icons.length];
+                const bgImage = cat.image || "https://images.unsplash.com/photo-1593642702821-c8da6771f0c6?auto=format&fit=crop&q=80&w=800";
                 
                 return (
                   <motion.div 
                     key={cat.id}
                     whileHover={{ y: -10 }}
-                    className={`relative h-[500px] rounded-[32px] overflow-hidden group border border-white/5 bg-gradient-to-br ${colors[idx % colors.length]} flex flex-col justify-end p-10 cursor-pointer text-black`}
+                    style={{ backgroundImage: `url(${bgImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+                    className={`relative h-[500px] rounded-[32px] overflow-hidden group border border-white/5 flex flex-col justify-end p-10 cursor-pointer text-white`}
                   >
-                    <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-all" />
-                    <div className="absolute top-10 left-10 p-4 rounded-2xl bg-black/10 backdrop-blur-3xl text-white">
-                      <Icon size={24} />
-                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/10 transition-all group-hover:via-black/20" />
+                    
                     <div className="relative z-10 space-y-2">
                       <h3 className="text-3xl font-bold tracking-tight italic">{cat.categoryName}</h3>
                       <p className="font-medium opacity-80 text-sm max-w-[200px]">{cat.description || "Khám phá các sản phẩm tinh hoa trong bộ sưu tập này."}</p>

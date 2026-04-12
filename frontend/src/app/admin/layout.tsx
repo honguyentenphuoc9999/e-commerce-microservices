@@ -23,10 +23,12 @@ import {
 const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
   const router = useRouter();
-  const { user } = useAuthStore();
+  const { user, hydrated } = useAuthStore();
   const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
+    if (!hydrated) return; // Chờ cho đến khi nạp xong dữ liệu từ storage
+
     if (!user) {
       router.replace("/login");
     } else if (user.role !== "ROLE_ADMIN") {
@@ -34,7 +36,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
     } else {
       setIsAuthorized(true);
     }
-  }, [user, router]);
+  }, [user, hydrated, router]);
 
   if (!isAuthorized) {
     return (

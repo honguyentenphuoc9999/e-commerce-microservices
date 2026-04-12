@@ -10,7 +10,9 @@ interface User {
 interface AuthState {
   token: string | null;
   user: User | null;
+  hydrated: boolean;
   setAuth: (token: string, userName: string, id?: number | string, role?: string) => void;
+  setHydrated: (state: boolean) => void;
   logout: () => void;
 }
 
@@ -19,22 +21,27 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       token: null,
       user: null,
+      hydrated: false,
       setAuth: (token, userName, id, role) => {
-        // Đồng thời lưu vào localStorage nguyên bản để apiClient interceptors dễ đọc đồng bộ
         if (typeof window !== 'undefined') {
           localStorage.setItem('token', token);
         }
         set({ token, user: { userName, id, role } });
       },
+      setHydrated: (state) => set({ hydrated: state }),
       logout: () => {
         if (typeof window !== 'undefined') {
           localStorage.removeItem('token');
+          localStorage.removeItem('cartId');
         }
         set({ token: null, user: null });
       },
     }),
     {
-      name: 'auth-storage', // Key lưu trên localStorage của zustand
+      name: 'auth-storage',
+      onRehydrateStorage: (state) => {
+        return () => state.setHydrated(true); // Ghi nhận đã hydrate xong
+      }
     }
   )
 );

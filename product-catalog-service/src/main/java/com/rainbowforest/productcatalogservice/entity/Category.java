@@ -27,6 +27,9 @@ public class Category {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "image")
+    private String image;
+
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Product> products;
@@ -53,6 +56,14 @@ public class Category {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 
     public List<Product> getProducts() {

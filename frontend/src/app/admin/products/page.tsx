@@ -84,12 +84,12 @@ const AdminProducts = () => {
     setModalType(type);
     setSelectedProduct(product || null);
     setFormData(product ? {
-      productName: product.productName,
-      price: product.price,
-      availability: product.availability,
-      discription: product.discription,
+      productName: product.productName || "",
+      price: product.price || 0,
+      availability: product.availability || 0,
+      discription: product.discription || "",
       category: product.category,
-      image: product.image
+      image: product.image || ""
     } : {
       productName: "",
       price: 0,
@@ -402,7 +402,7 @@ const AdminProducts = () => {
                  <div className="md:col-span-2 space-y-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Mô tả sản phẩm</label>
                     <textarea 
-                      value={formData.discription}
+                      value={formData.discription || ""}
                       onChange={(e) => setFormData({...formData, discription: e.target.value})}
                       placeholder="Mô tả tinh hoa về sản phẩm của bạn..."
                       rows={4}

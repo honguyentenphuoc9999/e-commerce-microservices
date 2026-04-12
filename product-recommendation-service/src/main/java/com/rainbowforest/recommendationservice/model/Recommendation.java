@@ -29,6 +29,15 @@ public class Recommendation {
     @Column(name = "product_name")
     private String productName;
 
+    @Column(name = "comment", length = 1000)
+    private String comment;
+
+    @Column(name = "admin_response", length = 1000)
+    private String adminResponse;
+
+    @Column(name = "created_at")
+    private java.time.LocalDateTime createdAt = java.time.LocalDateTime.now();
+
     public Recommendation() {}
 
     public Long getId() { return id; }
@@ -48,6 +57,15 @@ public class Recommendation {
 
     public String getProductName() { return productName; }
     public void setProductName(String productName) { this.productName = productName; }
+
+    public String getComment() { return comment; }
+    public void setComment(String comment) { this.comment = comment; }
+
+    public String getAdminResponse() { return adminResponse; }
+    public void setAdminResponse(String adminResponse) { this.adminResponse = adminResponse; }
+
+    public java.time.LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(java.time.LocalDateTime createdAt) { this.createdAt = createdAt; }
 
     // Compatibility methods for tests
     public void setUser(User user) {

@@ -10,4 +10,5 @@ public interface RecommendationService {
     void deleteRecommendation(Long id);
     Recommendation getRecommendationByUserIdAndProductId(Long userId, Long productId);
     List<Recommendation> getAllRecommendationsByUserId(Long userId);
+    List<Recommendation> getAllRecommendations();
 }

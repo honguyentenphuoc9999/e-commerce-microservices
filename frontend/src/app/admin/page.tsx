@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import { 
   ShoppingCart, 
@@ -8,20 +9,33 @@ import {
   MoreVertical,
   Activity
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { adminService } from "@/services/adminService";
+import Link from "next/link";
 
 const AdminDashboard = () => {
+  const { data: dashboardData, isLoading: statsLoading } = useQuery({
+    queryKey: ['admin-stats'],
+    queryFn: adminService.getStats
+  });
+
+  const { data: recentOrdersData = [], isLoading: ordersLoading } = useQuery({
+    queryKey: ['admin-orders-recent'],
+    queryFn: adminService.getOrders
+  });
+
   const stats = [
     {
       title: "Tổng đơn hàng",
-      value: "1,284",
+      value: dashboardData?.totalOrders || "0",
       trend: "+12.5%",
       icon: <ShoppingCart size={24} />,
       color: "text-blue-400",
       bg: "bg-blue-400/10",
     },
     {
-      title: "Người dùng mới",
-      value: "842",
+      title: "Người dùng hệ thống",
+      value: dashboardData?.totalUsers || "0",
       trend: "+8.2%",
       icon: <Users size={24} />,
       color: "text-purple-400",
@@ -29,7 +43,7 @@ const AdminDashboard = () => {
     },
     {
       title: "Doanh thu",
-      value: "$54,210",
+      value: `${(dashboardData?.totalRevenue || 0).toLocaleString()}đ`,
       trend: "+24.1%",
       icon: <DollarSign size={24} />,
       color: "text-[#e9c349]",
@@ -37,41 +51,17 @@ const AdminDashboard = () => {
     },
   ];
 
-  const recentOrders = [
-    {
-      id: "ATL-88219",
-      customer: "Alexander McEnroe",
-      email: "alex@studio.design",
-      product: "Giày lười Midnight Velvet",
-      date: "24 tháng 10, 2024",
-      amount: "$1,250.00",
-      status: "Hoàn tất",
-      statusColor: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20",
-      initials: "AM",
-    },
-    {
-      id: "ATL-88218",
-      customer: "Sophia Kincaid",
-      email: "sophia@vogue.fr",
-      product: "Bình gốm điêu khắc Marble",
-      date: "23 tháng 10, 2024",
-      amount: "$890.00",
-      status: "Đang xử lý",
-      statusColor: "text-slate-400 bg-slate-400/10 border-white/5",
-      initials: "SK",
-    },
-    {
-      id: "ATL-88217",
-      customer: "Julian Weaver",
-      email: "julian.w@tech.co",
-      product: "Đồng hồ bấm giờ bản giới hạn",
-      date: "23 tháng 10, 2024",
-      amount: "$3,400.00",
-      status: "Hoàn tất",
-      statusColor: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20",
-      initials: "JW",
-    },
-  ];
+  const recentOrders = Array.isArray(recentOrdersData) ? recentOrdersData.slice(0, 5).map((o: any) => ({
+    id: `ORD-${o.id}`,
+    customer: o.user?.userName || "Khách ẩn danh",
+    email: o.user?.userDetails?.email || "N/A",
+    product: o.items?.[0]?.product?.productName || "Đơn hàng mới",
+    date: new Date(o.orderDate).toLocaleDateString('vi-VN'),
+    amount: `${(o.totalPrice || 0).toLocaleString()}đ`,
+    status: o.status === "COMPLETED" ? "Hoàn tất" : (o.status === "PENDING" ? "Chờ xử lý" : o.status),
+    statusColor: o.status === "COMPLETED" ? "text-emerald-400 bg-emerald-400/10 border-emerald-400/20" : "text-slate-400 bg-slate-400/10 border-white/5",
+    initials: (o.user?.userName || "U").substring(0, 2).toUpperCase(),
+  })) : [];
 
   return (
     <div className="p-12 space-y-12">
@@ -205,34 +195,43 @@ const AdminDashboard = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {recentOrders.map((order) => (
-                <tr key={order.id} className="hover:bg-white/5 transition-colors cursor-pointer group">
-                  <td className="px-8 py-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full bg-[#2d3449] flex items-center justify-center text-[#e9c349] font-bold text-xs border border-white/10 group-hover:border-[#e9c349]/30 transition-colors">
-                        {order.initials}
+              {ordersLoading ? (
+                 <tr>
+                    <td colSpan={6} className="py-20 text-center">
+                       <div className="w-8 h-8 border-4 border-[#e9c349] border-t-transparent rounded-full animate-spin mx-auto"></div>
+                       <p className="text-xs text-slate-500 mt-4 tracking-widest uppercase font-black">Syncing digital transactions...</p>
+                    </td>
+                 </tr>
+              ) : (
+                recentOrders.map((order) => (
+                  <tr key={order.id} className="hover:bg-white/5 transition-colors cursor-pointer group">
+                    <td className="px-8 py-6">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full bg-[#2d3449] flex items-center justify-center text-[#e9c349] font-bold text-xs border border-white/10 group-hover:border-[#e9c349]/30 transition-colors">
+                          {order.initials}
+                        </div>
+                        <div>
+                          <p className="font-medium text-white group-hover:text-[#e9c349] transition-colors">{order.customer}</p>
+                          <p className="text-[11px] text-slate-500">{order.email}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium text-white group-hover:text-[#e9c349] transition-colors">{order.customer}</p>
-                        <p className="text-[11px] text-slate-500">{order.email}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-8 py-6 text-sm text-slate-400">{order.product}</td>
-                  <td className="px-8 py-6 text-sm text-slate-400">{order.date}</td>
-                  <td className="px-8 py-6 text-right font-headline font-bold text-white">{order.amount}</td>
-                  <td className="px-8 py-6 text-center">
-                    <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${order.statusColor}`}>
-                      {order.status}
-                    </span>
-                  </td>
-                  <td className="px-8 py-6 text-right">
-                    <button className="p-2 text-slate-500 hover:text-white transition-colors">
-                      <MoreVertical size={18} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="px-8 py-6 text-sm text-slate-400">{order.product}</td>
+                    <td className="px-8 py-6 text-sm text-slate-400">{order.date}</td>
+                    <td className="px-8 py-6 text-right font-headline font-bold text-white">{order.amount}</td>
+                    <td className="px-8 py-6 text-center">
+                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${order.statusColor}`}>
+                        {order.status}
+                      </span>
+                    </td>
+                    <td className="px-8 py-6 text-right">
+                      <button className="p-2 text-slate-500 hover:text-white transition-colors">
+                        <MoreVertical size={18} />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

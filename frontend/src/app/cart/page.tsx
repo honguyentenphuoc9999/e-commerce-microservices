@@ -2,7 +2,7 @@
 import React from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Trash2, Plus, Minus, ShieldCheck, Box, MoveRight, Truck } from "lucide-react";
+import { Trash2, Plus, Minus, ShieldCheck, Box, MoveRight, Truck, ShoppingBag, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { shopService } from "@/services/shopService";
@@ -12,11 +12,10 @@ export default function CartPage() {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
 
-  // Load cart
+  // Load cart with user-specific query key
   const { data: cartData, isLoading } = useQuery({
-    queryKey: ['cart'],
+    queryKey: ['cart', user?.id || user?.userName || 'guest'],
     queryFn: shopService.getCart,
-    enabled: !!user,
   });
 
   // Map backend cart state to frontend UI format
@@ -39,6 +38,21 @@ export default function CartPage() {
   const subtotal = cartItems.reduce((acc: number, item: any) => acc + item.price * item.quantity, 0);
   const tax = subtotal * 0.08;
   const total = subtotal + tax;
+
+  const updateQtyMutate = useMutation({
+    mutationFn: ({ productId, quantity }: { productId: string, quantity: number }) => 
+      shopService.updateCartQuantity(productId, quantity),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['cart'] })
+  });
+
+  const handleUpdateQty = (productId: string, currentQty: number, delta: number) => {
+    const newQty = currentQty + delta;
+    if (newQty > 0) {
+      updateQtyMutate.mutate({ productId, quantity: newQty });
+    } else {
+      removeItemMutate.mutate(productId);
+    }
+  };
 
   if (!user) {
     return (
@@ -64,56 +78,93 @@ export default function CartPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           {/* Product List Section */}
           <section className="lg:col-span-8 flex flex-col gap-8">
-            {isLoading && <div className="text-center py-20 animate-pulse text-[#bec6e0]">Đang đồng bộ Giỏ hàng...</div>}
-            {!isLoading && cartItems.length === 0 && <div className="text-center py-20 text-[#c6c6cd]">Giỏ hàng của bạn đang trống!</div>}
+            {isLoading && (
+              <div className="flex flex-col items-center justify-center py-32 bg-[#222a3d]/20 rounded-2xl border border-white/5">
+                <div className="w-12 h-12 border-4 border-[#e9c349]/20 border-t-[#e9c349] rounded-full animate-spin mb-4"></div>
+                <p className="text-[#bec6e0] font-medium animate-pulse">Đang đồng bộ Giỏ hàng cao cấp...</p>
+              </div>
+            )}
+
+            {!isLoading && cartItems.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-32 bg-[#222a3d]/20 rounded-2xl border border-white/5 text-center px-6">
+                <div className="w-24 h-24 bg-[#e9c349]/10 rounded-full flex items-center justify-center mb-8 text-[#e9c349]">
+                  <ShoppingBag size={48} strokeWidth={1.5} />
+                </div>
+                <h2 className="font-headline text-3xl font-bold text-white mb-4">Giỏ hàng rỗng</h2>
+                <p className="text-[#c6c6cd] max-w-md mb-10 leading-relaxed">
+                  Có vẻ như bạn chưa chọn được siêu phẩm nào. Hãy khám phá bộ sưu tập công nghệ mới nhất của Atelier ngay.
+                </p>
+                <Link 
+                  href="/" 
+                  className="flex items-center gap-3 bg-[#e9c349] hover:bg-[#d4ac2b] text-[#0b1326] px-10 py-4 rounded-full font-headline font-bold transition-all hover:scale-105 active:scale-95 shadow-xl shadow-[#e9c349]/10"
+                >
+                  <ArrowLeft size={20} />
+                  <span>Mua sắm ngay</span>
+                </Link>
+              </div>
+            )}
+
             {cartItems.map((item: any) => (
-              <div key={item.id} className="bg-[#222a3d]/40 backdrop-blur-md rounded-xl p-6 flex flex-col md:flex-row gap-8 group border border-white/5">
-                <div className="w-full md:w-48 h-64 md:h-48 rounded-lg overflow-hidden flex-shrink-0 bg-[#131b2e]">
+              <div key={item.id} className="bg-[#222a3d]/40 backdrop-blur-md rounded-xl p-6 flex flex-col md:flex-row gap-8 group border border-white/5 hover:border-white/10 transition-colors shadow-lg">
+                <div className="w-full md:w-48 h-64 md:h-48 rounded-lg overflow-hidden flex-shrink-0 bg-[#131b2e] border border-white/5">
                   <img 
                     src={item.image} 
                     alt={item.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
                   />
                 </div>
                 <div className="flex flex-col flex-grow justify-between py-2">
                   <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="font-headline text-2xl font-bold text-white mb-1">{item.name}</h3>
-                      <p className="text-[#c6c6cd] text-sm font-medium">{item.code}</p>
+                      <h3 className="font-headline text-2xl font-bold text-white mb-1 group-hover:text-[#e9c349] transition-colors">{item.name}</h3>
+                      <p className="text-[#c6c6cd] text-sm font-medium tracking-wide uppercase opacity-60 italic">{item.code}</p>
                     </div>
                     <span className="font-headline text-xl font-semibold text-[#e9c349]">
                       {item.price.toLocaleString('en-US', { minimumFractionDigits: 2 })} $
                     </span>
                   </div>
                   <div className="flex items-center justify-between mt-6">
-                    <div className="flex items-center gap-4 bg-[#060e20] rounded-full px-4 py-2 border border-white/10">
-                      <button className="text-[#c6c6cd] hover:text-white transition-colors flex items-center justify-center">
+                    <div className="flex items-center gap-4 bg-[#060e20] rounded-full px-5 py-2.5 border border-white/10 shadow-inner">
+                      <button 
+                        onClick={() => handleUpdateQty(item.id, item.quantity, -1)}
+                        className="text-[#c6c6cd] hover:text-white transition-all hover:scale-125 disabled:opacity-30"
+                        disabled={updateQtyMutate.isPending}
+                      >
                         <Minus size={16} />
                       </button>
-                      <span className="font-headline font-bold text-white min-w-[1.5rem] text-center">
-                        {item.quantity.toString().padStart(2, '0')}
+                      <span className="font-headline font-bold text-white min-w-[1.5rem] text-center text-lg">
+                        {updateQtyMutate.isPending && updateQtyMutate.variables?.productId === item.id 
+                          ? ".." 
+                          : item.quantity.toString().padStart(2, '0')}
                       </span>
-                      <button className="text-[#c6c6cd] hover:text-white transition-colors flex items-center justify-center">
+                      <button 
+                        onClick={() => handleUpdateQty(item.id, item.quantity, 1)}
+                        className="text-[#c6c6cd] hover:text-white transition-all hover:scale-125 disabled:opacity-30"
+                        disabled={updateQtyMutate.isPending}
+                      >
                         <Plus size={16} />
                       </button>
                     </div>
                     <button 
                       onClick={() => removeItemMutate.mutate(item.id)}
-                      className="flex items-center gap-2 text-[#c6c6cd] hover:text-red-400 transition-all text-sm uppercase tracking-widest font-semibold"
+                      className="flex items-center gap-2 text-[#c6c6cd] hover:text-red-400 transition-all text-sm uppercase tracking-widest font-bold group/del"
                     >
-                      <Trash2 size={18} />
-                      <span>{removeItemMutate.isPending ? "..." : "Xóa"}</span>
+                      <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center group-hover/del:bg-red-400/10 transition-colors">
+                        <Trash2 size={18} />
+                      </div>
+                      <span>{removeItemMutate.isPending ? "Dạng xóa..." : "Xóa"}</span>
                     </button>
                   </div>
                 </div>
               </div>
             ))}
 
-            {/* Shipping Message */}
-            <div className="mt-4 px-4 flex items-center gap-3 text-[#8bd6b6]">
-              <Truck size={20} />
-              <span className="text-sm font-medium">Miễn phí vận chuyển hỏa tốc cho đơn hàng của bạn.</span>
-            </div>
+            {cartItems.length > 0 && (
+              <div className="mt-4 px-4 py-4 bg-[#8bd6b6]/10 rounded-xl border border-[#8bd6b6]/20 flex items-center gap-3 text-[#8bd6b6] animate-pulse">
+                <Truck size={20} />
+                <span className="text-sm font-semibold tracking-wide uppercase">Duy nhất tại Atelier: Miễn phí vận chuyển hỏa tốc toàn cầu.</span>
+              </div>
+            )}
           </section>
 
           {/* Order Summary Section */}

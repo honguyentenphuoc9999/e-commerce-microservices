@@ -4,6 +4,8 @@ import Link from "next/link";
 import { Search, ShoppingCart, User, Bell, LogOut } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { shopService } from "@/services/shopService";
 
 const Header = () => {
   const { user, logout } = useAuthStore();
@@ -13,6 +15,15 @@ const Header = () => {
     logout();
     router.push("/login"); // Push to login after logout
   };
+
+  // Fetch cart data for correct count (Enabled for everyone)
+  // Fetch cart data with user-specific key to avoid cache sharing
+  const { data: cartData } = useQuery({
+    queryKey: ['cart', user?.userName || 'guest'],
+    queryFn: shopService.getCart,
+  });
+
+  const cartLength = cartData?.items?.length || cartData?.cartItems?.length || (Array.isArray(cartData) ? cartData.length : 0);
 
   return (
     <nav className="fixed top-0 w-full z-50 bg-[#0b1326]/60 backdrop-blur-xl font-headline tracking-tight antialiased border-b border-white/5">
@@ -40,7 +51,11 @@ const Header = () => {
           <div className="flex items-center gap-4">
             <Link href="/cart" className="text-[#bec6e0] hover:bg-[#222a3d]/50 p-2 rounded-full transition-all group relative">
               <ShoppingCart className="h-5 w-5" />
-              <span className="absolute -top-1 -right-1 bg-[#e9c349] text-black text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">2</span>
+              {cartLength > 0 && (
+                <span className="absolute -top-1 -right-1 bg-[#e9c349] text-black text-[10px] min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center font-bold animate-in zoom-in-0 duration-300">
+                  {cartLength}
+                </span>
+              )}
             </Link>
             {user ? (
               <div className="flex items-center gap-2">

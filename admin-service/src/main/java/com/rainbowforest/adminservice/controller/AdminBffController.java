@@ -21,6 +21,9 @@ public class AdminBffController {
     @Autowired
     private com.rainbowforest.adminservice.feignclient.CategoryClient categoryClient;
 
+    @Autowired
+    private com.rainbowforest.adminservice.feignclient.ReviewClient reviewClient;
+
     // --- USER MANAGEMENT ---
     @GetMapping("/users")
     public Object getAllUsers(@RequestHeader("Authorization") String token) {
@@ -97,6 +100,22 @@ public class AdminBffController {
     @DeleteMapping("/categories/{id}")
     public Object deleteCategory(@PathVariable("id") Long id) {
         return categoryClient.deleteCategory(id);
+    }
+
+    @PostMapping(value = "/categories/upload-image/{id}", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Object uploadCategoryImage(@PathVariable("id") Long id, @RequestPart("image") org.springframework.web.multipart.MultipartFile imageFile) {
+        return categoryClient.uploadCategoryImage(id, imageFile);
+    }
+
+    // --- REVIEW MANAGEMENT ---
+    @GetMapping("/reviews")
+    public Object getAllReviews() {
+        return reviewClient.getAllReviews();
+    }
+
+    @PostMapping("/reviews/{id}/respond")
+    public Object respondToReview(@PathVariable("id") Long id, @RequestParam("response") String response) {
+        return reviewClient.respondToReview(id, response);
     }
 
     // --- ORDER MANAGEMENT ---

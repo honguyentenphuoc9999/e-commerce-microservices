@@ -6,6 +6,7 @@ import com.rainbowforest.userservice.repository.UserRepository;
 import com.rainbowforest.userservice.repository.UserRoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -22,6 +23,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private StringRedisTemplate redisTemplate;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     private void syncUserStatusToRedis(User user) {
         if (user != null && user.getUserName() != null) {
@@ -55,6 +59,11 @@ public class UserServiceImpl implements UserService {
     public User saveUser(User user) {
         user.setActive(1);
         
+        // Hash the password before saving
+        if (user.getUserPassword() != null) {
+            user.setUserPassword(passwordEncoder.encode(user.getUserPassword()));
+        }
+
         // If a role was passed in the JSON payload, use it (e.g., {"role": {"id": 1}})
         if (user.getRole() != null && user.getRole().getId() != null) {
             UserRole customRole = userRoleRepository.findById(user.getRole().getId()).orElse(null);
@@ -83,7 +92,7 @@ public class UserServiceImpl implements UserService {
                 existingUser.setUserName(user.getUserName());
             }
             if (user.getUserPassword() != null) {
-                existingUser.setUserPassword(user.getUserPassword());
+                existingUser.setUserPassword(passwordEncoder.encode(user.getUserPassword()));
             }
             
             // Nếu trạng thái ACTIVE thay đổi -> Tăng version để HỦY token cũ

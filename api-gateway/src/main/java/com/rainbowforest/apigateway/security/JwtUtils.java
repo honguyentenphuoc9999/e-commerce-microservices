@@ -49,4 +49,16 @@ public class JwtUtils {
             return null;
         }
     }
+
+    public Long extractUserId(String token) {
+        try {
+            Object id = getAllClaimsFromToken(token).get("userId");
+            if (id instanceof Number) {
+                return ((Number) id).longValue();
+            }
+            return null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

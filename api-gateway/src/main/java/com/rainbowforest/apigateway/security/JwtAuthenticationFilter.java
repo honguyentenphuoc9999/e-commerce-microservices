@@ -37,6 +37,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             || (path.contains("/api/accounts/users") && method.equals("POST")) // Register is public
             || (path.contains("/api/accounts/registration") && method.equals("POST"))
             || (path.contains("/api/catalog/products") && method.equals("GET")) // Read products is public
+            || (path.contains("/api/catalog/categories") && method.equals("GET")) // Read categories is public
             || (path.contains("/api/review/recommendations") && method.equals("GET"))) { // Read reviews is public
             return chain.filter(exchange);
         }
@@ -127,6 +128,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
             // 5. Mutate headers to pass downstream
             ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
+                .header("X-Auth-UserId", String.valueOf(jwtUtils.extractUserId(token)))
                 .header("X-Auth-Username", claims.getSubject())
                 .header("X-Auth-Role", role)
                 .build();

@@ -41,4 +41,9 @@ public class RecommendationServiceImpl implements RecommendationService {
     public List<Recommendation> getAllRecommendationsByUserId(Long userId) {
         return recommendationRepository.findByUserId(userId);
     }
+
+    @Override
+    public List<Recommendation> getAllRecommendations() {
+        return recommendationRepository.findAll();
+    }
 }

@@ -29,6 +29,12 @@ public class RecommendationController {
     @Autowired
     private HeaderGenerator headerGenerator;
 
+    @GetMapping(value = "/all-recommendations")
+    public ResponseEntity<List<Recommendation>> getAllRecommendations() {
+        List<Recommendation> recommendations = recommendationService.getAllRecommendations();
+        return new ResponseEntity<>(recommendations, headerGenerator.getHeadersForSuccessGetMethod(), HttpStatus.OK);
+    }
+
     @GetMapping(value = "/recommendations")
     public ResponseEntity<List<Recommendation>> getAllRating(@RequestParam("name") String productName) {
         List<Recommendation> recommendations = recommendationService.getAllRecommendationByProductName(productName);
@@ -60,6 +66,7 @@ public class RecommendationController {
             @PathVariable("userId") Long userId,
             @PathVariable("productId") Long productId,
             @RequestParam("rating") int rating,
+            @RequestParam(value = "comment", required = false) String comment,
             HttpServletRequest request) {
 
         try {
@@ -101,6 +108,7 @@ public class RecommendationController {
             recommendation.setProductId(productId);
             recommendation.setProductName(product.getProductName());
             recommendation.setRating(rating);
+            recommendation.setComment(comment);
 
             Recommendation saved = recommendationService.saveRecommendation(recommendation);
             return new ResponseEntity<>(saved, headerGenerator.getHeadersForSuccessGetMethod(), HttpStatus.CREATED);
@@ -115,6 +123,7 @@ public class RecommendationController {
             @PathVariable("userId") Long userId,
             @PathVariable("productId") Long productId,
             @RequestParam("rating") int rating,
+            @RequestParam(value = "comment", required = false) String comment,
             HttpServletRequest request) {
 
         try {
@@ -125,14 +134,28 @@ public class RecommendationController {
                 return new ResponseEntity<>(headerGenerator.getHeadersForError(), HttpStatus.NOT_FOUND);
             }
 
-            // 2. Cập nhật điểm rating
+            // 2. Cập nhật điểm rating và comment
             recommendation.setRating(rating);
+            if(comment != null) recommendation.setComment(comment);
             Recommendation saved = recommendationService.saveRecommendation(recommendation);
             return new ResponseEntity<>(saved, headerGenerator.getHeadersForSuccessGetMethod(), HttpStatus.OK);
 
         } catch (Exception e) {
             return new ResponseEntity<>(headerGenerator.getHeadersForError(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @PostMapping(value = "/recommendations/{id}/respond")
+    public ResponseEntity<Recommendation> respondToRecommendation(
+            @PathVariable("id") Long id,
+            @RequestParam("response") String response) {
+        Recommendation recommendation = recommendationService.getRecommendationById(id);
+        if (recommendation != null) {
+            recommendation.setAdminResponse(response);
+            Recommendation saved = recommendationService.saveRecommendation(recommendation);
+            return new ResponseEntity<>(saved, headerGenerator.getHeadersForSuccessGetMethod(), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @DeleteMapping(value = "/recommendations/{id}")

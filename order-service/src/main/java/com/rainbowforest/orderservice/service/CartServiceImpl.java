@@ -20,15 +20,37 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public void addItemToCart(String cartId, Long productId, Integer quantity) {
-        Product product = productClient.getProductById(productId);
-        
-        // Capping logic: Max 20, or whatever is left in stock
-        int maxAllowed = Math.min(20, product.getAvailability());
-        int finalQuantity = Math.min(quantity, maxAllowed);
-        if (finalQuantity <= 0) finalQuantity = 1; // Fallback if someone tries 0 or negative
-        
-        Item item = new Item(finalQuantity, product, CartUtilities.getSubTotalForItem(product, finalQuantity));
-        cartRedisRepository.addItemToCart(cartId, item);
+        List<Item> cart = (List)cartRedisRepository.getCart(cartId, Item.class);
+        Item existingItem = null;
+        for(Item item : cart){
+            if((item.getProduct().getId()).equals(productId)){
+                existingItem = item;
+                break;
+            }
+        }
+
+        if (existingItem != null) {
+            // Trường hợp đã có SP trong giỏ: Xóa cũ, cộng dồn số lượng, thêm mới
+            cartRedisRepository.deleteItemFromCart(cartId, existingItem);
+            
+            int newQuantity = existingItem.getQuantity() + quantity;
+            int maxAllowed = Math.min(20, existingItem.getProduct().getAvailability());
+            int finalQuantity = Math.min(newQuantity, maxAllowed);
+            if (finalQuantity <= 0) finalQuantity = 1;
+            
+            existingItem.setQuantity(finalQuantity);
+            existingItem.setSubTotal(CartUtilities.getSubTotalForItem(existingItem.getProduct(), finalQuantity));
+            cartRedisRepository.addItemToCart(cartId, existingItem);
+        } else {
+            // Trường hợp chưa có SP: Thêm bình thường
+            Product product = productClient.getProductById(productId);
+            int maxAllowed = Math.min(20, product.getAvailability());
+            int finalQuantity = Math.min(quantity, maxAllowed);
+            if (finalQuantity <= 0) finalQuantity = 1;
+            
+            Item newItem = new Item(finalQuantity, product, CartUtilities.getSubTotalForItem(product, finalQuantity));
+            cartRedisRepository.addItemToCart(cartId, newItem);
+        }
     }
 
     @Override

@@ -47,7 +47,10 @@ public class OrderController {
     @Autowired
     private NotificationClient notificationClient;
 
-    private String resolveCartId(String cookieHeader, String directCartId) {
+    private String resolveCartId(String cookieHeader, String directCartId, Long userId) {
+        if (userId != null) {
+            return "USER_" + userId;
+        }
         if (directCartId != null && !directCartId.isEmpty()) {
             return directCartId;
         }
@@ -64,10 +67,12 @@ public class OrderController {
             @RequestParam(value = "voucherCodes", required = false) String voucherCodes,
     		@RequestHeader(value = "Cookie", required = false) String cookieHeader,
             @RequestHeader(value = "cartId", required = false) String directCartId,
+            @RequestHeader(value = "X-Auth-UserId", required = false) String xAuthUserId,
     		HttpServletRequest request){
     	
         try {
-            String cartId = resolveCartId(cookieHeader, directCartId);
+            Long authUserId = (xAuthUserId != null && !"null".equals(xAuthUserId)) ? Long.parseLong(xAuthUserId) : userId;
+            String cartId = resolveCartId(cookieHeader, directCartId, authUserId);
             List<Item> cart = cartService.getAllItemsFromCart(cartId);
             
             if(cart == null || cart.isEmpty()){

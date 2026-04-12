@@ -13,12 +13,20 @@ export const apiClient = axios.create({
 // Request Interceptor: Tự động đính kèm Token xác thực nếu có
 apiClient.interceptors.request.use(
   (config) => {
-    // Với CSR (Client-side rendering), an toàn nhất là lấy từ localStorage (hoặc thư viện cookies tương tự)
+    // Với CSR (Client-side rendering), an toàn nhất là lấy từ localStorage
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('token');
       if (token) {
         config.headers['Authorization'] = `Bearer ${token}`;
       }
+
+      // Xử lý giỏ hàng riêng biệt (Guest Cart)
+      let cartId = localStorage.getItem('cartId');
+      if (!cartId) {
+        cartId = 'GUEST_' + Math.random().toString(36).substring(2, 15);
+        localStorage.setItem('cartId', cartId);
+      }
+      config.headers['cartId'] = cartId;
     }
     return config;
   },
