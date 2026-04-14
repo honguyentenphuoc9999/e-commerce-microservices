@@ -6,6 +6,7 @@ import { Plus } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { shopService } from "@/services/shopService";
 import { useAuthStore } from "@/store/useAuthStore";
+import { toast } from "sonner";
 
 interface ProductCardProps {
   id: string;
@@ -27,17 +28,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
     mutationFn: () => shopService.addToCart(id, 1),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cart"] });
-      alert(`Đã thêm ${name} vào giỏ hàng!`);
+      toast.success(`Đã thêm ${name} vào giỏ hàng!`);
     },
     onError: () => {
-      alert("Vui lòng đăng nhập để thêm vào giỏ hàng.");
+      toast.error("Vui lòng đăng nhập để thêm vào giỏ hàng.");
     },
   });
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     if (!user) {
-        alert("Vui lòng đăng nhập để thực hiện hành động này.");
+        toast.error("Vui lòng đăng nhập để thực hiện hành động này.");
         return;
     }
     cartMutation.mutate();
@@ -46,11 +47,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
     <div className="group relative flex flex-col bg-[#131b2e] rounded-[2rem] overflow-hidden transition-all duration-500 hover:-translate-y-2 border border-white/5">
       <div className="aspect-[4/5] overflow-hidden relative">
         <Link href={`/product/${id}`}>
-          <img 
-            src={image} 
-            alt={name}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-          />
+          {image ? (
+            <img 
+              src={image} 
+              alt={name}
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            />
+          ) : (
+            <div className="w-full h-full bg-[#0b1326] flex items-center justify-center text-[#c6c6cd]/20 font-black text-xs uppercase tracking-[0.2em]">
+              No Image
+            </div>
+          )}
         </Link>
         
         {badge && (

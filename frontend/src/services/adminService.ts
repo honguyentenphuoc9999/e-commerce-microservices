@@ -47,5 +47,16 @@ export const adminService = {
       totalProducts: Array.isArray(products) ? products.length : 0,
       totalRevenue: Array.isArray(orders) ? orders.reduce((acc: number, o: any) => acc + (o.totalPrice || 0), 0) : 0
     };
+  },
+
+  // --- PAYMENT MANAGEMENT ---
+  getPaymentConfig: async () => {
+    const res = await apiClient.get('/admin-bff/payments/config');
+    return res.data;
+  },
+
+  updatePaymentConfig: async (configData: any) => {
+    const res = await apiClient.put('/admin-bff/payments/config', configData);
+    return res.data;
   }
 };

@@ -74,4 +74,11 @@ public class PaymentController {
         response.put("message", "Đã cập nhật tài khoản nhận tiền: " + config.getBankId());
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/admin/config")
+    public ResponseEntity<PaymentConfig> getConfig() {
+        PaymentConfig config = paymentConfigRepository.findFirstByActiveTrue()
+                .orElse(new PaymentConfig());
+        return ResponseEntity.ok(config);
+    }
 }

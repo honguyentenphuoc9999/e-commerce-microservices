@@ -52,8 +52,9 @@ public class AdminBffController {
     }
 
     @GetMapping("/products/{id}")
-    public Object getProduct(@PathVariable("id") Long id) {
-        return productClient.getProductById(id);
+    public Object getProduct(@PathVariable("id") String id) {
+        String cleanId = id.contains(":") ? id.split(":")[0] : id;
+        return productClient.getProductById(Long.valueOf(cleanId));
     }
 
     @PostMapping("/products")
@@ -62,18 +63,26 @@ public class AdminBffController {
     }
 
     @PutMapping("/products/{id}")
-    public Object updateProduct(@PathVariable("id") Long id, @RequestBody Object product) {
-        return productClient.updateProduct(id, product);
+    public Object updateProduct(@PathVariable("id") String id, @RequestBody Object product) {
+        String cleanId = id.contains(":") ? id.split(":")[0] : id;
+        return productClient.updateProduct(Long.valueOf(cleanId), product);
     }
 
     @DeleteMapping("/products/{id}")
-    public Object deleteProduct(@PathVariable("id") Long id) {
-        return productClient.deleteProduct(id);
+    public Object deleteProduct(@PathVariable("id") String id) {
+        String cleanId = id.contains(":") ? id.split(":")[0] : id;
+        return productClient.deleteProduct(Long.valueOf(cleanId));
     }
 
     @PostMapping(value = "/products/upload-image/{id}", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
     public Object uploadProductImage(@PathVariable("id") Long id, @RequestPart("image") org.springframework.web.multipart.MultipartFile imageFile) {
         return productClient.uploadProductImage(id, imageFile);
+    }
+
+    @PostMapping(value = "/uploads/gallery/{id}", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Object uploadProductImages(@PathVariable("id") String id, @RequestPart("images") org.springframework.web.multipart.MultipartFile[] imageFiles) {
+        String cleanId = id.contains(":") ? id.split(":")[0] : id;
+        return productClient.uploadProductImages(cleanId, imageFiles);
     }
 
     // --- CATEGORY MANAGEMENT ---
@@ -137,5 +146,16 @@ public class AdminBffController {
     @PutMapping("/orders/{id}/status")
     public Object updateOrderStatus(@PathVariable("id") Long id, @RequestParam("status") String status) {
         return orderClient.updateOrderStatus(id, status);
+    }
+
+    // --- PAYMENT CONFIG MANAGEMENT ---
+    @GetMapping("/payments/config")
+    public Object getPaymentConfig() {
+        return orderClient.getPaymentConfig();
+    }
+
+    @PutMapping("/payments/config")
+    public Object updatePaymentConfig(@RequestBody Object configData) {
+        return orderClient.updatePaymentConfig(configData);
     }
 }

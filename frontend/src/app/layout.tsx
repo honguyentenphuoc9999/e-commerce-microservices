@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
-import { Inter, Outfit } from "next/font/google";
+import { Inter, Be_Vietnam_Pro } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
   variable: "--font-inter",
-  subsets: ["latin"],
+  subsets: ["latin", "vietnamese"],
 });
 
-const outfit = Outfit({
-  variable: "--font-outfit",
-  subsets: ["latin"],
+const beVietnamPro = Be_Vietnam_Pro({
+  variable: "--font-be-vietnam-pro",
+  subsets: ["latin", "vietnamese"],
+  weight: ["400", "500", "600", "700"],
 });
 
 import Providers from "@/components/Providers";
@@ -25,8 +26,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi" className={`${inter.variable} ${outfit.variable} h-full antialiased`}>
-      <body className="font-outfit text-white bg-[#050816] min-h-screen flex flex-col">
+    <html lang="vi" className={`${inter.variable} ${beVietnamPro.variable} h-full antialiased`}>
+      <body className="font-be-vietnam-pro text-white bg-[#050816] min-h-screen flex flex-col">
         <Providers>
           {children}
         </Providers>

@@ -14,6 +14,7 @@ export interface Product {
   discription: string;
   availability: number;
   image?: string;
+  images?: string[];
   category?: Category;
 }
 
@@ -66,9 +67,16 @@ export const catalogService = {
     const formData = new FormData();
     formData.append('image', file);
     const res = await apiClient.post(`/admin-bff/products/upload-image/${id}`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return res.data;
+  },
+
+  adminUploadImages: async (id: number | string, files: File[]): Promise<Product> => {
+    const formData = new FormData();
+    files.forEach(file => formData.append('images', file));
+    const res = await apiClient.post(`/admin-bff/uploads/gallery/${id}`, formData, {
+       headers: { 'Content-Type': 'multipart/form-data' }
     });
     return res.data;
   },
@@ -92,9 +100,7 @@ export const catalogService = {
     const formData = new FormData();
     formData.append('image', file);
     const res = await apiClient.post(`/admin-bff/categories/upload-image/${id}`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+       headers: { 'Content-Type': 'multipart/form-data' }
     });
     return res.data;
   }

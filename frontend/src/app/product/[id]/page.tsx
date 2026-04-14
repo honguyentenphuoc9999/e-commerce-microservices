@@ -11,29 +11,42 @@ import { catalogService } from "@/services/catalogService";
 import { shopService } from "@/services/shopService";
 import { reviewService } from "@/services/reviewService";
 import { useAuthStore } from "@/store/useAuthStore";
+import { toast } from "sonner";
 
 const ProductDetailPage = () => {
   const params = useParams<{id: string}>();
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState("Large");
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
 
   const { data: product, isLoading } = useQuery({
     queryKey: ['product', params.id],
-    queryFn: () => catalogService.getProductById(params.id as string),
+    queryFn: async () => {
+      const p = await catalogService.getProductById(params.id as string);
+      if (p && !selectedImage) setSelectedImage(p.image || (p.images && p.images[0]) || null);
+      return p;
+    },
     enabled: !!params.id,
   });
+
+  // Helper to get all product images
+  const allImages = product?.images && product.images.length > 0 
+    ? product.images 
+    : (product?.image ? [product.image] : []);
+
+  const currentImage = selectedImage || product?.image || (allImages.length > 0 ? allImages[0] : null);
 
   const cartMutation = useMutation({
     mutationFn: () => shopService.addToCart(product!.id!, quantity),
     onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['cart'] });
-        alert(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
+        toast.success(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
     },
     onError: () => {
-        alert("Có lỗi xảy ra khi thêm vào giỏ hàng.");
+        toast.error("Có lỗi xảy ra khi thêm vào giỏ hàng.");
     }
   });
 
@@ -49,10 +62,61 @@ const ProductDetailPage = () => {
 
   const handleAddToCart = () => {
     if (!user) {
-        alert("Vui lòng đăng nhập để thêm vào giỏ hàng.");
+        toast.error("Vui lòng đăng nhập để thêm vào giỏ hàng.");
         return;
     }
     cartMutation.mutate();
+  };
+
+  const { data: userReview } = useQuery({
+    queryKey: ['userProductReview', user?.id, params.id],
+    queryFn: () => reviewService.getRecommendationByUserIdAndProductId(user!.id as any, params.id as any),
+    enabled: !!user?.id && !!params.id,
+  });
+
+  const saveReviewMutation = useMutation({
+    mutationFn: ({ rating, comment }: { rating: number, comment: string }) => 
+      reviewService.saveReview(user!.id!, product!.id!, rating, comment),
+    onSuccess: () => {
+      toast.success("Cảm ơn bạn đã đánh giá!");
+      queryClient.invalidateQueries({ queryKey: ['productReviews'] });
+      queryClient.invalidateQueries({ queryKey: ['userProductReview'] });
+    },
+    onError: (err: any) => {
+      if (err.response?.status === 409) {
+        toast.error("Bạn đã đánh giá sản phẩm này rồi! Hãy chỉnh sửa ở trang Cá nhân.");
+      } else {
+        toast.error("Có lỗi xảy ra khi lưu đánh giá.");
+      }
+    }
+  });
+
+  const updateReviewMutation = useMutation({
+    mutationFn: ({ rating, comment }: { rating: number, comment: string }) => 
+      reviewService.updateReview(user!.id!, product!.id!, rating, comment),
+    onSuccess: () => {
+      toast.success("Đã cập nhật đánh giá của bạn!");
+      queryClient.invalidateQueries({ queryKey: ['productReviews'] });
+      queryClient.invalidateQueries({ queryKey: ['userProductReview'] });
+    },
+    onError: () => toast.error("Có lỗi xảy ra khi cập nhật đánh giá.")
+  });
+
+  const handleReviewAction = () => {
+    if (!user) return toast.error("Vui lòng đăng nhập để đánh giá.");
+    
+    const isEditing = !!userReview;
+    const rating = prompt(`Nhập số sao (1-5):`, (userReview?.rating || 5).toString());
+    if (rating === null) return;
+
+    const comment = prompt(`Nhập nội dung đánh giá:`, userReview?.comment || "");
+    if (comment === null) return;
+
+    if (isEditing) {
+      updateReviewMutation.mutate({ rating: parseInt(rating), comment });
+    } else {
+      saveReviewMutation.mutate({ rating: parseInt(rating), comment });
+    }
   };
 
   if (isLoading) {
@@ -89,33 +153,37 @@ const ProductDetailPage = () => {
           {/* Product Images (Left) */}
           <div className="lg:col-span-7 space-y-6">
             <motion.div 
+              key={currentImage}
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8 }}
+              transition={{ duration: 0.5 }}
               className="relative h-[800px] w-full bg-white/5 rounded-[40px] overflow-hidden group shadow-2xl border border-white/5 flex items-center justify-center p-10"
             >
-              {product.image ? (
-                <img src={product.image} alt={product.productName} className="object-cover w-full h-full rounded-[30px]" />
+              {currentImage ? (
+                <img src={currentImage} alt={product.productName} className="object-contain w-full h-full rounded-[30px]" />
               ) : (
-                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1591047139829-d91aec36caea?q=80&w=1200')] bg-cover bg-center grayscale opacity-90 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000" />
+                <ImageIcon size={64} className="text-white/10" />
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
             </motion.div>
             
-            <div className="grid grid-cols-2 gap-6">
-              <div className="h-96 rounded-3xl overflow-hidden bg-white/5 border border-white/5">
-                <div className="w-full h-full bg-[url('https://images.unsplash.com/photo-1594932224036-9c23bc4a044f?q=80&w=800')] bg-cover bg-center opacity-70 hover:opacity-100 transition-opacity" />
-              </div>
-              <div className="h-96 rounded-3xl overflow-hidden bg-white/5 border border-white/5">
-                <div className="w-full h-full bg-[url('https://images.unsplash.com/photo-1617135671148-99cf2d53c59b?q=80&w=800')] bg-cover bg-center opacity-70 hover:opacity-100 transition-opacity" />
-              </div>
+            <div className="grid grid-cols-5 md:grid-cols-9 gap-4">
+              {allImages.map((img, i) => (
+                <button 
+                  key={i}
+                  onClick={() => setSelectedImage(img)}
+                  className={`aspect-square rounded-2xl overflow-hidden border-2 transition-all ${selectedImage === img ? 'border-[#e9c349] scale-105 shadow-lg shadow-[#e9c349]/20' : 'border-white/5 hover:border-white/20'}`}
+                >
+                  <img src={img} alt={`Thumbnail ${i + 1}`} className="w-full h-full object-cover" />
+                </button>
+              ))}
             </div>
           </div>
 
           {/* Product Info (Right) */}
           <div className="lg:col-span-5 space-y-10 lg:sticky lg:top-32 self-start">
             <div className="space-y-4">
-              <span className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase">{product.category?.categoryName || "Default"}</span>
+              <span className="text-[10px] font-black tracking-[0.3em] text-blue-500 uppercase">{product.category?.categoryName || ""}</span>
               <h1 className="text-6xl font-black tracking-tighter leading-tight">{product.productName}</h1>
               <div className="flex items-center space-x-6 pt-2">
                 <div className="flex text-yellow-500">
@@ -130,7 +198,7 @@ const ProductDetailPage = () => {
             </div>
 
             <p className="text-slate-400 font-medium leading-relaxed max-w-lg">
-              {product.discription || "Trải nghiệm chuẩn mực mới của sự tĩnh lặng và hiệu suất với tuyệt tác giới hạn của chúng tôi."}
+              {product.discription || ""}
             </p>
 
             <div className="flex items-center space-x-3 py-4 text-[10px] font-bold tracking-widest text-emerald-500 uppercase">
@@ -196,7 +264,7 @@ const ProductDetailPage = () => {
         <section className="mt-40 pt-20 border-t border-white/5">
           <div className="flex flex-col lg:flex-row gap-20">
             <div className="lg:w-1/3 space-y-10 sticky top-32 self-start">
-               <h2 className="text-4xl font-bold tracking-tighter">Ý Kiến Khách Hàng</h2>
+               <h2 className="text-4xl font-bold tracking-tighter">Đánh giá Khách Hàng</h2>
                <div className="bg-white/5 rounded-[40px] p-12 border border-white/5 flex flex-col items-center text-center space-y-4">
                   <div className="text-8xl font-black">{averageRating}</div>
                   <div className="flex text-yellow-500 pb-4">
@@ -217,21 +285,9 @@ const ProductDetailPage = () => {
                   </div>
                   
                   <button 
-                    onClick={() => {
-                        if(!user) return alert("Vui lòng đăng nhập để đánh giá.");
-                        const rating = prompt("Nhập số sao (1-5):", "5");
-                        const comment = prompt("Nhập nội dung đánh giá:");
-                        if(rating && comment) {
-                           reviewService.saveReview(user.id!, product.id!, parseInt(rating), comment)
-                            .then(() => {
-                                alert("Cảm ơn bạn đã đánh giá!");
-                                queryClient.invalidateQueries({ queryKey: ['productReviews'] });
-                            })
-                            .catch(() => alert("Bạn đã đánh giá sản phẩm này rồi!"));
-                        }
-                    }}
+                    onClick={handleReviewAction}
                     className="w-full mt-10 p-4 border border-white/10 rounded-xl text-xs font-bold tracking-widest uppercase hover:bg-white/5 transition">
-                    Viết đánh giá
+                    {userReview ? "Chỉnh sửa đánh giá của bạn" : "Viết đánh giá"}
                   </button>
                </div>
             </div>
@@ -259,8 +315,8 @@ const ProductDetailPage = () => {
                           {rev.createdAt ? new Date(rev.createdAt).toLocaleDateString('vi-VN') : "Hôm nay"}
                        </span>
                     </div>
-                    <h4 className="text-2xl font-bold tracking-tight uppercase">Ý kiến từ {rev.userName || "Nhà sưu tầm"}</h4>
-                    <p className="text-slate-400 font-medium leading-relaxed italic">"{rev.comment || "Sản phẩm thực sự chất lượng!"}"</p>
+                    <h4 className="text-2xl font-bold tracking-tight uppercase">Đánh giá từ {rev.userName || ""}</h4>
+                    <p className="text-slate-400 font-medium leading-relaxed italic">{rev.comment ? `"${rev.comment}"` : ""}</p>
                     
                     {rev.adminResponse && (
                        <div className="ml-10 p-6 bg-[#e9c349]/10 border-l-2 border-[#e9c349] rounded-2xl animate-in slide-in-from-left-2">
@@ -276,7 +332,7 @@ const ProductDetailPage = () => {
                          {(rev.userName || "U")[0]}
                        </div>
                        <div>
-                          <p className="text-xs font-bold tracking-widest text-white uppercase">{rev.userName || "Người dùng ẩn danh"} {rev.userId === user?.id && <span className="text-[#e9c349] ml-2">(Bạn)</span>}</p>
+                          <p className="text-xs font-bold tracking-widest text-white uppercase">{rev.userName || ""} {rev.userId === user?.id && <span className="text-[#e9c349] ml-2">(Bạn)</span>}</p>
                           <p className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Nhà sưu tầm đã xác thực</p>
                        </div>
                     </div>

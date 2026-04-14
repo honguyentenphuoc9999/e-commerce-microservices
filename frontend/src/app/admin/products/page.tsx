@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Search, 
   Filter, 
@@ -23,6 +23,7 @@ import {
 import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { catalogService, Product } from "@/services/catalogService";
+import { toast } from "sonner";
 
 const AdminProducts = () => {
   const queryClient = useQueryClient();
@@ -39,9 +40,9 @@ const AdminProducts = () => {
     mutationFn: (id: number) => catalogService.adminDeleteProduct(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminProducts'] });
-      alert("Xóa sản phẩm thành công");
+      toast.success("Xóa sản phẩm thành công");
     },
-    onError: () => alert("Có lỗi khi xóa sản phẩm")
+    onError: () => toast.error("Có lỗi khi xóa sản phẩm")
   });
 
   const { data: categories = [] } = useQuery({
@@ -56,29 +57,44 @@ const AdminProducts = () => {
         : catalogService.adminAddProduct(data.product),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['adminProducts'] });
-      if (imageFile && data.id) {
-        uploadMutation.mutate({ id: data.id, file: imageFile });
+      if (imageFiles.length > 0 && data.id) {
+        uploadMultiMutation.mutate({ id: data.id, files: imageFiles });
       } else {
         setIsModalOpen(false);
-        alert(modalType === "add" ? "Thêm sản phẩm thành công" : "Cập nhật thành công");
+        toast.success(modalType === "add" ? "Thêm sản phẩm thành công" : "Cập nhật thành công");
       }
     },
-    onError: () => alert("Có lỗi xảy ra")
+    onError: () => toast.error("Có lỗi xảy ra")
   });
 
-  const uploadMutation = useMutation({
-    mutationFn: (data: { id: number, file: File }) => catalogService.adminUploadImage(data.id, data.file),
+  const uploadMultiMutation = useMutation({
+    mutationFn: (data: { id: number, files: File[] }) => catalogService.adminUploadImages(data.id, data.files),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminProducts'] });
       setIsModalOpen(false);
-      alert("Đã tải ảnh và lưu sản phẩm thành công");
-      setImageFile(null);
+      toast.success("Đã tải gallery ảnh và lưu sản phẩm thành công");
+      setImageFiles([]);
+      setImagePreviews([]);
     }
   });
 
   const [formData, setFormData] = useState<Partial<Product>>({});
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [expandedPreviewIndex, setExpandedPreviewIndex] = useState<number | null>(null);
+  const [tableLightbox, setTableLightbox] = useState<{ images: string[], currentIndex: number } | null>(null);
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (isModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isModalOpen]);
 
   const handleOpenModal = (type: "add" | "edit", product?: any) => {
     setModalType(type);
@@ -89,33 +105,68 @@ const AdminProducts = () => {
       availability: product.availability || 0,
       discription: product.discription || "",
       category: product.category,
-      image: product.image || ""
+      image: product.image || "",
+      images: product.images || []
     } : {
       productName: "",
       price: 0,
       availability: 0,
       discription: "",
       category: categories[0],
-      image: ""
+      image: "",
+      images: []
     });
-    setImagePreview(product?.image || null);
-    setImageFile(null);
+    const initialImages = (product?.images || (product?.image ? [product.image] : []))
+      .filter((img: string) => img && (img.startsWith('http') || img.startsWith('data:')));
+    
+    setImagePreviews(initialImages);
+    setImageFiles([]);
     setIsModalOpen(true);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (imageFiles.length > 0 && imageFiles.length < 3 && modalType === "add") {
+       return toast.error("Vui lòng chọn ít nhất 3 ảnh sản phẩm.");
+    }
     productMutation.mutate({ id: selectedProduct?.id, product: formData });
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => setImagePreview(reader.result as string);
-      reader.readAsDataURL(file);
+    const newFiles = Array.from(e.target.files || []);
+    if (imageFiles.length + newFiles.length > 9) {
+      toast.error("Tối đa chỉ được chọn 9 ảnh.");
+      return;
     }
+
+    if (newFiles.length > 0) {
+      const updatedFiles = [...imageFiles, ...newFiles];
+      setImageFiles(updatedFiles);
+      
+      const newPreviews: string[] = [];
+      let loaded = 0;
+      newFiles.forEach(file => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          newPreviews.push(reader.result as string);
+          loaded++;
+          if (loaded === newFiles.length) {
+            setImagePreviews([...imagePreviews, ...newPreviews]);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+
+  const removeImageChoice = (index: number) => {
+    const updatedFiles = [...imageFiles];
+    updatedFiles.splice(index, 1);
+    setImageFiles(updatedFiles);
+
+    const updatedPreviews = [...imagePreviews];
+    updatedPreviews.splice(index, 1);
+    setImagePreviews(updatedPreviews);
   };
 
   const handleDelete = (id: number) => {
@@ -140,7 +191,6 @@ const AdminProducts = () => {
 
   return (
     <div className="p-12 space-y-12 animate-in fade-in duration-700 relative">
-      {/* Header Section */}
       <header className="flex justify-between items-end">
         <div>
           <nav className="flex gap-2 mb-2">
@@ -170,7 +220,6 @@ const AdminProducts = () => {
         </div>
       </header>
 
-      {/* Stats Bento Grid */}
       <section className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-[#131b2e] p-6 rounded-2xl relative overflow-hidden group border border-white/5 shadow-xl">
            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
@@ -202,7 +251,6 @@ const AdminProducts = () => {
         </div>
       </section>
 
-      {/* Product Table Table Section */}
       <section className="bg-[#131b2e] rounded-2xl overflow-hidden shadow-2xl border border-white/5 bg-linear-to-b from-[#131b2e] to-[#0b1326]">
         <div className="px-8 py-6 flex justify-between items-center border-b border-white/5 bg-[#171f33]/30">
           <div className="flex gap-4">
@@ -242,7 +290,16 @@ const AdminProducts = () => {
                 <tr key={prd.id} className="hover:bg-white/[0.02] transition-colors group">
                   <td className="px-8 py-6">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-16 rounded-lg bg-[#171f33] overflow-hidden border border-white/10 group-hover:border-[#e9c349]/30 transition-all duration-300 flex-shrink-0 shadow-lg p-0.5 relative">
+                      <div 
+                        onClick={() => {
+                          if (prd.images && prd.images.length > 0) {
+                            setTableLightbox({ images: prd.images, currentIndex: 0 });
+                          } else if (prd.image) {
+                            setTableLightbox({ images: [prd.image], currentIndex: 0 });
+                          }
+                        }}
+                        className={`w-12 h-16 rounded-lg bg-[#171f33] overflow-hidden border border-white/10 group-hover:border-[#e9c349]/30 transition-all duration-300 flex-shrink-0 shadow-lg p-0.5 relative ${(prd.image || prd.images?.length > 0) ? 'cursor-pointer hover:scale-105' : ''}`}
+                      >
                         {prd.image ? (
                           <img src={prd.image} alt={prd.productName} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
                         ) : (
@@ -253,7 +310,34 @@ const AdminProducts = () => {
                       </div>
                       <div>
                         <p className="font-bold text-white group-hover:text-[#e9c349] transition-colors leading-tight">{prd.productName}</p>
-                        <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-1 font-mono">#{prd.id} / {prd.category?.categoryName || "Uncategorized"}</p>
+                        <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-1 font-mono hover:text-slate-400">#{prd.id} / {prd.category?.categoryName || "Uncategorized"}</p>
+                        
+                        {/* Gallery hiển thị thu nhỏ */}
+                        {prd.images && prd.images.length > 1 && (
+                          <div className="flex gap-1 mt-2 items-center">
+                            {prd.images.slice(1, 5).map((imgUrl: string, idx: number) => (
+                               <button 
+                                 type="button"
+                                 title="Xem ảnh"
+                                 onClick={() => setTableLightbox({ images: prd.images, currentIndex: idx + 1 })}
+                                 key={idx} 
+                                 className="w-6 h-6 rounded-md overflow-hidden border border-white/10 opacity-40 group-hover:opacity-100 hover:scale-110 hover:border-[#e9c349] hover:opacity-100 transition-all duration-300 shadow-sm cursor-pointer"
+                               >
+                                  <img src={imgUrl} className="w-full h-full object-cover grayscale group-hover:grayscale-0" alt="gallery" />
+                               </button>
+                            ))}
+                            {prd.images.length > 5 && (
+                               <button 
+                                 type="button"
+                                 title="Xem toàn bộ Gallery"
+                                 onClick={() => setTableLightbox({ images: prd.images, currentIndex: 5 })}
+                                 className="w-6 h-6 rounded-md bg-[#171f33] flex items-center justify-center border border-white/10 text-[8px] text-[#e9c349] font-black opacity-40 group-hover:opacity-100 hover:scale-110 hover:border-[#e9c349] hover:opacity-100 transition-all cursor-pointer"
+                               >
+                                 +{prd.images.length - 5}
+                               </button>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </td>
@@ -297,134 +381,233 @@ const AdminProducts = () => {
         </div>
       </section>
 
-      {/* Product Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
-           <form onSubmit={handleSubmit} className="bg-[#131b2e] w-full max-w-3xl rounded-3xl border border-white/10 shadow-3xl overflow-hidden animate-in slide-in-from-bottom-12 duration-500">
-              <div className="p-8 border-b border-white/5 flex justify-between items-center bg-[#171f33]/50">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+           <div 
+             className="absolute inset-0 bg-[#050914]/80 backdrop-blur-xl animate-in fade-in duration-500"
+             onClick={() => setIsModalOpen(false)}
+           />
+            <form onSubmit={handleSubmit} className="relative w-full max-w-5xl bg-[#0b1326] rounded-[32px] overflow-hidden shadow-3xl border border-white/5 animate-in zoom-in-95 slide-in-from-bottom-10 duration-500 max-h-[95vh] flex flex-col">
+              <div className="p-8 border-b border-white/5 bg-gradient-to-r from-white/[0.02] to-transparent flex items-center justify-between flex-shrink-0">
                  <div>
-                    <h2 className="text-2xl font-headline font-black text-white uppercase tracking-tight italic">
-                       {modalType === "add" ? "Thiết lập sản phẩm mới" : "Tinh chỉnh sản phẩm"}
-                    </h2>
-                    <p className="text-xs text-slate-500 uppercase tracking-widest mt-1 font-bold">Atelier Luxury Inventory System</p>
+                    <h3 className="text-2xl font-black text-white tracking-tight uppercase">
+                       {modalType === "add" ? "Khai thông Sản phẩm" : "Tinh chỉnh Sản phẩm"}
+                    </h3>
+                    <p className="text-[10px] font-bold text-slate-500 tracking-[0.3em] uppercase mt-1">Atelier Luxury Inventory System</p>
                  </div>
                  <button 
-                    type="button"
-                    onClick={() => setIsModalOpen(false)}
-                    className="p-3 rounded-full hover:bg-white/5 text-slate-400 hover:text-white transition-all border border-white/5"
+                   type="button"
+                   onClick={() => setIsModalOpen(false)}
+                   className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all border border-white/5"
                  >
                     <X size={20} />
                  </button>
               </div>
 
-              <div className="p-10 grid grid-cols-1 md:grid-cols-2 gap-8 max-h-[70vh] overflow-y-auto custom-scrollbar">
-                 <div className="space-y-6">
-                    <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Tên sản phẩm</label>
-                       <input 
-                         required
-                         value={formData.productName}
-                         onChange={(e) => setFormData({...formData, productName: e.target.value})}
-                         placeholder="Ví dụ: Chronos Platinum Limited" 
-                         className="w-full bg-[#0b1326] border border-white/5 rounded-xl py-4 px-5 text-sm text-white focus:ring-1 focus:ring-[#e9c349]/40 outline-none transition-all placeholder:text-slate-700 font-body"
-                       />
-                    </div>
-                    <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Danh mục</label>
-                       <select 
-                         value={formData.category?.id}
-                         onChange={(e) => setFormData({...formData, category: categories.find((c: any) => c.id === parseInt(e.target.value))})}
-                         className="w-full bg-[#0b1326] border border-white/5 rounded-xl py-4 px-5 text-sm text-white focus:ring-1 focus:ring-[#e9c349]/40 outline-none transition-all font-body appearance-none"
-                       >
-                          {categories.map((cat: any) => (
-                            <option key={cat.id} value={cat.id}>{cat.categoryName}</option>
-                          ))}
-                       </select>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
+              <div className="flex-grow overflow-y-auto custom-scrollbar p-10">
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-6">
                        <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Giá bán ($)</label>
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Tên sản phẩm</label>
                           <input 
                             required
-                            value={formData.price}
-                            onChange={(e) => setFormData({...formData, price: parseFloat(e.target.value)})}
-                            type="number" 
-                            step="0.01"
-                            placeholder="0.00" 
-                            className="w-full bg-[#0b1326] border border-white/5 rounded-xl py-4 px-5 text-sm text-white focus:ring-1 focus:ring-[#e9c349]/40 outline-none transition-all placeholder:text-slate-700 font-bold"
+                            value={formData.productName}
+                            onChange={(e) => setFormData({...formData, productName: e.target.value})}
+                            placeholder="Ví dụ: Chronos Platinum Limited" 
+                            className="w-full bg-[#0b1326] border border-white/5 rounded-xl py-4 px-5 text-sm text-white focus:ring-1 focus:ring-[#e9c349]/40 outline-none transition-all placeholder:text-slate-700 font-body"
                           />
                        </div>
                        <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Số lượng kho</label>
-                          <input 
-                            required
-                            value={formData.availability}
-                            onChange={(e) => setFormData({...formData, availability: parseInt(e.target.value)})}
-                            type="number" 
-                            placeholder="0" 
-                            className="w-full bg-[#0b1326] border border-white/5 rounded-xl py-4 px-5 text-sm text-white focus:ring-1 focus:ring-[#e9c349]/40 outline-none transition-all placeholder:text-slate-700 font-bold"
-                          />
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Danh mục</label>
+                          <select 
+                            value={formData.category?.id}
+                            onChange={(e) => setFormData({...formData, category: categories.find((c: any) => c.id === parseInt(e.target.value))})}
+                            className="w-full bg-[#0b1326] border border-white/5 rounded-xl py-4 px-5 text-sm text-white focus:ring-1 focus:ring-[#e9c349]/40 outline-none transition-all font-body appearance-none"
+                          >
+                             {categories.map((cat: any) => (
+                               <option key={cat.id} value={cat.id}>{cat.categoryName}</option>
+                             ))}
+                          </select>
                        </div>
-                    </div>
-                 </div>
-
-                 <div className="space-y-6">
-                    <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Đường dẫn hình ảnh (Cloudinary)</label>
-                       <input 
-                         value={formData.image || ""}
-                         onChange={(e) => {
-                           setFormData({...formData, image: e.target.value});
-                           setImagePreview(e.target.value);
-                         }}
-                         placeholder="https://res.cloudinary.com/..." 
-                         className="w-full bg-[#0b1326] border border-white/5 rounded-xl py-4 px-5 text-sm text-white focus:ring-1 focus:ring-[#e9c349]/40 outline-none transition-all placeholder:text-slate-700 font-body"
-                       />
-                    </div>
-                    <div className="space-y-2 h-full">
-                       <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Hoặc Tải ảnh lên</label>
-                       <label className="min-h-[160px] border-2 border-dashed border-white/5 rounded-2xl flex flex-col items-center justify-center gap-4 hover:border-[#e9c349]/20 hover:bg-white/[0.02] transition-all cursor-pointer group/upload relative overflow-hidden">
-                          <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
-                          {imagePreview ? (
-                             <img src={imagePreview} className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover/upload:scale-110 transition-transform duration-1000" />
-                          ) : null}
-                          <div className="relative z-10 flex flex-col items-center text-center p-6 bg-[#0b1326]/40 backdrop-blur-sm rounded-2xl border border-white/5">
-                             <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-3 group-hover/upload:scale-110 transition-transform">
-                                <ImageIcon size={20} className="text-slate-500 group-hover:text-[#e9c349]" />
-                             </div>
-                             <p className="text-xs font-bold text-slate-400">Kéo thả ảnh hoặc <span className="text-[#e9c349]">Tải lên</span></p>
-                             <p className="text-[10px] text-slate-600 mt-2 uppercase tracking-tight">Định dạng JPG, PNG (Tối đa 5MB)</p>
+                       <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                             <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Giá bán ($)</label>
+                             <input 
+                               required
+                               value={formData.price}
+                               onChange={(e) => setFormData({...formData, price: parseFloat(e.target.value)})}
+                               type="number" 
+                               step="0.01"
+                               placeholder="0.00" 
+                               className="w-full bg-[#0b1326] border border-white/5 rounded-xl py-4 px-5 text-sm text-white focus:ring-1 focus:ring-[#e9c349]/40 outline-none transition-all placeholder:text-slate-700 font-bold"
+                             />
                           </div>
-                       </label>
+                          <div className="space-y-2">
+                             <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Số lượng kho</label>
+                             <input 
+                               required
+                               value={formData.availability}
+                               onChange={(e) => setFormData({...formData, availability: parseInt(e.target.value)})}
+                               type="number" 
+                               placeholder="0" 
+                               className="w-full bg-[#0b1326] border border-white/5 rounded-xl py-4 px-5 text-sm text-white focus:ring-1 focus:ring-[#e9c349]/40 outline-none transition-all placeholder:text-slate-700 font-bold"
+                             />
+                          </div>
+                       </div>
                     </div>
-                 </div>
-                 
-                 <div className="md:col-span-2 space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Mô tả sản phẩm</label>
-                    <textarea 
-                      value={formData.discription || ""}
-                      onChange={(e) => setFormData({...formData, discription: e.target.value})}
-                      placeholder="Mô tả tinh hoa về sản phẩm của bạn..."
-                      rows={4}
-                      className="w-full bg-[#0b1326] border border-white/5 rounded-xl py-4 px-5 text-sm text-white focus:ring-1 focus:ring-[#e9c349]/40 outline-none transition-all placeholder:text-slate-700 font-body leading-relaxed"
-                    />
+
+                    <div className="space-y-6">
+                       <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Gallery hình ảnh (Clouds - Ngăn cách dấu phẩy)</label>
+                          <textarea 
+                            value={formData.images?.join(", ") || ""}
+                            onChange={(e) => {
+                              const urls = e.target.value.split(",").map(u => u.trim()).filter(u => u !== "");
+                              setFormData({...formData, images: urls, image: urls[0] || ""});
+                              setImagePreviews(urls);
+                            }}
+                            placeholder="URL 1, URL 2, ..." 
+                            rows={2}
+                            className="w-full bg-[#0b1326] border border-white/5 rounded-xl py-4 px-5 text-sm text-white focus:ring-1 focus:ring-[#e9c349]/40 outline-none transition-all placeholder:text-slate-700 font-body"
+                          />
+                       </div>
+                       <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Tải lên Gallery (3-9 ảnh)</label>
+                          <div className="min-h-[160px] border-2 border-dashed border-white/5 rounded-2xl relative overflow-hidden group/upload">
+                             <input type="file" id="multi-upload" className="hidden" accept="image/*" multiple onChange={handleImageChange} />
+                             
+                             {imagePreviews.length > 0 ? (
+                                <div className="grid grid-cols-3 gap-2 p-3 bg-[#0b1326] h-full">
+                                   {imagePreviews.slice(0, 9).map((img, i) => (
+                                      <div 
+                                          key={i} 
+                                          onClick={() => setExpandedPreviewIndex(i)}
+                                          className="relative group/img aspect-square overflow-hidden rounded-xl border border-white/5 cursor-pointer"
+                                      >
+                                          <img src={img} className="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-110" />
+                                          <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/20 transition-opacity" />
+                                          <button 
+                                             type="button"
+                                             onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                removeImageChoice(i);
+                                             }}
+                                             className="absolute top-2 right-2 p-1.5 bg-black/50 hover:bg-rose-500 text-white rounded-full transition-all backdrop-blur-md opacity-0 group-hover/img:opacity-100 shadow-lg"
+                                          >
+                                             <X size={14} />
+                                          </button>
+                                      </div>
+                                   ))}
+                                   {imagePreviews.length < 9 && (
+                                      <label htmlFor="multi-upload" className="aspect-square flex flex-col items-center justify-center border-2 border-dashed border-white/10 rounded-xl hover:border-[#e9c349]/40 hover:bg-white/[0.02] transition-all cursor-pointer group/add">
+                                         <Plus size={20} className="text-slate-600 group-hover/add:text-[#e9c349] transition-colors" />
+                                         <span className="text-[8px] font-bold text-slate-600 uppercase mt-1">Thêm</span>
+                                      </label>
+                                   )}
+                                </div>
+                             ) : (
+                               <label htmlFor="multi-upload" className="absolute inset-0 flex flex-col items-center justify-center gap-4 cursor-pointer hover:bg-[#e9c349]/5 transition-all group/empty bg-white/[0.01]">
+                                  <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-1 group-hover/empty:scale-110 group-hover/empty:bg-[#e9c349]/10 transition-all duration-500">
+                                     <ImageIcon size={28} className="text-slate-500 group-hover/empty:text-[#e9c349]" />
+                                  </div>
+                                  <div className="text-center">
+                                     <p className="text-sm font-black text-slate-400 group-hover/empty:text-white transition-colors">CHỌN LOẠT ẢNH SẢN PHẨM</p>
+                                     <p className="text-[10px] text-slate-600 mt-2 uppercase tracking-[0.2em] font-bold">Tối thiểu 3 hình ảnh • Định dạng JPG, PNG</p>
+                                  </div>
+                                  <div className="absolute inset-x-0 bottom-0 h-1 bg-white/5 overflow-hidden">
+                                     <div className="h-full bg-[#e9c349]/20 w-0 group-hover/empty:w-full transition-all duration-1000" />
+                                   </div>
+                               </label>
+                             )}
+                          </div>
+                       </div>
+                    </div>
+
+                    <div className="md:col-span-2 space-y-2">
+                       <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Mô tả sản phẩm</label>
+                       <textarea 
+                         value={formData.discription || ""}
+                         onChange={(e) => setFormData({...formData, discription: e.target.value})}
+                         placeholder="Mô tả tinh hoa về sản phẩm..."
+                         rows={4}
+                         className="w-full bg-[#0b1326] border border-white/5 rounded-xl py-4 px-5 text-sm text-white focus:ring-1 focus:ring-[#e9c349]/40 outline-none transition-all placeholder:text-slate-700 font-body leading-relaxed"
+                       />
+                    </div>
                  </div>
               </div>
 
-              <div className="p-10 border-t border-white/5 bg-[#171f33]/30 flex justify-end gap-6">
+              {/* Advanced Lightbox with Navigation & Thumbnails */}
+              {expandedPreviewIndex !== null && (
+                <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/95 backdrop-blur-2xl animate-in fade-in duration-300">
+                    {/* Close Button */}
+                    <button 
+                      type="button"
+                      onClick={() => setExpandedPreviewIndex(null)}
+                      className="absolute top-8 right-8 p-3 bg-white/5 hover:bg-rose-500 text-white rounded-full transition-all z-10"
+                    >
+                      <X size={24} />
+                    </button>
+
+                    {/* Main Image Container */}
+                    <div className="relative flex items-center justify-center w-full max-w-5xl h-[60vh] px-12 mt-12">
+                        {/* Prev Button */}
+                        <button 
+                          type="button"
+                          disabled={expandedPreviewIndex === 0}
+                          onClick={() => setExpandedPreviewIndex(prev => (prev !== null ? Math.max(0, prev - 1) : null))}
+                          className="absolute left-0 p-4 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-all disabled:opacity-0"
+                        >
+                          <ChevronLeft size={32} />
+                        </button>
+
+                        <img 
+                          src={imagePreviews[expandedPreviewIndex]} 
+                          alt="Large Preview" 
+                          className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl animate-in zoom-in-95 duration-500" 
+                        />
+
+                        {/* Next Button */}
+                        <button 
+                          type="button"
+                          disabled={expandedPreviewIndex === imagePreviews.length - 1}
+                          onClick={() => setExpandedPreviewIndex(prev => (prev !== null ? Math.min(imagePreviews.length - 1, prev + 1) : null))}
+                          className="absolute right-0 p-4 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-all disabled:opacity-0"
+                        >
+                          <ChevronRight size={32} />
+                        </button>
+                    </div>
+
+                    {/* Thumbnails Reel */}
+                    <div className="mt-12 flex gap-3 p-4 bg-white/5 rounded-2xl backdrop-blur-md max-w-4xl overflow-x-auto">
+                        {imagePreviews.map((img, idx) => (
+                           <button 
+                             type="button"
+                             key={idx}
+                             onClick={() => setExpandedPreviewIndex(idx)}
+                             className={`w-16 h-20 rounded-lg overflow-hidden border-2 transition-all flex-shrink-0 ${expandedPreviewIndex === idx ? 'border-[#e9c349] scale-110 shadow-lg shadow-[#e9c349]/20' : 'border-transparent opacity-50 hover:opacity-100'}`}
+                           >
+                              <img src={img} className="w-full h-full object-cover" />
+                           </button>
+                        ))}
+                    </div>
+                </div>
+              )}
+
+              <div className="p-8 border-t border-white/5 bg-[#171f33]/30 flex justify-end gap-6 flex-shrink-0">
                  <button 
                    type="button"
                    onClick={() => setIsModalOpen(false)}
-                   className="px-10 py-4 rounded-xl bg-white/5 text-slate-400 font-black text-[10px] uppercase tracking-widest hover:text-white border border-white/5 transition-all"
+                   className="px-8 py-4 rounded-xl bg-white/5 text-slate-400 font-black text-[10px] uppercase tracking-widest hover:text-white border border-white/5 transition-all"
                  >
                     Hủy bỏ
                  </button>
                  <button 
-                   disabled={productMutation.isPending || uploadMutation.isPending}
+                   disabled={productMutation.isPending || uploadMultiMutation.isPending}
                    type="submit"
-                   className={`px-12 py-4 bg-[#e9c349] text-[#0b1326] rounded-xl font-headline font-black text-xs uppercase tracking-widest shadow-2xl shadow-[#e9c349]/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-3 ${(productMutation.isPending || uploadMutation.isPending) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                   className={`px-10 py-4 bg-[#e9c349] text-[#0b1326] rounded-xl font-headline font-black text-xs uppercase tracking-widest shadow-2xl shadow-[#e9c349]/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-3 ${(productMutation.isPending || uploadMultiMutation.isPending) ? 'opacity-50 cursor-not-allowed' : ''}`}
                  >
-                    {(productMutation.isPending || uploadMutation.isPending) ? (
+                    {(productMutation.isPending || uploadMultiMutation.isPending) ? (
                       <Loader2 size={18} className="animate-spin" />
                     ) : (
                       <Save size={18} />
@@ -432,19 +615,67 @@ const AdminProducts = () => {
                     {modalType === "add" ? "Đưa vào kinh doanh" : "Cập nhật thay đổi"}
                  </button>
               </div>
-           </form>
+            </form>
+        </div>
+      )}
+      {/* Table Image Lightbox */}
+      {tableLightbox && (
+        <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-black/95 backdrop-blur-3xl animate-in fade-in duration-300">
+            {/* Close Button */}
+            <button 
+              onClick={() => setTableLightbox(null)}
+              className="absolute top-8 right-8 p-3 bg-white/5 hover:bg-rose-500 text-white rounded-full transition-all z-[210] border border-white/10"
+            >
+              <X size={24} />
+            </button>
+
+            {/* Main Image Container */}
+            <div className="relative flex items-center justify-center w-full max-w-6xl h-[70vh] px-12 mt-8">
+                {/* Prev Button */}
+                <button 
+                  disabled={tableLightbox.currentIndex === 0}
+                  onClick={() => setTableLightbox({ ...tableLightbox, currentIndex: Math.max(0, tableLightbox.currentIndex - 1) })}
+                  className="absolute left-4 p-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl transition-all disabled:opacity-0 border border-white/10 hover:border-white/30 z-[210]"
+                >
+                  <ChevronLeft size={36} />
+                </button>
+
+                <img 
+                  key={tableLightbox.currentIndex}
+                  src={tableLightbox.images[tableLightbox.currentIndex]} 
+                  alt="Product view" 
+                  className="max-w-full max-h-full object-contain rounded-3xl animate-in zoom-in-95 duration-500" 
+                />
+
+                {/* Next Button */}
+                <button 
+                  disabled={tableLightbox.currentIndex === tableLightbox.images.length - 1}
+                  onClick={() => setTableLightbox({ ...tableLightbox, currentIndex: Math.min(tableLightbox.images.length - 1, tableLightbox.currentIndex + 1) })}
+                  className="absolute right-4 p-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl transition-all disabled:opacity-0 border border-white/10 hover:border-white/30 z-[210]"
+                >
+                  <ChevronRight size={36} />
+                </button>
+            </div>
+
+            {/* Thumbnails Reel */}
+            {tableLightbox.images.length > 1 && (
+              <div className="mt-8 flex gap-3 p-4 bg-[#171f33]/50 rounded-2xl backdrop-blur-xl border border-white/5 max-w-4xl overflow-x-auto custom-scrollbar">
+                  {tableLightbox.images.map((img, idx) => (
+                     <button 
+                       key={idx}
+                       onClick={() => setTableLightbox({ ...tableLightbox, currentIndex: idx })}
+                       className={`w-20 h-20 rounded-xl overflow-hidden transition-all flex-shrink-0 flex items-center justify-center bg-black/50 ${tableLightbox.currentIndex === idx ? 'border-2 border-[#e9c349] opacity-100 scale-105 shadow-lg shadow-[#e9c349]/20' : 'border border-white/10 opacity-40 hover:opacity-100'}`}
+                     >
+                        <img src={img} className="max-w-full max-h-full object-cover" alt="thumbnail" />
+                     </button>
+                  ))}
+              </div>
+            )}
         </div>
       )}
 
-      {/* Footer Support */}
-      <footer className="pt-24 flex justify-between items-center opacity-30 border-t border-white/5">
-         <p className="text-[10px] text-slate-500 uppercase font-black tracking-[0.5em]">Inventory Manager v6.0</p>
-         <div className="flex gap-8 text-[9px] font-bold uppercase tracking-widest">
-            <span className="text-slate-400">Báo cáo tài chính</span>
-            <span className="text-slate-400">Log hoạt động</span>
-         </div>
-      </footer>
     </div>
+
   );
 };
 

@@ -36,6 +36,26 @@ public class ImageController {
         }
     }
 
+    @PostMapping("/upload-batch")
+    public ResponseEntity<?> uploadImages(@RequestParam("files") MultipartFile[] files) {
+        try {
+            java.util.List<Map<String, Object>> results = new java.util.ArrayList<>();
+            for (MultipartFile file : files) {
+                if (!file.isEmpty()) {
+                    Map<String, Object> uploadResult = imageService.upload(file);
+                    results.add(Map.of(
+                            "url", uploadResult.get("url"),
+                            "public_id", uploadResult.get("public_id")
+                    ));
+                }
+            }
+            return ResponseEntity.ok(results);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Lỗi khi tải loạt ảnh lên Cloud: " + e.getMessage());
+        }
+    }
+
     @DeleteMapping("/delete/{publicId}")
     public ResponseEntity<?> deleteImage(@PathVariable String publicId) {
         try {

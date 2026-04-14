@@ -16,9 +16,21 @@ public class Product {
     @Column (name = "product_name")
     @NotNull
     private String productName;
+
     @Column (name = "price")
     @NotNull
     private BigDecimal price;
+
+    @Column (name = "image")
+    private String image;
+
+    @ElementCollection
+    @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
+    @Column(name = "image_url")
+    private List<String> images;
+
+    @Transient
+    private Category category;
 
     @OneToMany (mappedBy = "product", cascade = CascadeType.ALL)
     @JsonIgnore
@@ -65,5 +77,29 @@ public class Product {
 
     public void setItems(List<Item> items) {
         this.items = items;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public List<String> getImages() {
+        return images;
+    }
+
+    public void setImages(List<String> images) {
+        this.images = images;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 }

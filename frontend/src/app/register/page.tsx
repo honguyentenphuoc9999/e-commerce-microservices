@@ -6,6 +6,7 @@ import { UserPlus, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authService } from "@/services/authService";
+import { toast } from "sonner";
 
 const RegisterPage = () => {
   const router = useRouter();
@@ -42,7 +43,7 @@ const RegisterPage = () => {
         role: { id: 1 } // ROLE_USER
       });
       
-      alert("Tạo tài khoản thành công! Bạn có thể đăng nhập ngay.");
+      toast.success("Tạo tài khoản thành công! Bạn có thể đăng nhập ngay.");
       router.push("/login");
     } catch (err) {
       setError("Đăng ký thất bại. Tên đăng nhập hoặc Email có thể đã bị trùng.");

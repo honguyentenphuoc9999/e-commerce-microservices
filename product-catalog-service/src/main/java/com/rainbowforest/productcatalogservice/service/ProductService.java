@@ -14,5 +14,6 @@ public interface ProductService {
     public void deleteProduct(Long productId);
     public Product updateProduct(Long id, Product product, MultipartFile imageFile);
     public Product updateProductImage(Long id, MultipartFile imageFile);
+    public Product updateProductImages(Long id, MultipartFile[] imageFiles);
     public boolean deductProductInventory(Long id, int quantity);
 }

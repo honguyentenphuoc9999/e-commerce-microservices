@@ -86,6 +86,32 @@ public class AdminProductController {
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PostMapping(value = "/uploads/gallery/{id}", consumes = "multipart/form-data")
+    public ResponseEntity<?> uploadProductImages(
+            @PathVariable("id") String id,
+            @RequestPart("images") MultipartFile[] imageFiles){
+        try {
+            // Xử lý trường hợp ID chứa version (ví dụ 1:1)
+            String cleanId = id.contains(":") ? id.split(":")[0] : id;
+            Product updatedProduct = productService.updateProductImages(Long.valueOf(cleanId), imageFiles);
+            if (updatedProduct != null) {
+                return new ResponseEntity<Product>(
+                        updatedProduct,
+                        headerGenerator.getHeadersForSuccessGetMethod(),
+                        HttpStatus.OK);
+            }
+            return new ResponseEntity<Product>(
+                    headerGenerator.getHeadersForError(),
+                    HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<String>(e.getMessage(), headerGenerator.getHeadersForError(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<Product>(
+                    headerGenerator.getHeadersForError(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
     
     @DeleteMapping(value = "/products/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable("id") Long id){

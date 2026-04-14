@@ -143,8 +143,8 @@ function CollectionsContent() {
                   id={p.id.toString()}
                   name={p.productName}
                   price={`${p.price.toLocaleString()}đ`}
-                  category={p.category?.categoryName || "Chưa phân loại"}
-                  image={p.image || "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&q=80&w=800"} 
+                  category={p.category?.categoryName || ""}
+                  image={p.image || ""} 
                 />
               ))}
               {productsData.length === 0 && (

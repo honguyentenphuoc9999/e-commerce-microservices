@@ -98,7 +98,7 @@ const HomePage = () => {
               ))
             ) : (
               categories.slice(0, 3).map((cat: any, idx: number) => {
-                const bgImage = cat.image || "https://images.unsplash.com/photo-1593642702821-c8da6771f0c6?auto=format&fit=crop&q=80&w=800";
+                const bgImage = cat.image || "";
                 
                 return (
                   <motion.div 
@@ -155,8 +155,8 @@ const HomePage = () => {
                 id={p.id.toString()}
                 name={p.productName}
                 price={`${p.price.toLocaleString()}đ`}
-                category={p.category?.categoryName || "N/A"}
-                image={p.image || "https://images.unsplash.com/photo-1595225476474-87563907a212?q=80&w=800"} 
+                category={p.category?.categoryName || ""}
+                image={p.image || ""} 
               />
             ))
           )}

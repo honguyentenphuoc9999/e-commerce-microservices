@@ -18,4 +18,10 @@ public interface OrderClient {
     @PutMapping("/orders/{orderId}")
     Object updateOrder(@PathVariable("orderId") Long orderId, @RequestBody Object order, @RequestHeader("Authorization") String token);
 
+    @GetMapping("/api/payment/admin/config")
+    Object getPaymentConfig();
+
+    @PutMapping("/api/payment/admin/config")
+    Object updatePaymentConfig(@RequestBody Object configData);
+
 }

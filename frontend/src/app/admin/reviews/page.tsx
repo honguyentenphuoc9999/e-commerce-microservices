@@ -29,15 +29,15 @@ const AdminReviews = () => {
 
   const reviews = Array.isArray(reviewsData) ? reviewsData.map((r: any) => ({
     id: `#REV-${r.id}`,
-    product: r.productName || "Sản phẩm ẩn danh",
-    category: "Chưa phân loại",
+    product: r.productName,
+    category: r.categoryName || "không xác định được danh mục",
     user: `USR-${r.userId}`,
     userName: r.userName || `Người dùng ${r.userId}`,
     rating: r.rating || 0,
     date: r.createdAt ? new Date(r.createdAt).toLocaleDateString('vi-VN') : new Date().toLocaleDateString('vi-VN'),
-    content: r.comment || "Khách hàng không để lại nhận xét.",
+    content: r.comment || "",
     adminResponse: r.adminResponse,
-    image: "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&q=80&w=800",
+    image: r.productImage, // Sử dụng ảnh động từ review/product
     reviewPhotos: []
   })) : [];
 
@@ -141,140 +141,150 @@ const AdminReviews = () => {
           </thead>
           <tbody className="divide-y divide-white/5">
             {isLoading ? (
-               <tr>
-                  <td colSpan={6} className="py-20 text-center">
-                     <div className="w-8 h-8 border-4 border-[#e9c349] border-t-transparent rounded-full animate-spin mx-auto"></div>
-                     <p className="text-xs text-slate-500 mt-4 tracking-widest uppercase font-black">Curating customer feedback...</p>
-                  </td>
-               </tr>
+              <tr>
+                <td colSpan={6} className="py-20 text-center">
+                  <div className="w-8 h-8 border-4 border-[#e9c349] border-t-transparent rounded-full animate-spin mx-auto"></div>
+                  <p className="text-xs text-slate-500 mt-4 tracking-widest uppercase font-black">Curating customer feedback...</p>
+                </td>
+              </tr>
             ) : reviews.length === 0 ? (
-               <tr>
-                  <td colSpan={6} className="py-24 text-center">
-                     <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <MessageSquare className="text-slate-600" size={28} />
-                     </div>
-                     <h3 className="text-xl font-headline font-black text-white italic">Không có đánh giá nào</h3>
-                     <p className="text-slate-500 text-xs mt-2 uppercase tracking-widest font-bold">Hệ thống chưa ghi nhận phản hồi nào từ người dùng</p>
-                  </td>
-               </tr>
+              <tr>
+                <td colSpan={6} className="py-24 text-center">
+                  <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <MessageSquare className="text-slate-600" size={28} />
+                  </div>
+                  <h3 className="text-xl font-headline font-black text-white italic">Không có đánh giá nào</h3>
+                  <p className="text-slate-500 text-xs mt-2 uppercase tracking-widest font-bold">Hệ thống chưa ghi nhận phản hồi nào từ người dùng</p>
+                </td>
+              </tr>
             ) : (
               reviews.map((rev) => {
-              const isExpanded = expandedId === rev.id;
-              return (
-                <React.Fragment key={rev.id}>
-                  <tr
-                    onClick={() => toggleExpand(rev.id)}
-                    className={`group transition-all cursor-pointer ${isExpanded ? 'bg-[#e9c349]/5' : 'hover:bg-white/[0.02]'}`}
-                  >
-                    <td className="py-8 px-10 font-mono text-xs text-slate-500 group-hover:text-[#e9c349] transition-colors font-bold uppercase">{rev.id}</td>
-                    <td className="py-8 px-10">
-                      <div className="flex items-center gap-5">
-                        <div className="w-12 h-16 rounded-xl bg-[#0b1326] overflow-hidden flex-shrink-0 border border-white/10 shadow-xl group-hover:border-[#e9c349]/30 transition-all duration-300">
-                          <img src={rev.image} alt={rev.product} className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700 px-1 py-1" />
+                const isExpanded = expandedId === rev.id;
+                return (
+                  <React.Fragment key={rev.id}>
+                    <tr
+                      onClick={() => toggleExpand(rev.id)}
+                      className={`group transition-all cursor-pointer ${isExpanded ? 'bg-[#e9c349]/5' : 'hover:bg-white/[0.02]'}`}
+                    >
+                      <td className="py-8 px-10 font-mono text-xs text-slate-500 group-hover:text-[#e9c349] transition-colors font-bold uppercase">{rev.id}</td>
+                      <td className="py-8 px-10">
+                        <div className="flex items-center gap-5">
+                        <div className="w-12 h-16 rounded-xl bg-[#0b1326] overflow-hidden flex-shrink-0 border border-white/10 shadow-xl group-hover:border-[#e9c349]/30 transition-all duration-300 flex items-center justify-center">
+                          {rev.image ? (
+                            <img src={rev.image} alt={rev.product} className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700 px-1 py-1" />
+                          ) : (
+                            <ImageIcon size={16} className="text-white/5" />
+                          )}
                         </div>
-                        <div>
-                          <p className="text-sm font-black text-white group-hover:text-[#e9c349] transition-colors leading-tight">{rev.product}</p>
-                          <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-1 font-bold">{rev.category}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-8 px-10">
-                      <p className="text-sm font-black text-white">{rev.userName}</p>
-                      <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-1 font-mono">ID: {rev.user}</p>
-                    </td>
-                    <td className="py-8 px-10">
-                      <div className="flex text-[#e9c349] gap-1 justify-center items-center h-full">
-                        {[...Array(rev.rating)].map((_, i) => <Star key={i} size={14} className="fill-[#e9c349] text-[#e9c349]" />)}
-                        {[...Array(5 - rev.rating)].map((_, i) => <Star key={i} size={14} className="opacity-10 text-slate-500" />)}
-                      </div>
-                    </td>
-                    <td className="py-8 px-10 text-xs font-bold text-slate-400 uppercase tracking-widest">{rev.date}</td>
-                    <td className="py-8 px-10 text-right">
-                      <div className="flex justify-end items-center gap-3">
-                        <div className={`p-2 rounded-full transition-all ${isExpanded ? 'bg-[#e9c349] text-[#0b1326] rotate-180' : 'bg-white/5 text-slate-500 group-hover:text-white'}`}>
-                          <ChevronDown size={14} />
-                        </div>
-                        <button className="p-3 rounded-xl bg-[#222a3d] text-slate-400 hover:text-white transition-all shadow-xl shadow-black/20 border border-white/5 group-hover:opacity-100 opacity-0">
-                          <MoreVertical size={18} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  {isExpanded && (
-                    <tr className="bg-[#0b1326]/60 border-l-[6px] border-[#e9c349] animate-in slide-in-from-top-2 duration-300">
-                      <td className="px-10 py-0 overflow-hidden" colSpan={6}>
-                        <div className="py-12 px-12 space-y-10">
-                          <div className="flex flex-col lg:flex-row gap-16">
-                            <div className="flex-1 space-y-6">
-                              <div className="flex items-center gap-3">
-                                <MessageSquare size={18} className="text-[#e9c349]" />
-                                <h4 className="text-[11px] font-black text-[#e9c349] uppercase tracking-[0.25em]">Nội dung phản hồi tinh hoa:</h4>
-                              </div>
-                              <div className="relative">
-                                <div className="absolute top-0 left-0 w-8 h-8 -translate-x-4 -translate-y-4 opacity-10">
-                                  <MessageSquare size={32} />
-                                </div>
-                                <div className="space-y-4">
-                                  <p className="text-white text-lg leading-relaxed font-light italic bg-white/5 p-10 rounded-4xl border border-white/5 shadow-inner relative z-10">
-                                    "{rev.content}"
-                                  </p>
-                                  {rev.adminResponse && (
-                                    <div className="ml-12 p-6 bg-[#e9c349]/10 border-l-4 border-[#e9c349] rounded-2xl animate-in fade-in slide-in-from-left-4">
-                                      <p className="text-[10px] font-black text-[#e9c349] uppercase tracking-widest mb-2 flex items-center gap-2">
-                                        <Shield size={12} /> Admin Phản hồi:
-                                      </p>
-                                      <p className="text-slate-300 text-sm italic">"{rev.adminResponse}"</p>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                              <div className="mt-10 flex gap-6">
-                                <button 
-                                  onClick={() => {
-                                    const response = prompt("Nhập nội dung phản hồi khách hàng:");
-                                    if (response) {
-                                      adminService.respondToReview(rev.id.split('-')[1], response)
-                                        .then(() => alert("Đã gửi phản hồi thành công!"))
-                                        .catch(() => alert("Có lỗi xảy ra khi gửi phản hồi."));
-                                    }
-                                  }}
-                                  className="px-10 py-4 rounded-xl bg-[#e9c349] text-[#0b1326] text-[11px] font-black uppercase tracking-[0.25em] shadow-2xl shadow-[#e9c349]/20 hover:scale-105 active:scale-95 transition-all">
-                                  Trả lời khách hàng
-                                </button>
-                                <button className="px-10 py-4 rounded-xl bg-white/5 text-slate-300 text-[11px] font-black uppercase tracking-[0.25em] hover:text-white transition-all flex items-center gap-4 border border-white/5">
-                                  <Pin size={16} />
-                                  Ghim đánh giá
-                                </button>
-                                <button className="px-4 py-4 rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all border border-rose-500/20 ml-auto">
-                                  <Trash2 size={20} />
-                                </button>
-                              </div>
-                            </div>
-                            {rev.reviewPhotos && (
-                              <div className="lg:w-[400px] grid grid-cols-2 gap-6">
-                                {rev.reviewPhotos.map((photo, i) => (
-                                  <div key={i} className="group/photo relative aspect-[4/5] rounded-3xl overflow-hidden border border-white/10 shadow-3xl cursor-zoom-in">
-                                    <img src={photo} alt={`Review photo ${i + 1}`} className="w-full h-full object-cover grayscale opacity-70 group-hover/photo:grayscale-0 group-hover/photo:opacity-100 group-hover/photo:scale-110 transition-all duration-1000" />
-                                    <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover/photo:opacity-100 transition-opacity flex items-end p-6">
-                                      <div className="flex items-center gap-2">
-                                        <ImageIcon size={16} className="text-[#e9c349]" />
-                                        <span className="text-[10px] font-bold text-white uppercase tracking-widest text-[#e9c349]">Đính kèm {i + 1}</span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
+                          <div>
+                            <p className="text-sm font-black text-white group-hover:text-[#e9c349] transition-colors leading-tight">{rev.product}</p>
+                            <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-1 font-bold">{rev.category}</p>
                           </div>
                         </div>
                       </td>
+                      <td className="py-8 px-10">
+                        <p className="text-sm font-black text-white">{rev.userName}</p>
+                        <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-1 font-mono">ID: {rev.user}</p>
+                      </td>
+                      <td className="py-8 px-10">
+                        <div className="flex text-[#e9c349] gap-1 justify-center items-center h-full">
+                          {[...Array(rev.rating)].map((_, i) => <Star key={i} size={14} className="fill-[#e9c349] text-[#e9c349]" />)}
+                          {[...Array(5 - rev.rating)].map((_, i) => <Star key={i} size={14} className="opacity-10 text-slate-500" />)}
+                        </div>
+                      </td>
+                      <td className="py-8 px-10 text-xs font-bold text-slate-400 uppercase tracking-widest">{rev.date}</td>
+                      <td className="py-8 px-10 text-right">
+                        <div className="flex justify-end items-center gap-3">
+                          <div className={`p-2 rounded-full transition-all ${isExpanded ? 'bg-[#e9c349] text-[#0b1326] rotate-180' : 'bg-white/5 text-slate-500 group-hover:text-white'}`}>
+                            <ChevronDown size={14} />
+                          </div>
+                          <button className="p-3 rounded-xl bg-[#222a3d] text-slate-400 hover:text-white transition-all shadow-xl shadow-black/20 border border-white/5 group-hover:opacity-100 opacity-0">
+                            <MoreVertical size={18} />
+                          </button>
+                        </div>
+                      </td>
                     </tr>
-                  )}
-                </React.Fragment>
-              );
-            })
-          )}
-        </tbody>
+                    {isExpanded && (
+                      <tr className="bg-[#0b1326]/60 border-l-[6px] border-[#e9c349] animate-in slide-in-from-top-2 duration-300">
+                        <td className="px-10 py-0 overflow-hidden" colSpan={6}>
+                          <div className="py-12 px-12 space-y-10">
+                            <div className="flex flex-col lg:flex-row gap-16">
+                              <div className="flex-1 space-y-6">
+                                <div className="flex items-center gap-3">
+                                  <MessageSquare size={18} className="text-[#e9c349]" />
+                                  <h4 className="text-[11px] font-black text-[#e9c349] uppercase tracking-[0.25em]">Nội dung phản hồi tinh hoa:</h4>
+                                </div>
+                                <div className="relative">
+                                  <div className="absolute top-0 left-0 w-8 h-8 -translate-x-4 -translate-y-4 opacity-10">
+                                    <MessageSquare size={32} />
+                                  </div>
+                                  <div className="space-y-4">
+                                    <p className="text-white text-lg leading-relaxed font-light italic bg-white/5 p-10 rounded-4xl border border-white/5 shadow-inner relative z-10">
+                                      "{rev.content}"
+                                    </p>
+                                    {rev.adminResponse && (
+                                      <div className="ml-12 p-6 bg-[#e9c349]/10 border-l-4 border-[#e9c349] rounded-2xl animate-in fade-in slide-in-from-left-4">
+                                        <p className="text-[10px] font-black text-[#e9c349] uppercase tracking-widest mb-2 flex items-center gap-2">
+                                          <Shield size={12} /> Admin Phản hồi:
+                                        </p>
+                                        <p className="text-slate-300 text-sm italic">"{rev.adminResponse}"</p>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="mt-10 flex gap-6">
+                                  <button
+                                    onClick={() => {
+                                      const response = prompt("Nhập nội dung phản hồi khách hàng:");
+                                      if (response) {
+                                        adminService.respondToReview(rev.id.split('-')[1], response)
+                                          .then(() => alert("Đã gửi phản hồi thành công!"))
+                                          .catch(() => alert("Có lỗi xảy ra khi gửi phản hồi."));
+                                      }
+                                    }}
+                                    className="px-10 py-4 rounded-xl bg-[#e9c349] text-[#0b1326] text-[11px] font-black uppercase tracking-[0.25em] shadow-2xl shadow-[#e9c349]/20 hover:scale-105 active:scale-95 transition-all">
+                                    Trả lời khách hàng
+                                  </button>
+                                  <button className="px-10 py-4 rounded-xl bg-white/5 text-slate-300 text-[11px] font-black uppercase tracking-[0.25em] hover:text-white transition-all flex items-center gap-4 border border-white/5">
+                                    <Pin size={16} />
+                                    Ghim đánh giá
+                                  </button>
+                                  <button className="px-4 py-4 rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all border border-rose-500/20 ml-auto">
+                                    <Trash2 size={20} />
+                                  </button>
+                                </div>
+                              </div>
+                              {rev.reviewPhotos && (
+                                <div className="lg:w-[400px] grid grid-cols-2 gap-6">
+                                  {rev.reviewPhotos.map((photo, i) => (
+                                    <div key={i} className="group/photo relative aspect-[4/5] rounded-3xl overflow-hidden border border-white/10 shadow-3xl cursor-zoom-in">
+                                      {photo ? (
+                                        <img src={photo} alt={`Review photo ${i + 1}`} className="w-full h-full object-cover grayscale opacity-70 group-hover/photo:grayscale-0 group-hover/photo:opacity-100 group-hover/photo:scale-110 transition-all duration-1000" />
+                                      ) : (
+                                        <div className="w-full h-full bg-white/5 flex items-center justify-center">
+                                          <ImageIcon size={24} className="text-white/10" />
+                                        </div>
+                                      )}
+                                      <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover/photo:opacity-100 transition-opacity flex items-end p-6">
+                                        <div className="flex items-center gap-2">
+                                          <ImageIcon size={16} className="text-[#e9c349]" />
+                                          <span className="text-[10px] font-bold text-white uppercase tracking-widest text-[#e9c349]">Đính kèm {i + 1}</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
+              })
+            )}
+          </tbody>
         </table>
       </section>
 

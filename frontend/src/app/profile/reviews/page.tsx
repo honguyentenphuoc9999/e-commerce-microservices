@@ -18,20 +18,66 @@ import {
   Shield
 } from "lucide-react";
 import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { reviewService } from "@/services/reviewService";
 import { useAuthStore } from "@/store/useAuthStore";
+import { toast } from "sonner";
 
 const UserReviews = () => {
   const { user } = useAuthStore();
+  const queryClient = useQueryClient();
+
   const { data: reviews = [], isLoading } = useQuery({
     queryKey: ["userReviews", user?.id],
     queryFn: () => reviewService.getUserReviews(user!.id as string | number),
     enabled: !!user?.id
   });
 
+  const updateMutation = useMutation({
+    mutationFn: ({ productId, rating, comment }: { productId: any, rating: number, comment: string }) => 
+      reviewService.updateReview(user!.id as any, productId, rating, comment),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["userReviews"] });
+      toast.success("Cập nhật đánh giá thành công!");
+    },
+    onError: () => toast.error("Có lỗi xảy ra khi cập nhật.")
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: any) => reviewService.deleteReview(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["userReviews"] });
+      toast.success("Đã xóa đánh giá.");
+    },
+    onError: () => toast.error("Có lỗi xảy ra khi xóa.")
+  });
+
+  const handleEdit = (rev: any) => {
+    const newRating = prompt("Nhập số sao (1-5):", rev.rating.toString());
+    const newComment = prompt("Nhập nội dung đánh giá:", rev.comment || "");
+    
+    if (newRating !== null) {
+      updateMutation.mutate({
+        productId: rev.productId,
+        rating: parseInt(newRating) || rev.rating,
+        comment: newComment || ""
+      });
+    }
+  };
+
+  const handleDelete = (id: any) => {
+    if (confirm("Bạn có chắc chắn muốn xóa đánh giá này?")) {
+      deleteMutation.mutate(id);
+    }
+  };
+
   if (isLoading) {
-    return <div className="min-h-[50vh] flex items-center justify-center text-[#e9c349] font-bold">Đang tải dữ liệu đánh giá...</div>;
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
+        <div className="w-12 h-12 border-4 border-[#e9c349] border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-[#e9c349] font-bold tracking-widest uppercase text-xs">Đang đồng bộ phản hồi...</p>
+      </div>
+    );
   }
 
   return (
@@ -92,10 +138,14 @@ const UserReviews = () => {
             <div className="flex flex-col lg:flex-row gap-12 relative z-10">
               <div className="lg:w-1/4 space-y-4">
                 <div className="w-full aspect-[3/4] rounded-3xl overflow-hidden border border-white/10 group-hover:border-[#e9c349]/30 transition-all duration-700 shadow-2xl group/img flex items-center justify-center bg-[#0b1326]">
-                  <ImageIcon className="text-white/10" size={64} />
+                  {rev.productImage ? (
+                    <img src={rev.productImage} alt={rev.productName} className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700" />
+                  ) : (
+                    <ImageIcon className="text-white/10" size={64} />
+                  )}
                 </div>
                 <div className="text-center md:text-left">
-                  <h3 className="font-headline font-black text-white text-lg italic group-hover:text-[#e9c349] transition-colors mt-2 leading-tight">{rev.productName || "Sản phẩm " + rev.productId}</h3>
+                  <h3 className="font-headline font-black text-white text-lg italic group-hover:text-[#e9c349] transition-colors mt-2 leading-tight">{rev.productName}</h3>
                   <p className="text-[10px] text-slate-500 uppercase tracking-widest font-black mt-2">Mã SP: {rev.productId}</p>
                 </div>
               </div>
@@ -107,12 +157,12 @@ const UserReviews = () => {
                     {[...Array(5 - rev.rating)].map((_, i) => <Star key={`empty-${i}`} size={18} className="opacity-10" />)}
                   </div>
                   <span className="px-5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-inner text-emerald-400 bg-emerald-400/10 border-emerald-400/20">
-                     Đã phê duyệt
+                     Phản hồi đã xác thực
                   </span>
                 </div>
                 
                 <div className="bg-white/5 p-10 rounded-[2rem] border border-white/5 shadow-inner relative italic text-white text-lg font-light leading-relaxed group-hover:bg-[#e9c349]/5 transition-colors duration-500">
-                   "{rev.comment || "Chất lượng sản phẩm đúng như những gì tôi đánh giá."}"
+                   {rev.comment ? `"${rev.comment}"` : `"(Ẩn) Chưa có nội dung đánh giá"`}
                    {/* Quote highlight */}
                    <div className="absolute -top-4 -left-4 w-12 h-12 bg-[#0b1326] rounded-full flex items-center justify-center text-[#e9c349]/40">
                       <MessageSquare size={24} />
@@ -129,13 +179,21 @@ const UserReviews = () => {
                 )}
                 
                 <div className="flex gap-4">
-                  <button className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all bg-[#0b1326] px-8 py-3.5 rounded-xl border border-white/5 shadow-xl hover:bg-white/5">
+                  <button 
+                    onClick={() => handleEdit(rev)}
+                    disabled={updateMutation.isPending}
+                    className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all bg-[#0b1326] px-8 py-3.5 rounded-xl border border-white/5 shadow-xl hover:bg-white/5 disabled:opacity-50"
+                  >
                     <Edit size={16} />
-                    Chỉnh sửa
+                    {updateMutation.isPending && updateMutation.variables?.productId === rev.productId ? "Đang lưu..." : "Chỉnh sửa"}
                   </button>
-                  <button className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400 hover:text-rose-400 transition-all bg-[#0b1326] px-8 py-3.5 rounded-xl border border-white/5 shadow-xl hover:bg-white/5">
+                  <button 
+                    onClick={() => handleDelete(rev.id)}
+                    disabled={deleteMutation.isPending}
+                    className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-400 hover:text-rose-400 transition-all bg-[#0b1326] px-8 py-3.5 rounded-xl border border-white/5 shadow-xl hover:bg-white/5 disabled:opacity-50"
+                  >
                     <Trash2 size={16} />
-                    Gỡ bỏ
+                    {deleteMutation.isPending && deleteMutation.variables === rev.id ? "Đang xóa..." : "Gỡ bỏ"}
                   </button>
                 </div>
               </div>

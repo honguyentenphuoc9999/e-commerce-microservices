@@ -24,4 +24,7 @@ public interface ProductClient {
     @PostMapping(value = "/admin/products/upload-image/{id}", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
     Object uploadProductImage(@PathVariable("id") Long id, @RequestPart("image") org.springframework.web.multipart.MultipartFile imageFile);
 
+    @PostMapping(value = "/admin/uploads/gallery/{id}", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    Object uploadProductImages(@PathVariable("id") String id, @RequestPart("images") org.springframework.web.multipart.MultipartFile[] imageFiles);
+
 }

@@ -78,6 +78,19 @@ public class ProductServiceImpl implements ProductService {
         return null;
     }
 
+    @Override
+    public Product updateProductImages(Long id, MultipartFile[] imageFiles) {
+        if (imageFiles == null || imageFiles.length < 3 || imageFiles.length > 9) {
+            throw new IllegalArgumentException("Số lượng hình ảnh cho Gallery phải từ 3 đến 9 ảnh!");
+        }
+        Product existingProduct = productRepository.findById(id).orElse(null);
+        if (existingProduct != null) {
+            handleImagesUpload(existingProduct, imageFiles);
+            return productRepository.save(existingProduct);
+        }
+        return null;
+    }
+
     private void handleImageUpload(Product product, MultipartFile imageFile) {
         if (imageFile != null && !imageFile.isEmpty()) {
             try {
@@ -87,7 +100,31 @@ public class ProductServiceImpl implements ProductService {
                 }
             } catch (Exception e) {
                 System.err.println("Lỗi upload ảnh: " + e.getMessage());
-                // Tiếp tục lưu sản phẩm mà không có ảnh nếu upload lỗi, hoặc throw lỗi nếu cần
+            }
+        }
+    }
+
+    private void handleImagesUpload(Product product, MultipartFile[] imageFiles) {
+        if (imageFiles != null && imageFiles.length > 0) {
+            System.out.println("Bắt đầu xử lý upload " + imageFiles.length + " ảnh cho sản phẩm: " + product.getProductName());
+            try {
+                List<Map<String, Object>> uploadResults = mediaClient.uploadImages(imageFiles);
+                if (uploadResults != null && !uploadResults.isEmpty()) {
+                    java.util.List<String> imageUrls = new java.util.ArrayList<>();
+                    for (Map<String, Object> res : uploadResults) {
+                        if (res.containsKey("url")) {
+                            imageUrls.add(res.get("url").toString());
+                        }
+                    }
+                    if (!imageUrls.isEmpty()) {
+                        System.out.println("Upload thành công " + imageUrls.size() + " ảnh lên Cloudinary.");
+                        product.setImages(imageUrls);
+                        product.setImage(imageUrls.get(0));
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("CRITICAL ERROR - Lỗi upload loạt ảnh: " + e.getMessage());
+                e.printStackTrace();
             }
         }
     }

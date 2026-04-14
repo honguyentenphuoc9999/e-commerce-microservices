@@ -22,11 +22,11 @@ export default function CartPage() {
   const rawItems = cartData?.items || cartData?.cartItems || (Array.isArray(cartData) ? cartData : []) || [];
   const cartItems = rawItems.map((item: any) => ({
     id: item.product?.id || item.productId || item.id,
-    name: item.product?.productName || item.productName || "Sản phẩm ẩn danh",
-    code: item.product?.category?.categoryName || "Chưa phân loại",
+    name: item.product?.productName || item.productName || "",
+    code: item.product?.category?.categoryName || item.product?.categoryName || "",
     price: item.product?.price || item.price || 0,
     quantity: item.quantity || 1,
-    image: item.product?.image || item.image || "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&q=80&w=800"
+    image: item.product?.image || item.image || ""
   }));
 
   // Handlers for cart changes
@@ -106,12 +106,16 @@ export default function CartPage() {
 
             {cartItems.map((item: any) => (
               <div key={item.id} className="bg-[#222a3d]/40 backdrop-blur-md rounded-xl p-6 flex flex-col md:flex-row gap-8 group border border-white/5 hover:border-white/10 transition-colors shadow-lg">
-                <div className="w-full md:w-48 h-64 md:h-48 rounded-lg overflow-hidden flex-shrink-0 bg-[#131b2e] border border-white/5">
-                  <img 
-                    src={item.image} 
-                    alt={item.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
-                  />
+                <div className="w-full md:w-48 h-64 md:h-48 rounded-lg overflow-hidden flex-shrink-0 bg-[#131b2e] border border-white/5 flex items-center justify-center">
+                  {item.image ? (
+                    <img 
+                      src={item.image} 
+                      alt={item.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
+                    />
+                  ) : (
+                    <ShoppingBag className="text-white/5" size={48} />
+                  )}
                 </div>
                 <div className="flex flex-col flex-grow justify-between py-2">
                   <div className="flex justify-between items-start">

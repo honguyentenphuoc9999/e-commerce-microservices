@@ -13,6 +13,28 @@ export const reviewService = {
     return res.data;
   },
 
+  // Cập nhật đánh giá đã có
+  updateReview: async (userId: string | number, productId: string | number, rating: number, comment: string) => {
+    const res = await apiClient.put(`/review/${userId}/recommendations/${productId}?rating=${rating}&comment=${comment}`);
+    return res.data;
+  },
+
+  // Xóa đánh giá
+  deleteReview: async (id: string | number) => {
+    const res = await apiClient.delete(`/review/recommendations/${id}`);
+    return res.data;
+  },
+
+  // Lấy 1 đánh giá cụ thể của user cho sản phẩm
+  getRecommendationByUserIdAndProductId: async (userId: string | number, productId: string | number) => {
+    try {
+      const res = await apiClient.get(`/review/${userId}/recommendations/${productId}`);
+      return res.data;
+    } catch (error) {
+      return null;
+    }
+  },
+
   // Lấy đánh giá của sản phẩm
   getReviewsByProduct: async (productName: string) => {
     const res = await apiClient.get(`/review/recommendations?name=${productName}`);

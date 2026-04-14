@@ -18,6 +18,7 @@ import {
 import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { catalogService, Category } from "@/services/catalogService";
+import { toast } from "sonner";
 
 const AdminCategories = () => {
   const queryClient = useQueryClient();
@@ -38,10 +39,10 @@ const AdminCategories = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminCategories'] });
       setIsModalOpen(false);
-      alert("Đã tải ảnh và lưu danh mục thành công");
+      toast.success("Đã tải ảnh và lưu danh mục thành công");
       setImageFile(null);
     },
-    onError: () => alert("Có lỗi khi tải ảnh lên")
+    onError: () => toast.error("Có lỗi khi tải ảnh lên")
   });
 
   const categoryMutation = useMutation({
@@ -55,19 +56,19 @@ const AdminCategories = () => {
       } else {
         queryClient.invalidateQueries({ queryKey: ['adminCategories'] });
         setIsModalOpen(false);
-        alert(modalType === "add" ? "Thêm danh mục thành công" : "Cập nhật thành công");
+        toast.success(modalType === "add" ? "Thêm danh mục thành công" : "Cập nhật thành công");
       }
     },
-    onError: () => alert("Có lỗi xảy ra")
+    onError: () => toast.error("Có lỗi xảy ra")
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => catalogService.adminDeleteCategory(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminCategories'] });
-      alert("Xóa danh mục thành công");
+      toast.success("Xóa danh mục thành công");
     },
-    onError: () => alert("Có lỗi khi xóa danh mục")
+    onError: () => toast.error("Có lỗi khi xóa danh mục")
   });
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
