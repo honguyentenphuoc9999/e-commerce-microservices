@@ -293,19 +293,48 @@ const AdminCategories = () => {
                     />
                   </div>
                   <div className="space-y-3">
-                    <label className="text-[11px] font-black uppercase tracking-widest text-[#e9c349]">Hoặc tải ảnh lên</label>
-                    <label className="min-h-[160px] border-2 border-dashed border-white/5 rounded-2xl flex flex-col items-center justify-center gap-4 hover:border-[#e9c349]/20 hover:bg-white/[0.02] transition-all cursor-pointer group/upload relative overflow-hidden">
+                    <label className="text-[11px] font-black uppercase tracking-widest text-[#e9c349]">Hình ảnh hiển thị</label>
+                    <label className="min-h-[220px] border-2 border-dashed border-white/5 rounded-3xl flex flex-col items-center justify-center gap-4 hover:border-[#e9c349]/40 hover:bg-white/[0.02] transition-all cursor-pointer group/upload relative overflow-hidden shadow-inner">
                       <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
+                      
                       {imagePreview ? (
-                        <img src={imagePreview} className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover/upload:scale-110 transition-transform duration-1000" />
-                      ) : null}
-                      <div className="relative z-10 flex flex-col items-center text-center p-6 bg-[#0b1326]/40 backdrop-blur-sm rounded-2xl border border-white/5">
-                        <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center mb-2 group-hover/upload:scale-110 transition-transform">
-                          <ImageIcon size={18} className="text-slate-500 group-hover:text-[#e9c349]" />
+                        <>
+                          <img 
+                            src={imagePreview} 
+                            alt="Preview" 
+                            className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover/upload:scale-110" 
+                          />
+                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/upload:opacity-100 transition-all duration-300 flex flex-col items-center justify-center backdrop-blur-[2px]">
+                            <div className="bg-[#e9c349] p-3 rounded-full mb-2 shadow-xl shadow-[#e9c349]/20 transform -translate-y-4 group-hover/upload:translate-y-0 transition-transform duration-500">
+                              <Plus size={20} className="text-[#0b1326]" />
+                            </div>
+                            <p className="text-[10px] font-black text-white uppercase tracking-widest">Thay đổi hình ảnh</p>
+                          </div>
+                          
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setImagePreview(null);
+                              setImageFile(null);
+                              setFormData({ ...formData, image: "" });
+                            }}
+                            className="absolute top-4 right-4 z-20 p-2 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white rounded-xl backdrop-blur-md border border-rose-500/20 transition-all opacity-0 group-hover/upload:opacity-100"
+                            title="Xóa ảnh"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </>
+                      ) : (
+                        <div className="relative z-10 flex flex-col items-center text-center p-8">
+                          <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center mb-4 group-hover/upload:scale-110 group-hover/upload:bg-[#e9c349]/10 transition-all duration-500 border border-white/5">
+                            <ImageIcon size={24} className="text-slate-500 group-hover:text-[#e9c349] transition-colors" />
+                          </div>
+                          <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Kéo thả tệp tin</p>
+                          <p className="text-[10px] text-slate-600 mt-2 font-medium">Hoặc nhấp để <span className="text-[#e9c349] underline underline-offset-4">duyệt ảnh</span></p>
                         </div>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Kéo thả hoặc <span className="text-[#e9c349]">Tải lên</span></p>
-                        <p className="text-[9px] text-slate-600 mt-1">GIẢM TẢI CHO CLOUDINARY</p>
-                      </div>
+                      )}
                     </label>
                   </div>
                 </div>

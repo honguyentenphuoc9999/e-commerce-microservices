@@ -38,7 +38,7 @@ const CheckoutPage = () => {
 
   const subtotal = cartItems.reduce((acc: number, item: any) => acc + item.price * item.quantity, 0);
   const tax = subtotal * 0.08;
-  const shipping = 25;
+  const shipping = 50000;
   const total = subtotal + tax + shipping;
 
   const checkoutMutation = useMutation({
@@ -170,7 +170,7 @@ const CheckoutPage = () => {
                     <p className="text-xs text-slate-500 italic">Dự kiến nhận: 1-2 ngày làm việc</p>
                   </div>
                 </div>
-                <span className="relative z-10 font-black text-white italic">$25.00</span>
+                <span className="relative z-10 font-black text-white italic">50.000đ</span>
               </div>
               
               <div className="p-8 bg-[#131b2e]/40 border-2 border-white/5 rounded-[2rem] flex justify-between items-center group cursor-pointer hover:border-white/10 transition-all">

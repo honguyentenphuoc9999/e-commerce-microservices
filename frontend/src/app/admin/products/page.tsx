@@ -240,7 +240,7 @@ const AdminProducts = () => {
               <Activity size={60} />
            </div>
            <p className="text-[10px] uppercase tracking-widest text-slate-500 font-label mb-1">Giá trị kho</p>
-           <p className="text-2xl font-headline font-bold text-[#e9c349]">${(totalStockValue / 1000).toFixed(1)}k</p>
+           <p className="text-2xl font-headline font-bold text-[#e9c349]">{(totalStockValue / 1000000).toFixed(1)}M đ</p>
         </div>
         <div className="bg-[#131b2e] p-6 rounded-2xl relative overflow-hidden group border border-white/5 shadow-xl">
            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity text-rose-400">
@@ -341,7 +341,7 @@ const AdminProducts = () => {
                       </div>
                     </div>
                   </td>
-                  <td className="px-8 py-6 text-sm font-headline font-black text-white italic">${prd.price?.toLocaleString()}</td>
+                  <td className="px-8 py-6 text-sm font-headline font-black text-white italic">{prd.price?.toLocaleString()}đ</td>
                   <td className="px-8 py-6">
                     <div className="flex flex-col gap-1.5">
                       <span className="text-xs font-bold text-slate-300">{prd.availability} đơn vị</span>
@@ -431,7 +431,7 @@ const AdminProducts = () => {
                        </div>
                        <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
-                             <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Giá bán ($)</label>
+                             <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Giá bán (đ)</label>
                              <input 
                                required
                                value={formData.price}

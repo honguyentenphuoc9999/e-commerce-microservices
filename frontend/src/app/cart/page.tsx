@@ -124,7 +124,7 @@ export default function CartPage() {
                       <p className="text-[#c6c6cd] text-sm font-medium tracking-wide uppercase opacity-60 italic">{item.code}</p>
                     </div>
                     <span className="font-headline text-xl font-semibold text-[#e9c349]">
-                      {item.price.toLocaleString('en-US', { minimumFractionDigits: 2 })} $
+                      {item.price.toLocaleString()}đ
                     </span>
                   </div>
                   <div className="flex items-center justify-between mt-6">
@@ -179,7 +179,7 @@ export default function CartPage() {
                 <div className="flex justify-between items-center">
                   <span className="text-[#c6c6cd]">Tạm tính</span>
                   <span className="text-white font-semibold">
-                    {subtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })} $
+                    {subtotal.toLocaleString()}đ
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
@@ -189,7 +189,7 @@ export default function CartPage() {
                 <div className="flex justify-between items-center">
                   <span className="text-[#c6c6cd]">Thuế (8%)</span>
                   <span className="text-white font-semibold">
-                    {tax.toLocaleString('en-US', { minimumFractionDigits: 2 })} $
+                    {tax.toLocaleString()}đ
                   </span>
                 </div>
               </div>
@@ -197,7 +197,7 @@ export default function CartPage() {
               <div className="flex justify-between items-center mb-10">
                 <span className="font-headline text-xl font-bold text-white">Tổng cộng</span>
                 <span className="font-headline text-3xl font-extrabold text-[#e9c349]">
-                  {total.toLocaleString('en-US', { minimumFractionDigits: 2 })} $
+                  {total.toLocaleString()}đ
                 </span>
               </div>
               <Link href="/checkout" className="w-full bg-linear-to-r from-[#bec6e0] to-[#0f172a] py-5 rounded-xl text-[#0b1326] font-headline font-bold text-lg tracking-wide uppercase shadow-lg shadow-white/5 active:scale-[0.98] transition-all flex items-center justify-center gap-3 mb-6">

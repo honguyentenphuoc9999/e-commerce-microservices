@@ -8,6 +8,10 @@ db.lock
 **/build/
 **/bin/
 **/out/
+**/.next/
+**/dist/
+**/coverage/
+**/.cache/
 
 # Dependency folders
 **/node_modules/
@@ -16,6 +20,7 @@ db.lock
 # Configuration / Secrets
 **/.env
 **/.env.local
+**/.env.*.local
 **/application-*.properties
 **/application-*.yml
 !**/application.properties
@@ -26,12 +31,21 @@ db.lock
 .idea/
 *.swp
 *.swo
-*.DS_Store
 *.iml
+*.iws
 
 # Log files
 *.log
 **/logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Optional: Remove if you want to keep data in repo (not recommended)
+# Database & Data
 **/data/
+*.db
+*.sqlite
+
+# Testing
+**/playwright-report/
+**/test-results/

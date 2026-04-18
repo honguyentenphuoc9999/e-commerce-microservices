@@ -9,7 +9,8 @@ import {
   Star, 
   Settings, 
   HelpCircle,
-  LogOut
+  LogOut,
+  Home
 } from "lucide-react";
 
 const ProfileLayout = ({ children }: { children: React.ReactNode }) => {
@@ -23,6 +24,7 @@ const ProfileLayout = ({ children }: { children: React.ReactNode }) => {
   };
 
   const navItems = [
+    { name: "Về trang chủ", icon: <Home size={20} />, href: "/" },
     { name: "Thông tin cá nhân", icon: <User size={20} />, href: "/profile" },
     { name: "Lịch sử mua hàng", icon: <Receipt size={20} />, href: "/profile/orders" },
     { name: "Đánh giá của tôi", icon: <Star size={20} />, href: "/profile/reviews" },

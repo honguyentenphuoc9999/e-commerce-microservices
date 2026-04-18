@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import { 
   Package, 
@@ -9,35 +10,58 @@ import {
   CheckCircle,
   Truck,
   RotateCcw,
-  ArrowRight
+  ArrowRight,
+  Loader2
 } from "lucide-react";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
+import { useAuthStore } from "@/store/useAuthStore";
+import axios from "axios";
+
+const formatPrice = (price: number) => {
+  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+};
+
+const getStatusInfo = (status: string) => {
+  switch (status) {
+    case 'COMPLETED':
+    case 'DELIVERED':
+      return { text: 'Đã giao hàng', color: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20' };
+    case 'SHIPPING':
+    case 'IN_TRANSIT':
+      return { text: 'Đang vận chuyển', color: 'text-blue-400 bg-blue-400/10 border-blue-400/20' };
+    case 'PENDING':
+    case 'PAYMENT_EXPECTED':
+      return { text: 'Chờ thanh toán', color: 'text-amber-400 bg-amber-400/10 border-amber-400/20' };
+    case 'CANCELLED':
+      return { text: 'Đã hủy', color: 'text-rose-400 bg-rose-400/10 border-rose-400/20' };
+    default:
+      return { text: status, color: 'text-slate-400 bg-slate-400/10 border-slate-400/20' };
+  }
+};
 
 const OrderHistory = () => {
-  const orders: any[] = [];
-  const dummy = [
-    {
-      id: "#ATL-88219",
-      date: "24 tháng 10, 2023",
-      amount: "$2,450.00",
-      status: "Đã giao hàng",
-      statusColor: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20",
-      items: [
-        { name: "Ghế Obsidian Lounge", price: "$2,450.00", qty: 1, image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCCg9BI3jaFnt3bidQYPL2ws6uEGzC_VfvRNMVrcYTpvRE_b5BnXQCnHMs1xQ-HyY2nB03coBO11h3SRm6EF_K-qkwNVO5SFYdItOLwO9E_9SNIlShQhA1Yv4FMiyH_SJOAJ1r3V7RGqtjr7zzfXNl7dVaT2Fq-VkbE5AxyOEbKeEI7vmGQV7APk-W9x8suEh9XqiBwJtnam|H7jgl_roNRC_a6C585aay3kp6UMaxAHbl-HzkEu-BTUHZwMRxCso6fZ2MNIkQ9Ikw" }
-      ]
+  const { user, token } = useAuthStore();
+
+  const { data: orders = [], isLoading } = useQuery({
+    queryKey: ["orders", user?.id],
+    queryFn: async () => {
+      const response = await axios.get(`http://localhost:8900/api/shop/orders/user/${user?.id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return response.data;
     },
-    {
-      id: "#ATL-88218",
-      date: "23 tháng 10, 2023",
-      amount: "$1,890.00",
-      status: "Đang vận chuyển",
-      statusColor: "text-blue-400 bg-blue-400/10 border-blue-400/20",
-      items: [
-        { name: "Đèn bàn Auric Sculpture", price: "$890.00", qty: 1, image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAYMcPv7gd7nSpdNVgXdQVqfF0JU_sn2TAm4mSkt_rNtM6b4iPQjxjXOyOFwqaw5XUSaT0KfXZqNjq9j3R2NDM8Pjb0J6vmhTw6EQ96uvTn_FGUMA8p6cbrG9Iiy5d9eWG92KjxttHyU6RSYwBbh1yF3txxcSTL8F5Xm1EvszU-YTkAXi1UhEdXdVJA-2ivguIskmxlMk_dziS0Xv3qoeLFB0hsw5opPCAo-y0QoDZlgf0FY-JAxzYXgbnDkeq2HQemmkBaG7sS2Q" },
-        { name: "Khay kỉ niệm Silver Slate", price: "$1,000.00", qty: 1, image: "https://lh3.googleusercontent.com/aida-public/AB6AXuD89_j6fS-kH-qfByvJIdB-NlP78R9_mD5vXzVv7Tmq_y8uW7O2_cZ_o4R4n4L0A6_S7hE8p9yZ9zV7_fB0_l3C_o7D5l0R7l3L2S7l1yB9zU7l5T4l3Q7C1X9T7A5L7V4l3C1X9T7A5L7V4l3C1X9T7A5L7V4l3C1X9T7A5L7V4l3C1X9T7A5L7V4l3C1X9T7A5L7V4l3C1X9T7A5L7V4" }
-      ]
-    }
-  ];
+    enabled: !!user
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+        <Loader2 className="w-12 h-12 text-[#e9c349] animate-spin" />
+        <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Đang tải lịch sử...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto space-y-12">
@@ -72,72 +96,76 @@ const OrderHistory = () => {
             </Link>
           </div>
         ) : (
-          orders.map((order) => (
-          <div key={order.id} className="bg-[#131b2e]/40 rounded-[2.5rem] border border-white/5 shadow-2xl overflow-hidden group hover:border-[#e9c349]/10 transition-all duration-500">
-            {/* Order Meta Header */}
-            <div className="px-12 py-8 border-b border-white/5 bg-[#171f33]/30 flex flex-wrap justify-between items-center gap-6">
-              <div className="flex gap-12">
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Đơn hàng</p>
-                  <p className="text-sm font-black text-white italic group-hover:text-[#e9c349] transition-colors">{order.id}</p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Ngày đặt</p>
-                  <p className="text-sm font-bold text-slate-300">{order.date}</p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Tổng thanh toán</p>
-                  <p className="text-sm font-bold text-white italic">{order.amount}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-8">
-                <span className={`px-5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${order.statusColor} shadow-inner`}>
-                   {order.status}
-                </span>
-                <Link href={`/profile/orders/${order.id}`} className="text-[#e9c349] hover:text-white transition-all text-sm font-black flex items-center gap-2 group/link">
-                   Chi tiết
-                   <ArrowRight size={16} className="group-hover/link:translate-x-1 transition-transform" />
-                </Link>
-              </div>
-            </div>
-
-            {/* Order Items */}
-            <div className="p-12 space-y-8">
-              {order.items.map((item: any, idx: number) => (
-                <div key={idx} className="flex flex-col md:flex-row items-center gap-10">
-                  <div className="w-24 h-32 bg-[#0b1326] rounded-2xl border border-white/10 group-hover:border-[#e9c349]/20 transition-all duration-500 overflow-hidden flex-shrink-0 shadow-xl group/img">
-                    <img src={item.image} alt={item.name} className="w-full h-full object-cover grayscale opacity-60 group-hover:opacity-100 group-hover:grayscale-0 transition-all duration-1000 group-hover/img:scale-110" />
-                  </div>
-                  <div className="flex-1 space-y-4">
+          orders.map((order: any) => {
+            const statusInfo = getStatusInfo(order.orderStatus);
+            return (
+              <div key={order.id} className="bg-[#131b2e]/40 rounded-[2.5rem] border border-white/5 shadow-2xl overflow-hidden group hover:border-[#e9c349]/10 transition-all duration-500">
+                {/* Order Meta Header */}
+                <div className="px-12 py-8 border-b border-white/5 bg-[#171f33]/30 flex flex-wrap justify-between items-center gap-6">
+                  <div className="flex gap-12">
                     <div>
-                      <h4 className="text-xl font-bold text-white italic group-hover:text-[#e9c349] transition-colors">{item.name}</h4>
-                      <p className="text-xs text-slate-500 mt-1 uppercase tracking-widest font-black">Mã sản phẩm: ATL-ITEM-{idx + 100}</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Đơn hàng</p>
+                      <p className="text-sm font-black text-white italic group-hover:text-[#e9c349] transition-colors">#ATL-{order.id}</p>
                     </div>
-                    <div className="flex items-center gap-8 pt-2">
-                       <span className="text-sm font-bold text-slate-300">Số lượng: 0{item.qty}</span>
-                       <span className="text-sm font-black text-white italic">{item.price}</span>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Ngày đặt</p>
+                      <p className="text-sm font-bold text-slate-300">{new Date(order.orderedDate).toLocaleDateString('vi-VN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Tổng thanh toán</p>
+                      <p className="text-sm font-bold text-white italic">{formatPrice(order.total)}</p>
                     </div>
                   </div>
-                  <div className="flex gap-4">
-                     <button className="px-6 py-3 rounded-xl bg-white/5 border border-white/5 text-slate-400 font-black text-[10px] uppercase tracking-widest hover:text-white transition-all hover:bg-white/10">Mua lại</button>
-                     <button className="px-6 py-3 rounded-xl bg-white/5 border border-white/5 text-slate-400 font-black text-[10px] uppercase tracking-widest hover:text-white transition-all hover:bg-white/10">Viết đánh giá</button>
+                  <div className="flex items-center gap-8">
+                    <span className={`px-5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${statusInfo.color} shadow-inner`}>
+                       {statusInfo.text}
+                    </span>
+                    <Link href={`/profile/orders/${order.id}`} className="text-[#e9c349] hover:text-white transition-all text-sm font-black flex items-center gap-2 group/link">
+                       Chi tiết
+                       <ArrowRight size={16} className="group-hover/link:translate-x-1 transition-transform" />
+                    </Link>
                   </div>
                 </div>
-              ))}
-            </div>
-            
-            {/* Quick Status Bar */}
-            <div className="px-12 py-6 bg-[#0b1326]/40 flex justify-between items-center border-t border-white/5">
-               <div className="flex gap-4 items-center">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]"></span>
-                  <p className="text-xs text-slate-500 uppercase font-black tracking-widest">Giao thành công bởi Atelier Express</p>
-               </div>
-               <button className="text-[10px] font-black text-slate-400 hover:text-[#e9c349] transition-all uppercase tracking-widest flex items-center gap-2">
-                  <MapPin size={14} /> Xem hành trình vận chuyển
-               </button>
-            </div>
-          </div>
-        )))}
+
+                {/* Order Items */}
+                <div className="p-12 space-y-8">
+                  {order.items.map((item: any, idx: number) => (
+                    <div key={idx} className="flex flex-col md:flex-row items-center gap-10">
+                      <div className="w-24 h-32 bg-[#0b1326] rounded-2xl border border-white/10 group-hover:border-[#e9c349]/20 transition-all duration-500 overflow-hidden flex-shrink-0 shadow-xl group/img">
+                        <img src={item.product?.image} alt={item.product?.productName} className="w-full h-full object-cover grayscale opacity-60 group-hover:opacity-100 group-hover:grayscale-0 transition-all duration-1000 group-hover/img:scale-110" />
+                      </div>
+                      <div className="flex-1 space-y-4">
+                        <div>
+                          <h4 className="text-xl font-bold text-white italic group-hover:text-[#e9c349] transition-colors">{item.product?.productName}</h4>
+                          <p className="text-xs text-slate-500 mt-1 uppercase tracking-widest font-black">Mã sản phẩm: ATL-ITEM-{item.product?.id}</p>
+                        </div>
+                        <div className="flex items-center gap-8 pt-2">
+                           <span className="text-sm font-bold text-slate-300">Số lượng: 0{item.quantity}</span>
+                           <span className="text-sm font-black text-white italic">{formatPrice(item.subTotal)}</span>
+                        </div>
+                      </div>
+                      <div className="flex gap-4">
+                         <button className="px-6 py-3 rounded-xl bg-white/5 border border-white/5 text-slate-400 font-black text-[10px] uppercase tracking-widest hover:text-white transition-all hover:bg-white/10">Mua lại</button>
+                         <button className="px-6 py-3 rounded-xl bg-white/5 border border-white/5 text-slate-400 font-black text-[10px] uppercase tracking-widest hover:text-white transition-all hover:bg-white/10">Viết đánh giá</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Quick Status Bar */}
+                <div className="px-12 py-6 bg-[#0b1326]/40 flex justify-between items-center border-t border-white/5">
+                   <div className="flex gap-4 items-center">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]"></span>
+                      <p className="text-xs text-slate-500 uppercase font-black tracking-widest">Giao thành công bởi Atelier Express</p>
+                   </div>
+                   <button className="text-[10px] font-black text-slate-400 hover:text-[#e9c349] transition-all uppercase tracking-widest flex items-center gap-2">
+                      <MapPin size={14} /> Xem hành trình vận chuyển
+                   </button>
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
       
       {orders.length > 0 && (
