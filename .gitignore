@@ -49,3 +49,7 @@ yarn-error.log*
 # Testing
 **/playwright-report/
 **/test-results/
+
+# Redis & Local Databases
+redis_installed/
+*.rdb

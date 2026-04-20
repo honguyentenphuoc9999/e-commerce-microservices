@@ -23,12 +23,14 @@ public class UserDetails {
     private String street;
     @Column (name = "street_number", length = 10)
     private String streetNumber;
-    @Column (name = "zip_code", length = 6)
-    private String zipCode;
     @Column (name = "locality", length = 30)
     private String locality;
     @Column (name = "country", length = 30)
     private String country;
+    @Column (name = "ward", length = 50)
+    private String ward;
+    @Column (name = "district", length = 50)
+    private String district;
 
     @OneToOne(mappedBy = "userDetails")
 	@JsonIgnore 
@@ -93,13 +95,6 @@ public class UserDetails {
 		this.streetNumber = streetNumber;
 	}
 
-	public String getZipCode() {
-		return zipCode;
-	}
-
-	public void setZipCode(String zipCode) {
-		this.zipCode = zipCode;
-	}
 
 	public String getLocality() {
 		return locality;
@@ -115,6 +110,22 @@ public class UserDetails {
 
 	public void setCountry(String country) {
 		this.country = country;
+	}
+
+	public String getWard() {
+		return ward;
+	}
+
+	public void setWard(String ward) {
+		this.ward = ward;
+	}
+
+	public String getDistrict() {
+		return district;
+	}
+
+	public void setDistrict(String district) {
+		this.district = district;
 	}
 
 	public User getUser() {

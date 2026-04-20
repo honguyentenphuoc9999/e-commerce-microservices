@@ -102,7 +102,7 @@ const PaymentsPage = () => {
     <div className="p-12 space-y-12 animate-in fade-in duration-1000 bg-linear-to-b from-[#0b1326] to-[#0f172a]">
       <header className="flex justify-between items-end">
         <div>
-          <p className="text-[#e9c349] font-headline tracking-widest text-xs uppercase mb-2 italic">Tài chính hệ thống</p>
+          <p className="text-[#e9c349] font-headline tracking-widest text-xs uppercase mb-2">Tài chính hệ thống</p>
           <h1 className="text-5xl font-black font-headline text-white tracking-tighter">Quản lý thanh toán</h1>
         </div>
         <div className="flex gap-4">

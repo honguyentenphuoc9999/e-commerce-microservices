@@ -37,16 +37,19 @@ const AdminUsers = () => {
     queryFn: adminService.getUsers
   });
 
-  const users = Array.isArray(usersData) ? usersData.map((u: any) => ({
+  const allUsers = Array.isArray(usersData) ? usersData.map((u: any) => ({
     id: `#USR-${u.id}`,
     name: u.userName,
     email: u.userDetails?.email || "No email",
     date: u.userDetails?.firstName ? `${u.userDetails.firstName} ${u.userDetails.lastName}` : "Chưa cập nhật",
-    lastLogin: u.role?.roleName || "USER",
+    role: u.role?.roleName || "ROLE_USER",
     status: u.active === 1 ? "Hoạt động" : "Ngừng hoạt động",
     statusColor: u.active === 1 ? "text-emerald-400 bg-emerald-400/10 border-emerald-400/20" : "text-rose-400 bg-rose-400/10 border-rose-400/20",
     image: `https://ui-avatars.com/api/?name=${u.userName}&background=random`
   })) : [];
+
+  // Lọc chỉ lấy các khách hàng thực tế cho danh sách hiển thị
+  const customers = allUsers.filter(u => u.role === 'ROLE_USER');
 
   const handleOpenModal = (type: "add" | "edit", user?: any) => {
     setModalType(type);
@@ -64,16 +67,9 @@ const AdminUsers = () => {
             <span className="text-[10px] text-slate-500">/</span>
             <span className="text-[10px] uppercase tracking-widest text-[#e9c349] font-label">Hệ thống khách hàng</span>
           </nav>
-          <h1 className="text-4xl font-headline font-extrabold tracking-tighter text-white uppercase italic">quản lý người dùng</h1>
-          <p className="text-slate-400 mt-2 max-w-xl font-body text-sm">Kiểm soát truy cập, phân quyền thành viên và quản lý danh tính người dùng bảo mật toàn cầu.</p>
+          <h1 className="text-5xl font-black font-headline tracking-tighter text-white uppercase">danh sách khách hàng</h1>
+          <p className="text-slate-400 mt-2 max-w-xl font-body text-sm">Theo dõi hoạt động, quản lý thông tin và hỗ trợ người dùng đã tham gia hệ sinh thái kỹ thuật số.</p>
         </div>
-        <button 
-           onClick={() => handleOpenModal("add")}
-           className="bg-linear-to-br from-[#e9c349] to-[#bf9f3d] text-[#0b1326] px-8 py-4 rounded-xl font-black text-xs uppercase tracking-widest flex items-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-[#e9c349]/10"
-        >
-          <UserPlus size={18} />
-          <span>Thêm thành viên mới</span>
-        </button>
       </header>
 
       {/* Stats Bento Grid */}
@@ -83,19 +79,8 @@ const AdminUsers = () => {
               <Users size={24} />
            </div>
            <div>
-              <div className="text-3xl font-black font-headline tracking-tighter text-white">{users.length}</div>
-              <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Tổng người dùng</div>
-           </div>
-        </div>
-        <div className="bg-[#131b2e]/60 backdrop-blur-xl p-8 rounded-full border border-white/5 shadow-2xl flex items-center gap-6 group hover:translate-y-[-4px] transition-all duration-300">
-           <div className="w-14 h-14 rounded-full bg-[#e9c349]/10 flex items-center justify-center text-[#e9c349]">
-              <Shield size={24} />
-           </div>
-           <div>
-              <div className="text-3xl font-black font-headline tracking-tighter text-white">
-                {users.filter(u => u.lastLogin === 'ROLE_ADMIN').length}
-              </div>
-              <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Quản trị viên</div>
+              <div className="text-3xl font-black font-headline tracking-tighter text-white">{customers.length}</div>
+              <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Tổng khách hàng</div>
            </div>
         </div>
         <div className="bg-[#131b2e]/60 backdrop-blur-xl p-8 rounded-full border border-white/5 shadow-2xl flex items-center gap-6 group hover:translate-y-[-4px] transition-all duration-300">
@@ -104,9 +89,20 @@ const AdminUsers = () => {
            </div>
            <div>
               <div className="text-3xl font-black font-headline tracking-tighter text-white">
-                {users.filter(u => u.lastLogin === 'ROLE_USER').length}
+                {customers.filter(u => u.status === 'Hoạt động').length}
               </div>
-              <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Khách hàng thực tế</div>
+              <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Đang hoạt động</div>
+           </div>
+        </div>
+        <div className="bg-[#131b2e]/60 backdrop-blur-xl p-8 rounded-full border border-white/5 shadow-2xl flex items-center gap-6 group hover:translate-y-[-4px] transition-all duration-300">
+           <div className="w-14 h-14 rounded-full bg-rose-400/10 flex items-center justify-center text-rose-400">
+              <Lock size={24} />
+           </div>
+           <div>
+              <div className="text-3xl font-black font-headline tracking-tighter text-white">
+                {customers.filter(u => u.status !== 'Hoạt động').length}
+              </div>
+              <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Tài khoản bị khóa</div>
            </div>
         </div>
       </section>
@@ -156,7 +152,7 @@ const AdminUsers = () => {
                    </td>
                 </tr>
               ) : (
-                users.map((user) => (
+                customers.map((user) => (
                   <tr key={user.id} className="group hover:bg-white/[0.012] transition-colors">
                     <td className="px-10 py-8">
                       <div className="flex items-center gap-5">
@@ -170,7 +166,7 @@ const AdminUsers = () => {
                         </div>
                       </div>
                     </td>
-                    <td className="px-10 py-8 text-center text-xs font-black uppercase text-slate-400 tracking-[0.2em]">{user.lastLogin}</td>
+                    <td className="px-10 py-8 text-center text-xs font-black uppercase text-slate-400 tracking-[0.2em]">{user.role}</td>
                     <td className="px-10 py-8">
                       <div className="text-sm font-bold text-slate-300">{user.date}</div>
                       <div className="text-[10px] uppercase tracking-widest text-[#e9c349] mt-1.5 font-bold">Identity Active</div>
@@ -204,7 +200,7 @@ const AdminUsers = () => {
           
           {/* Pagination */}
           <div className="p-10 bg-[#171f33]/30 flex justify-between items-center border-t border-white/5">
-            <div className="text-[10px] uppercase tracking-[0.25em] text-slate-500 font-black">Hiển thị {users.length} người dùng thực tế</div>
+            <div className="text-[10px] uppercase tracking-[0.25em] text-slate-500 font-black">Hiển thị {customers.length} khách hàng thực tế</div>
             <div className="flex items-center gap-2">
               <button className="w-11 h-11 flex items-center justify-center rounded-2xl hover:bg-white/5 text-slate-500 transition-all border border-white/5 opacity-50 cursor-not-allowed">
                 <ChevronLeft size={20} />

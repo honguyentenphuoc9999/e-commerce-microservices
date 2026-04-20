@@ -12,36 +12,33 @@ import {
   MoreVertical,
   Paperclip,
   Image,
-  Type
+  Type,
+  Inbox,
+  Eye,
+  Trash2
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { adminService } from "@/services/adminService";
 
 const EmailsPage = () => {
-  const [emails] = useState([
-    {
-      id: "MSG-001",
-      subject: "Chào mừng bạn đến với Digital Atelier",
-      recipient: "Hồ Chí Minh",
-      date: "24 tháng 10, 2024",
-      status: "Đã gửi",
-      statusColor: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20",
-    },
-    {
-      id: "MSG-002",
-      subject: "Cập nhật đơn hàng ATL-88219",
-      recipient: "Alexander McEnroe",
-      date: "23 tháng 10, 2024",
-      status: "Lỗi",
-      statusColor: "text-rose-400 bg-rose-400/10 border-rose-400/20",
-    },
-    {
-      id: "MSG-003",
-      subject: "Ưu đãi đặc biệt mùa thu",
-      recipient: "Toàn bộ thành viên",
-      date: "22 tháng 10, 2024",
-      status: "Chờ gửi",
-      statusColor: "text-slate-400 bg-slate-400/10 border-white/10",
-    },
-  ]);
+  const { data: emails = [], isLoading } = useQuery({
+    queryKey: ['adminEmails'],
+    queryFn: adminService.getEmails
+  });
+
+  const stats = {
+    total: emails.length,
+    successRate: emails.length > 0 
+      ? ((emails.filter((e: any) => e.status === 'Đã gửi').length / emails.length) * 100).toFixed(1) 
+      : 0,
+    thisWeek: emails.filter((e: any) => {
+      const emailDate = new Date(e.rawDate);
+      const now = new Date();
+      const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      return emailDate > oneWeekAgo;
+    }).length,
+    errors: emails.filter((e: any) => e.status === 'Lỗi').length
+  };
 
   const [activeTab, setActiveTab] = useState("history"); // history or compose
 
@@ -50,7 +47,7 @@ const EmailsPage = () => {
       <header className="flex justify-between items-end">
         <div>
           <p className="text-[#e9c349] font-headline tracking-widest text-xs uppercase mb-2">Truyền thông hệ thống</p>
-          <h1 className="text-5xl font-black font-headline text-white tracking-tighter">Quản lý Email</h1>
+          <h1 className="text-5xl font-black font-headline text-white tracking-tighter uppercase">Quản lý Email</h1>
         </div>
         <div className="flex gap-4 p-1.5 bg-[#131b2e] rounded-2xl border border-white/5">
           <button 
@@ -74,22 +71,22 @@ const EmailsPage = () => {
             <div className="bg-[#131b2e] p-6 rounded-2xl border border-white/5 shadow-2xl">
               <Mail className="text-[#e9c349] mb-4" size={24} />
               <p className="text-slate-400 text-[10px] uppercase tracking-widest mb-1">Tổng thư đã gửi</p>
-              <h3 className="text-2xl font-headline font-bold text-white">12,450</h3>
+              <h3 className="text-2xl font-headline font-bold text-white">{stats.total}</h3>
             </div>
             <div className="bg-[#131b2e] p-6 rounded-2xl border border-white/5 shadow-2xl">
               <CheckCircle className="text-emerald-400 mb-4" size={24} />
-              <p className="text-slate-400 text-[10px] uppercase tracking-widest mb-1">Tỷ lệ mở thư</p>
-              <h3 className="text-2xl font-headline font-bold text-white">68.5%</h3>
+              <p className="text-slate-400 text-[10px] uppercase tracking-widest mb-1">Tỷ lệ thành công</p>
+              <h3 className="text-2xl font-headline font-bold text-white">{stats.successRate}%</h3>
             </div>
             <div className="bg-[#131b2e] p-6 rounded-2xl border border-white/5 shadow-2xl">
               <Plus className="text-blue-400 mb-4" size={24} />
               <p className="text-slate-400 text-[10px] uppercase tracking-widest mb-1">Thư tuần này</p>
-              <h3 className="text-2xl font-headline font-bold text-white">458</h3>
+              <h3 className="text-2xl font-headline font-bold text-white">{stats.thisWeek}</h3>
             </div>
             <div className="bg-[#131b2e] p-6 rounded-2xl border border-white/5 shadow-2xl">
               <AlertCircle className="text-rose-400 mb-4" size={24} />
               <p className="text-slate-400 text-[10px] uppercase tracking-widest mb-1">Báo cáo thư lỗi</p>
-              <h3 className="text-2xl font-headline font-bold text-white">12</h3>
+              <h3 className="text-2xl font-headline font-bold text-white">{stats.errors}</h3>
             </div>
           </div>
 
@@ -106,34 +103,58 @@ const EmailsPage = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
-                  {emails.map((email) => (
-                    <tr key={email.id} className="hover:bg-white/5 transition-colors cursor-pointer group">
-                      <td className="px-8 py-6 max-w-md">
-                        <p className="font-medium text-white truncate group-hover:text-[#e9c349] transition-colors">{email.subject}</p>
-                        <p className="text-[10px] text-slate-500">ID: {email.id}</p>
-                      </td>
-                      <td className="px-8 py-6">
-                        <div className="flex items-center gap-2">
-                          <Users size={14} className="text-slate-400" />
-                          <span className="text-sm text-slate-300">{email.recipient}</span>
+                  {isLoading ? (
+                     <tr>
+                        <td colSpan={5} className="py-20 text-center">
+                           <div className="w-8 h-8 border-4 border-[#e9c349] border-t-transparent rounded-full animate-spin mx-auto"></div>
+                           <p className="text-xs text-slate-500 mt-4 tracking-widest uppercase font-black">Syncing digital mailbox...</p>
+                        </td>
+                     </tr>
+                  ) : emails.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="py-24 text-center">
+                        <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
+                          <Inbox className="text-slate-600" size={28} />
                         </div>
-                      </td>
-                      <td className="px-8 py-6 text-sm text-slate-400">{email.date}</td>
-                      <td className="px-8 py-6 text-center">
-                        <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border inline-flex items-center gap-2 ${email.statusColor}`}>
-                          {email.status === "Đã gửi" && <CheckCircle size={10} />}
-                          {email.status === "Chờ gửi" && <Clock size={10} />}
-                          {email.status === "Lỗi" && <AlertCircle size={10} />}
-                          {email.status}
-                        </span>
-                      </td>
-                      <td className="px-8 py-6 text-right">
-                        <button className="p-2 text-slate-500 hover:text-white transition-colors">
-                          <MoreVertical size={18} />
-                        </button>
+                        <h3 className="text-xl font-headline font-black text-white italic">Hộp thư trống</h3>
+                        <p className="text-slate-500 text-xs mt-2 uppercase tracking-widest font-bold">Chưa có lịch sử gửi email nào được ghi nhận</p>
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    emails.map((email: any) => (
+                      <tr key={email.id} className="hover:bg-white/5 transition-colors cursor-pointer group">
+                        <td className="px-8 py-6 max-w-md">
+                          <p className="font-medium text-white truncate group-hover:text-[#e9c349] transition-colors">{email.subject}</p>
+                          <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-1 font-mono font-bold">{email.id}</p>
+                        </td>
+                        <td className="px-8 py-6">
+                          <div className="flex items-center gap-2">
+                            <Users size={14} className="text-slate-400" />
+                            <span className="text-sm text-slate-300">{email.recipient}</span>
+                          </div>
+                        </td>
+                        <td className="px-8 py-6 text-sm text-slate-400">{email.date}</td>
+                        <td className="px-8 py-6 text-center">
+                          <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border inline-flex items-center gap-2 ${email.statusColor}`}>
+                            {email.status === "Đã gửi" && <CheckCircle size={10} />}
+                            {email.status === "Chờ gửi" && <Clock size={10} />}
+                            {email.status === "Lỗi" && <AlertCircle size={10} />}
+                            {email.status}
+                          </span>
+                        </td>
+                        <td className="px-8 py-6 text-right">
+                          <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                             <button className="p-2 text-slate-400 hover:text-[#e9c349] hover:bg-white/5 rounded-lg transition-all">
+                                <Eye size={18} />
+                             </button>
+                             <button className="p-2 text-slate-400 hover:text-rose-400 hover:bg-white/5 rounded-lg transition-all">
+                                <Trash2 size={18} />
+                             </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>

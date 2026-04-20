@@ -118,12 +118,15 @@ public class UserServiceImpl implements UserService {
                         existingUser.getUserDetails().setStreet(user.getUserDetails().getStreet());
                     if (user.getUserDetails().getStreetNumber() != null)
                         existingUser.getUserDetails().setStreetNumber(user.getUserDetails().getStreetNumber());
-                    if (user.getUserDetails().getZipCode() != null)
-                        existingUser.getUserDetails().setZipCode(user.getUserDetails().getZipCode());
+
                     if (user.getUserDetails().getLocality() != null)
                         existingUser.getUserDetails().setLocality(user.getUserDetails().getLocality());
                     if (user.getUserDetails().getCountry() != null)
                         existingUser.getUserDetails().setCountry(user.getUserDetails().getCountry());
+                    if (user.getUserDetails().getWard() != null)
+                        existingUser.getUserDetails().setWard(user.getUserDetails().getWard());
+                    if (user.getUserDetails().getDistrict() != null)
+                        existingUser.getUserDetails().setDistrict(user.getUserDetails().getDistrict());
                 }
             }
             if (user.getRole() != null) {

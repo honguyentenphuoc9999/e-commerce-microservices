@@ -27,19 +27,31 @@ const AdminReviews = () => {
     queryFn: adminService.getReviews
   });
 
-  const reviews = Array.isArray(reviewsData) ? reviewsData.map((r: any) => ({
-    id: `#REV-${r.id}`,
-    product: r.productName,
-    category: r.categoryName || "không xác định được danh mục",
-    user: `USR-${r.userId}`,
-    userName: r.userName || `Người dùng ${r.userId}`,
-    rating: r.rating || 0,
-    date: r.createdAt ? new Date(r.createdAt).toLocaleDateString('vi-VN') : new Date().toLocaleDateString('vi-VN'),
-    content: r.comment || "",
-    adminResponse: r.adminResponse,
-    image: r.productImage, // Sử dụng ảnh động từ review/product
-    reviewPhotos: []
-  })) : [];
+  const { data: productsData = [] } = useQuery({
+    queryKey: ['admin-products'],
+    queryFn: adminService.getProducts
+  });
+
+  const reviews = Array.isArray(reviewsData) ? reviewsData.map((r: any) => {
+    // Tìm thông tin sản phẩm từ danh sách sản phẩm để lấy Category
+    const productInfo = Array.isArray(productsData) 
+      ? productsData.find((p: any) => p.productName === r.productName) 
+      : null;
+
+    return {
+      id: `#REV-${r.id}`,
+      product: r.productName,
+      category: r.categoryName || productInfo?.category?.categoryName || "không xác định được danh mục",
+      user: `USR-${r.userId}`,
+      userName: r.userName || `Người dùng ${r.userId}`,
+      rating: r.rating || 0,
+      date: r.createdAt ? new Date(r.createdAt).toLocaleDateString('vi-VN') : new Date().toLocaleDateString('vi-VN'),
+      content: r.comment || "",
+      adminResponse: r.adminResponse,
+      image: r.productImage || productInfo?.image, // Fallback ảnh từ SP nếu review ko có
+      reviewPhotos: []
+    };
+  }) : [];
 
   const toggleExpand = (id: string) => {
     setExpandedId(expandedId === id ? null : id);
@@ -50,8 +62,8 @@ const AdminReviews = () => {
       {/* Header Section */}
       <header className="flex justify-between items-end mb-12">
         <div>
-          <p className="text-[#e9c349] font-headline tracking-widest text-xs uppercase mb-2 italic">Phản hồi khách hàng</p>
-          <h1 className="font-headline text-5xl font-black tracking-tight text-white mb-2">Quản lý Đánh giá</h1>
+          <p className="text-[#e9c349] font-headline tracking-widest text-xs uppercase mb-2">Phản hồi khách hàng</p>
+          <h1 className="font-headline text-5xl font-black tracking-tighter text-white uppercase mb-2">Quản lý Đánh giá</h1>
           <div className="flex items-center gap-3">
             <p className="text-slate-500 font-body text-sm">Giám sát trải nghiệm người dùng và phản hồi dịch vụ.</p>
             <span className="px-3 py-0.5 rounded-full bg-amber-400/10 text-amber-400 text-[10px] font-bold tracking-widest uppercase border border-amber-400/20 shadow-[0_0_10px_rgba(233,195,73,0.1)]">Live Feed</span>

@@ -26,7 +26,7 @@ const AdminSettings = () => {
             <span className="text-[10px] text-slate-500">/</span>
             <span className="text-[10px] uppercase tracking-widest text-[#e9c349] font-label">Cài đặt cấu hình</span>
           </nav>
-          <h1 className="text-4xl font-headline font-extrabold tracking-tighter text-white uppercase italic">Cấu hình hệ thống</h1>
+          <h1 className="text-5xl font-black font-headline tracking-tighter text-white uppercase">Cấu hình hệ thống</h1>
           <p className="text-slate-400 mt-2 max-w-xl font-body">Quản lý các tham số vận hành, bảo mật và trải nghiệm người dùng trên toàn bộ nền tảng Atelier.</p>
         </div>
         <div className="flex gap-4">

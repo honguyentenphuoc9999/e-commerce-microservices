@@ -18,5 +18,11 @@ export const authService = {
     // GET /api/accounts/users/{id}
     const res = await apiClient.get(`/accounts/users/${userId}`);
     return res.data;
+  },
+
+  updateProfile: async (userId: string | number, data: any) => {
+    // PUT /api/accounts/users/{id}
+    const res = await apiClient.put(`/accounts/users/${userId}`, data);
+    return res.data;
   }
 };

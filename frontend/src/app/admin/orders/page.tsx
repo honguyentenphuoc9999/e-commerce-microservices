@@ -67,7 +67,7 @@ const AdminOrders = () => {
             <span className="text-[10px] text-slate-500">/</span>
             <span className="text-[10px] uppercase tracking-widest text-[#e9c349] font-label">Quản lý đơn hàng</span>
           </nav>
-          <h1 className="text-4xl font-headline font-extrabold tracking-tighter text-white">quản lý đơn hàng</h1>
+          <h1 className="text-5xl font-black font-headline tracking-tighter text-white uppercase">quản lý đơn hàng</h1>
         </div>
         <div className="flex gap-4">
           <div className="relative group">

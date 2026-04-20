@@ -69,7 +69,7 @@ const AdminDashboard = () => {
       <header className="flex justify-between items-end">
         <div>
           <p className="text-[#e9c349] font-headline tracking-widest text-xs uppercase mb-2">Tóm tắt điều hành</p>
-          <h1 className="text-5xl font-black font-headline text-white tracking-tighter">Tổng quan</h1>
+          <h1 className="text-5xl font-black font-headline text-white tracking-tighter uppercase">Tổng quan</h1>
         </div>
         <div className="flex items-center gap-4">
           <div className="bg-[#171f33] p-2 rounded-full px-6 flex items-center gap-3 backdrop-blur-md border border-white/5">
