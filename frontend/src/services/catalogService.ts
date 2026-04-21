@@ -25,13 +25,15 @@ export const catalogService = {
     return res.data;
   },
 
-  // Lấy danh sách sản phẩm (hỗ trợ tìm kiếm theo tên hoặc danh mục)
-  getProducts: async (filters?: { category?: string, name?: string }): Promise<Product[]> => {
+  // Lấy danh sách sản phẩm (hỗ trợ tìm kiếm theo tên, danh mục, hoặc mức giá)
+  getProducts: async (filters?: { category?: string, name?: string, minPrice?: number, maxPrice?: number }): Promise<Product[]> => {
     // Sử dụng params của axios để tự động encode URL (Xử lý tốt khoảng trắng trong "Laptop Gaming")
     const res = await apiClient.get('/catalog/products', { 
       params: { 
         category: filters?.category || undefined,
-        name: filters?.name || undefined
+        name: filters?.name || undefined,
+        minPrice: filters?.minPrice || undefined,
+        maxPrice: filters?.maxPrice || undefined
       } 
     });
     return res.data;

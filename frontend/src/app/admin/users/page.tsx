@@ -21,7 +21,8 @@ import {
   Save,
   Mail,
   User as UserIcon,
-  Shield
+  Shield,
+  Eye
 } from "lucide-react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
@@ -224,6 +225,12 @@ const AdminUsers = () => {
                     </td>
                     <td className="px-10 py-8 text-right">
                       <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
+                        <Link
+                          href={`/admin/users/${user.id.replace('#USR-', '')}`}
+                          className="p-3 bg-[#222a3d] rounded-xl text-slate-400 hover:text-[#e9c349] transition-all border border-white/5 shadow-2xl group-hover:scale-105"
+                        >
+                          <Eye size={18} />
+                        </Link>
                         <button
                           onClick={() => handleOpenModal("edit", user)}
                           className="p-3 bg-[#222a3d] rounded-xl text-slate-400 hover:text-[#e9c349] transition-all border border-white/5 shadow-2xl group-hover:scale-105"

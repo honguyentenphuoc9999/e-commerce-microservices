@@ -14,13 +14,24 @@ import {
   ChevronUp,
   MessageSquare,
   Pin,
-  Image as ImageIcon
+  Image as ImageIcon,
+  X,
+  Save,
+  Loader2,
+  Shield
 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminService } from "@/services/adminService";
+import { useAuthStore } from "@/store/useAuthStore";
+import { toast } from "sonner";
 
 const AdminReviews = () => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [isResponseModalOpen, setIsResponseModalOpen] = useState(false);
+  const [currentResponse, setCurrentResponse] = useState("");
+  const [activeReviewId, setActiveReviewId] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data: reviewsData = [], isLoading } = useQuery({
     queryKey: ['admin-reviews'],
@@ -32,10 +43,14 @@ const AdminReviews = () => {
     queryFn: adminService.getProducts
   });
 
-  const reviews = Array.isArray(reviewsData) ? reviewsData.map((r: any) => {
-    // Tìm thông tin sản phẩm từ danh sách sản phẩm để lấy Category
-    const productInfo = Array.isArray(productsData) 
-      ? productsData.find((p: any) => p.productName === r.productName) 
+  const reviews = Array.isArray(reviewsData) ? [...reviewsData].sort((a, b) => {
+    const currentUserId = useAuthStore.getState().user?.id;
+    if (a.userId === currentUserId) return -1;
+    if (b.userId === currentUserId) return 1;
+    return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+  }).map((r: any) => {
+    const productInfo = Array.isArray(productsData)
+      ? productsData.find((p: any) => p.productName === r.productName)
       : null;
 
     return {
@@ -48,13 +63,34 @@ const AdminReviews = () => {
       date: r.createdAt ? new Date(r.createdAt).toLocaleDateString('vi-VN') : new Date().toLocaleDateString('vi-VN'),
       content: r.comment || "",
       adminResponse: r.adminResponse,
-      image: r.productImage || productInfo?.image, // Fallback ảnh từ SP nếu review ko có
+      image: r.productImage || productInfo?.image,
       reviewPhotos: []
     };
   }) : [];
 
   const toggleExpand = (id: string) => {
     setExpandedId(expandedId === id ? null : id);
+  };
+
+  const handleOpenResponse = (revId: string, existingResponse?: string) => {
+    setActiveReviewId(revId.includes('-') ? revId.split('-')[1] : revId);
+    setCurrentResponse(existingResponse || "");
+    setIsResponseModalOpen(true);
+  };
+
+  const submitResponse = async () => {
+    if (!activeReviewId) return;
+    setIsSubmitting(true);
+    try {
+      await adminService.respondToReview(activeReviewId, currentResponse);
+      toast.success("Đã gửi phản hồi thành công!");
+      queryClient.invalidateQueries({ queryKey: ['admin-reviews'] });
+      setIsResponseModalOpen(false);
+    } catch (error) {
+      toast.error("Có lỗi xảy ra khi gửi phản hồi.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -181,13 +217,13 @@ const AdminReviews = () => {
                       <td className="py-8 px-10 font-mono text-xs text-slate-500 group-hover:text-[#e9c349] transition-colors font-bold uppercase">{rev.id}</td>
                       <td className="py-8 px-10">
                         <div className="flex items-center gap-5">
-                        <div className="w-12 h-16 rounded-xl bg-[#0b1326] overflow-hidden flex-shrink-0 border border-white/10 shadow-xl group-hover:border-[#e9c349]/30 transition-all duration-300 flex items-center justify-center">
-                          {rev.image ? (
-                            <img src={rev.image} alt={rev.product} className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700 px-1 py-1" />
-                          ) : (
-                            <ImageIcon size={16} className="text-white/5" />
-                          )}
-                        </div>
+                          <div className="w-12 h-16 rounded-xl bg-[#0b1326] overflow-hidden flex-shrink-0 border border-white/10 shadow-xl group-hover:border-[#e9c349]/30 transition-all duration-300 flex items-center justify-center">
+                            {rev.image ? (
+                              <img src={rev.image} alt={rev.product} className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700 px-1 py-1" />
+                            ) : (
+                              <ImageIcon size={16} className="text-white/5" />
+                            )}
+                          </div>
                           <div>
                             <p className="text-sm font-black text-white group-hover:text-[#e9c349] transition-colors leading-tight">{rev.product}</p>
                             <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-1 font-bold">{rev.category}</p>
@@ -200,8 +236,8 @@ const AdminReviews = () => {
                       </td>
                       <td className="py-8 px-10">
                         <div className="flex text-[#e9c349] gap-1 justify-center items-center h-full">
-                          {[...Array(rev.rating)].map((_, i) => <Star key={i} size={14} className="fill-[#e9c349] text-[#e9c349]" />)}
-                          {[...Array(5 - rev.rating)].map((_, i) => <Star key={i} size={14} className="opacity-10 text-slate-500" />)}
+                          {[...Array(Math.max(0, Math.floor(rev.rating)))].map((_, i) => <Star key={i} size={14} className="fill-[#e9c349] text-[#e9c349]" />)}
+                          {[...Array(Math.max(0, 5 - Math.floor(rev.rating)))].map((_, i) => <Star key={i} size={14} className="opacity-10 text-slate-500" />)}
                         </div>
                       </td>
                       <td className="py-8 px-10 text-xs font-bold text-slate-400 uppercase tracking-widest">{rev.date}</td>
@@ -210,9 +246,6 @@ const AdminReviews = () => {
                           <div className={`p-2 rounded-full transition-all ${isExpanded ? 'bg-[#e9c349] text-[#0b1326] rotate-180' : 'bg-white/5 text-slate-500 group-hover:text-white'}`}>
                             <ChevronDown size={14} />
                           </div>
-                          <button className="p-3 rounded-xl bg-[#222a3d] text-slate-400 hover:text-white transition-all shadow-xl shadow-black/20 border border-white/5 group-hover:opacity-100 opacity-0">
-                            <MoreVertical size={18} />
-                          </button>
                         </div>
                       </td>
                     </tr>
@@ -246,23 +279,9 @@ const AdminReviews = () => {
                                 </div>
                                 <div className="mt-10 flex gap-6">
                                   <button
-                                    onClick={() => {
-                                      const response = prompt("Nhập nội dung phản hồi khách hàng:");
-                                      if (response) {
-                                        adminService.respondToReview(rev.id.split('-')[1], response)
-                                          .then(() => alert("Đã gửi phản hồi thành công!"))
-                                          .catch(() => alert("Có lỗi xảy ra khi gửi phản hồi."));
-                                      }
-                                    }}
+                                    onClick={() => handleOpenResponse(rev.id, rev.adminResponse)}
                                     className="px-10 py-4 rounded-xl bg-[#e9c349] text-[#0b1326] text-[11px] font-black uppercase tracking-[0.25em] shadow-2xl shadow-[#e9c349]/20 hover:scale-105 active:scale-95 transition-all">
                                     Trả lời khách hàng
-                                  </button>
-                                  <button className="px-10 py-4 rounded-xl bg-white/5 text-slate-300 text-[11px] font-black uppercase tracking-[0.25em] hover:text-white transition-all flex items-center gap-4 border border-white/5">
-                                    <Pin size={16} />
-                                    Ghim đánh giá
-                                  </button>
-                                  <button className="px-4 py-4 rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all border border-rose-500/20 ml-auto">
-                                    <Trash2 size={20} />
                                   </button>
                                 </div>
                               </div>
@@ -299,6 +318,62 @@ const AdminReviews = () => {
           </tbody>
         </table>
       </section>
+
+      {/* Admin Response Modal */}
+      {isResponseModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-[#050816]/80 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="bg-[#131b2e] w-full max-w-2xl rounded-4xl border border-white/10 shadow-4xl overflow-hidden animate-in zoom-in-95 duration-500">
+            <div className="p-8 border-b border-white/5 flex justify-between items-center bg-[#171f33]">
+              <div>
+                <h2 className="text-3xl font-headline font-black text-white uppercase tracking-tight italic">Phản hồi khách hàng</h2>
+                <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-1 font-bold">Protocol: Administrative Customer Engagement</p>
+              </div>
+              <button
+                onClick={() => setIsResponseModalOpen(false)}
+                className="p-3 rounded-full hover:bg-rose-500/10 text-slate-500 hover:text-rose-500 transition-all border border-white/5"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="p-10 space-y-8">
+              <div className="space-y-4">
+                <label className="text-[10px] font-black text-[#e9c349] uppercase tracking-[0.3em] ml-1">Nội dung phản hồi</label>
+                <textarea
+                  value={currentResponse}
+                  onChange={(e) => setCurrentResponse(e.target.value)}
+                  placeholder="Nhập nội dung phản hồi chuyên nghiệp tại đây..."
+                  className="w-full h-48 bg-[#0b1326] border border-white/5 rounded-3xl p-8 text-white text-base focus:ring-1 focus:ring-[#e9c349]/40 outline-none resize-none placeholder:text-slate-700 font-medium italic shadow-inner"
+                />
+              </div>
+
+              <div className="flex items-center gap-4 p-6 bg-amber-400/5 rounded-2xl border border-amber-400/10">
+                <Shield size={20} className="text-[#e9c349]" />
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-relaxed">
+                  Lưu ý: Phản hồi này sẽ được hiển thị công khai dưới tên quản trị viên Atelier. Hãy đảm bảo ngôn từ tinh tế và sang trọng.
+                </p>
+              </div>
+            </div>
+
+            <div className="p-8 border-t border-white/5 bg-[#171f33]/30 flex justify-end gap-4">
+              <button
+                onClick={() => setIsResponseModalOpen(false)}
+                className="px-8 py-3 rounded-xl text-slate-500 font-bold text-xs uppercase hover:text-white transition-all"
+              >
+                Hủy bỏ
+              </button>
+              <button
+                onClick={submitResponse}
+                disabled={isSubmitting}
+                className="px-10 py-4 bg-[#e9c349] text-[#0b1326] rounded-xl font-black text-xs uppercase shadow-2xl shadow-[#e9c349]/10 hover:scale-105 transition-all flex items-center gap-2 disabled:opacity-50"
+              >
+                {isSubmitting ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />}
+                Gửi phản hồi
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Footer Support */}
       <footer className="pt-12 flex justify-between items-center opacity-30 border-t border-white/5">

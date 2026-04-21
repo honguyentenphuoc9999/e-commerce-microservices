@@ -19,8 +19,15 @@ const ProfileLayout = ({ children }: { children: React.ReactNode }) => {
   const { user, logout } = useAuthStore();
 
   const handleLogout = () => {
-    logout();
-    router.push("/login");
+    // 1. Remove token ONLY first (stop authentication but keep UI data for 1s)
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token');
+      localStorage.removeItem('cartId');
+    }
+    
+    // 2. Redirect immediately - we move the 'logout()' (store clear) to the Login page 
+    // to avoid the current page re-rendering with "Empty" data.
+    window.location.replace("/login");
   };
 
   const navItems = [
@@ -29,6 +36,11 @@ const ProfileLayout = ({ children }: { children: React.ReactNode }) => {
     { name: "Lịch sử mua hàng", icon: <Receipt size={20} />, href: "/profile/orders" },
     { name: "Đánh giá của tôi", icon: <Star size={20} />, href: "/profile/reviews" },
   ];
+
+  // Prevent flicker during logout/redirect
+  if (!user && pathname !== "/login") {
+    return <div className="min-h-screen bg-[#0b1326]" />;
+  }
 
   return (
     <div className="flex min-h-screen bg-[#0b1326] text-[#dae2fd]">
@@ -69,7 +81,11 @@ const ProfileLayout = ({ children }: { children: React.ReactNode }) => {
             <HelpCircle size={18} />
             <span>Support</span>
           </Link>
-          <button onClick={handleLogout} className="flex items-center space-x-3 py-3 text-rose-400 pl-4 hover:bg-rose-400/5 transition-all rounded-xl w-full text-left">
+          <button 
+            onClick={handleLogout} 
+            className="flex items-center space-x-3 py-3 text-rose-400 pl-4 hover:bg-rose-400/5 transition-all rounded-xl w-full text-left"
+            suppressHydrationWarning
+          >
             <LogOut size={18} />
             <span>Đăng xuất</span>
           </button>

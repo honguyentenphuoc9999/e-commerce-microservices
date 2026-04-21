@@ -9,8 +9,12 @@ public class OrderUtilities {
 
     public static BigDecimal countTotalPrice(List<Item> cart){
         BigDecimal total = BigDecimal.ZERO;
-        for(int i = 0; i < cart.size(); i++){
-            total = total.add(cart.get(i).getSubTotal());
+        for(Item item : cart){
+            BigDecimal sub = item.getSubTotal();
+            if (sub == null && item.getProduct() != null) {
+               sub = item.getProduct().getPrice().multiply(new BigDecimal(item.getQuantity()));
+            }
+            if (sub != null) total = total.add(sub);
         }
         return total;
     }

@@ -109,7 +109,7 @@ const AdminSettings = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-10 relative z-10">
                      <div className="space-y-3">
                         <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Tên cửa hàng</label>
-                        <input className="w-full bg-[#0b1326] border-none rounded-2xl px-8 py-4 text-white focus:ring-1 focus:ring-[#e9c349]/40 transition-all font-medium italic" defaultValue="Digital Atelier" type="text" />
+                        <input className="w-full bg-[#0b1326] border-none rounded-2xl px-8 py-4 text-white focus:ring-1 focus:ring-[#e9c349]/40 transition-all font-medium" defaultValue="Phuoc Techno" type="text" />
                      </div>
                      <div className="space-y-3">
                         <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Email quản trị</label>

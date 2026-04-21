@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
+import java.math.BigDecimal;
 import java.util.List;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -65,6 +66,8 @@ public class OrderController {
     public ResponseEntity<?> saveOrder(
     		@PathVariable("userId") Long userId,
             @RequestParam(value = "voucherCodes", required = false) String voucherCodes,
+            @RequestParam(value = "shippingMethod", defaultValue = "standard") String shippingMethod,
+            @RequestParam(value = "shippingAddress", required = false) String shippingAddress,
     		@RequestHeader(value = "Cookie", required = false) String cookieHeader,
             @RequestHeader(value = "cartId", required = false) String directCartId,
             @RequestHeader(value = "X-Auth-UserId", required = false) String xAuthUserId,
@@ -112,13 +115,34 @@ public class OrderController {
 
                 Order order = this.createOrder(cart, user);
 
-                // Apply Vouchers
+                // Apply Vouchers (Updates order.total with discount)
                 if (voucherCodes != null && !voucherCodes.isEmpty()) {
                     String error = voucherService.validateAndApplyVouchers(order, voucherCodes);
                     if (error != null) {
                         return new ResponseEntity<>(error, headerGenerator.getHeadersForError(), HttpStatus.BAD_REQUEST);
                     }
                 }
+
+                // --- FINAL PRICE CALCULATION (Sync with Frontend logic) ---
+                BigDecimal subtotalAfterDiscount = order.getTotal(); // Already subtracted discountAmount in VoucherService
+                
+                // 1. Calculate Tax (8% VAT)
+                BigDecimal tax = subtotalAfterDiscount.multiply(new BigDecimal("0.08"));
+                
+                // 2. Shipping Fee (Express: 50,000 VND, Standard: 20,000 VND)
+                BigDecimal shippingFee = shippingMethod.equalsIgnoreCase("express") 
+                    ? new BigDecimal("50000") 
+                    : new BigDecimal("20000");
+                
+                BigDecimal finalShippingFee = shippingFee.subtract(order.getShippingDiscount());
+                if (finalShippingFee.compareTo(BigDecimal.ZERO) < 0) finalShippingFee = BigDecimal.ZERO;
+
+                // 3. Update Final Total
+                BigDecimal finalTotal = subtotalAfterDiscount.add(tax).add(finalShippingFee);
+                order.setTotal(finalTotal);
+                order.setShippingAddress(shippingAddress);
+                order.setShippingMethod(shippingMethod);
+                // -----------------------------------------------------------
 
                 orderService.saveOrder(order);
                 cartService.deleteCart(cartId);
@@ -201,8 +225,24 @@ public class OrderController {
     public ResponseEntity<Order> updateOrderStatus(
             @PathVariable("orderId") Long orderId,
             @RequestParam("status") String status) {
-        Order order = orderService.updateOrderStatus(orderId, status);
-        return new ResponseEntity<Order>(order, headerGenerator.getHeadersForSuccessGetMethod(), HttpStatus.OK);
+        Order order = orderService.getOrderById(orderId);
+        if (order != null) {
+            order.setOrderStatus(status);
+            
+            // Nếu admin xác nhận Đã nhận tiền (PAID), tự động cập nhật payment_status
+            if ("PAID".equalsIgnoreCase(status)) {
+                order.setPaymentStatus("PAID");
+            }
+            
+            // Nếu admin xác nhận Hoàn tiền (REFUNDED), cập nhật payment_status
+            if ("REFUNDED".equalsIgnoreCase(status)) {
+                order.setPaymentStatus("REFUNDED");
+            }
+            
+            orderService.saveOrder(order);
+            return new ResponseEntity<Order>(order, headerGenerator.getHeadersForSuccessGetMethod(), HttpStatus.OK);
+        }
+        return new ResponseEntity<Order>(headerGenerator.getHeadersForError(), HttpStatus.NOT_FOUND);
     }
 
     @PutMapping(value = "/orders/{orderId}")

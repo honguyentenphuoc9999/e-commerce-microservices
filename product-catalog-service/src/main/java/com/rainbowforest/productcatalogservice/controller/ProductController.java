@@ -19,59 +19,51 @@ public class ProductController {
     private HeaderGenerator headerGenerator;
 
     @GetMapping (value = "/products")
-    public ResponseEntity<List<Product>> getAllProducts(){
-        List<Product> products =  productService.getAllProduct();
-        if(!products.isEmpty()) {
-        	return new ResponseEntity<List<Product>>(
-        			products,
-        			headerGenerator.getHeadersForSuccessGetMethod(),
-        			HttpStatus.OK);
-        }
-        return new ResponseEntity<List<Product>>(
-        		headerGenerator.getHeadersForError(),
-        		HttpStatus.NOT_FOUND);       
-    }
+    public ResponseEntity<List<Product>> getProducts(
+            @RequestParam(value = "category", required = false) String category,
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "minPrice", required = false) java.math.BigDecimal minPrice,
+            @RequestParam(value = "maxPrice", required = false) java.math.BigDecimal maxPrice
+    ){
+        List<Product> products;
+        
+        // Nếu có bất kỳ tham số giá nào, đảm bảo cả 2 đều có giá trị mặc định nếu thiếu
+        boolean hasPriceFilter = minPrice != null || maxPrice != null;
+        java.math.BigDecimal effectiveMin = minPrice != null ? minPrice : java.math.BigDecimal.ZERO;
+        java.math.BigDecimal effectiveMax = maxPrice != null ? maxPrice : new java.math.BigDecimal("999999999999");
 
-    @GetMapping(value = "/products", params = "category")
-    public ResponseEntity<List<Product>> getAllProductByCategory(@RequestParam ("category") String category){
-        List<Product> products = productService.getAllProductByCategory(category);
-        if(!products.isEmpty()) {
-        	return new ResponseEntity<List<Product>>(
-        			products,
-        			headerGenerator.getHeadersForSuccessGetMethod(),
-        			HttpStatus.OK);
+        if (category != null && hasPriceFilter) {
+            products = productService.getProductsByCategoryAndPrice(category, effectiveMin, effectiveMax);
+        } else if (name != null && hasPriceFilter) {
+            products = productService.getProductsByNameAndPrice(name, effectiveMin, effectiveMax);
+        } else if (hasPriceFilter) {
+            products = productService.getAllProductsByPriceRange(effectiveMin, effectiveMax);
+        } else if (category != null) {
+            products = productService.getAllProductByCategory(category);
+        } else if (name != null) {
+            products = productService.getAllProductsByName(name);
+        } else {
+            products = productService.getAllProduct();
         }
+
         return new ResponseEntity<List<Product>>(
-        		headerGenerator.getHeadersForError(),
-        		HttpStatus.NOT_FOUND);
+                products,
+                headerGenerator.getHeadersForSuccessGetMethod(),
+                HttpStatus.OK);
     }
 
     @GetMapping (value = "/products/{id}")
     public ResponseEntity<Product> getOneProductById(@PathVariable ("id") long id){
         Product product =  productService.getProductById(id);
         if(product != null) {
-        	return new ResponseEntity<Product>(
-        			product,
-        			headerGenerator.getHeadersForSuccessGetMethod(),
-        			HttpStatus.OK);
+            return new ResponseEntity<Product>(
+                    product,
+                    headerGenerator.getHeadersForSuccessGetMethod(),
+                    HttpStatus.OK);
         }
         return new ResponseEntity<Product>(
-        		headerGenerator.getHeadersForError(),
-        		HttpStatus.NOT_FOUND);
-    }
-
-    @GetMapping (value = "/products", params = "name")
-    public ResponseEntity<List<Product>> getAllProductsByName(@RequestParam ("name") String name){
-        List<Product> products =  productService.getAllProductsByName(name);
-        if(!products.isEmpty()) {
-        	return new ResponseEntity<List<Product>>(
-        			products,
-        			headerGenerator.getHeadersForSuccessGetMethod(),
-        			HttpStatus.OK);
-        }
-        return new ResponseEntity<List<Product>>(
-        		headerGenerator.getHeadersForError(),
-        		HttpStatus.NOT_FOUND);
+                headerGenerator.getHeadersForError(),
+                HttpStatus.NOT_FOUND);
     }
 
     @PutMapping(value = "/products/{id}/deduct")

@@ -131,7 +131,7 @@ const AdminCategories = () => {
             <span className="text-[10px] uppercase tracking-widest text-[#e9c349] font-label">Quản lý danh mục</span>
           </nav>
           <h1 className="text-5xl font-black font-headline tracking-tighter text-white uppercase">Hệ thống phân loại</h1>
-          <p className="text-slate-400 mt-2 max-w-xl font-body text-sm leading-relaxed">Định nghĩa và tổ chức hệ thống phân loại sản phẩm cho toàn bộ cửa hàng Digital Atelier.</p>
+          <p className="text-slate-400 mt-2 max-w-xl font-body text-sm leading-relaxed">Định nghĩa và tổ chức hệ thống phân loại sản phẩm cho toàn bộ cửa hàng Phuoc Techno.</p>
         </div>
         <div className="flex gap-4">
           <div className="relative group">
@@ -161,7 +161,7 @@ const AdminCategories = () => {
             </button>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Digital Atelier Taxonomy</span>
+            <span className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Phuoc Techno Taxonomy</span>
           </div>
         </div>
 
@@ -364,7 +364,7 @@ const AdminCategories = () => {
 
       {/* Footer Branding */}
       <footer className="pt-24 border-t border-white/5 py-12 flex justify-between items-center opacity-30">
-        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.5em]">Digital Atelier Core Infrastructure</p>
+        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.5em]">Phuoc Techno Core Infrastructure</p>
         <div className="flex gap-10">
           <span className="text-[9px] font-black uppercase tracking-widest">Protocol v1.1.0</span>
           <span className="text-[9px] font-black uppercase tracking-widest mr-4">Atelier OS</span>

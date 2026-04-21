@@ -41,6 +41,21 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public List<Product> getAllProductsByPriceRange(java.math.BigDecimal minPrice, java.math.BigDecimal maxPrice) {
+        return productRepository.findAllByPriceBetween(minPrice, maxPrice);
+    }
+
+    @Override
+    public List<Product> getProductsByCategoryAndPrice(String category, java.math.BigDecimal minPrice, java.math.BigDecimal maxPrice) {
+        return productRepository.findAllByCategoryCategoryNameAndPriceBetween(category, minPrice, maxPrice);
+    }
+
+    @Override
+    public List<Product> getProductsByNameAndPrice(String name, java.math.BigDecimal minPrice, java.math.BigDecimal maxPrice) {
+        return productRepository.findAllByProductNameContainingIgnoreCaseAndPriceBetween(name, minPrice, maxPrice);
+    }
+
+    @Override
     public Product addProduct(Product product, MultipartFile imageFile) {
         handleImageUpload(product, imageFile);
         return productRepository.save(product);

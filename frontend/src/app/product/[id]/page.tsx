@@ -3,9 +3,9 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Star, Truck, RefreshCcw, Minus, Plus, Heart, Share2, ChevronRight, Shield, MessageSquare } from "lucide-react";
+import { Star, Truck, RefreshCcw, Minus, Plus, Heart, Share2, ChevronRight, Shield, MessageSquare, X, Save, Loader2, Send } from "lucide-react";
 import { motion } from "framer-motion";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { catalogService } from "@/services/catalogService";
 import { shopService } from "@/services/shopService";
@@ -15,6 +15,7 @@ import { toast } from "sonner";
 
 const ProductDetailPage = () => {
   const params = useParams<{ id: string }>();
+  const router = useRouter();
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState("global");
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -52,6 +53,17 @@ const ProductDetailPage = () => {
     }
   });
 
+  const buyNowMutation = useMutation({
+    mutationFn: () => shopService.addToCart(product!.id!, quantity),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
+      router.push("/checkout");
+    },
+    onError: () => {
+      toast.error("Có lỗi xảy ra khi xử lý mua hàng.");
+    }
+  });
+
   const { data: reviews = [] } = useQuery({
     queryKey: ['productReviews', product?.productName],
     queryFn: () => reviewService.getReviewsByProduct(product!.productName),
@@ -61,6 +73,37 @@ const ProductDetailPage = () => {
   const averageRating = reviews.length > 0
     ? (reviews.reduce((acc: number, r: any) => acc + r.rating, 0) / reviews.length).toFixed(1)
     : "5.0";
+
+  // Calculate rating stats
+  const ratingStats = React.useMemo(() => {
+    const stats = { 
+      5: 0, 4: 0, 3: 0, 2: 0, 1: 0, 
+      total: reviews.length 
+    };
+    reviews.forEach((r: any) => {
+      const rating = Math.round(Number(r.rating || 0));
+      if (rating >= 1 && rating <= 5) {
+        // @ts-ignore
+        stats[rating]++;
+      }
+    });
+    return stats;
+  }, [reviews]);
+
+  // Sort reviews: current user's review at top
+  const sortedReviews = React.useMemo(() => {
+    if (!reviews || !Array.isArray(reviews)) return [];
+    return [...reviews].sort((a, b) => {
+      if (a.userId === user?.id) return -1;
+      if (b.userId === user?.id) return 1;
+      // Default: Newest first
+      return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+    });
+  }, [reviews, user?.id]);
+
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState("");
 
   const handleAddToCart = () => {
     if (!user) {
@@ -80,7 +123,7 @@ const ProductDetailPage = () => {
     mutationFn: ({ rating, comment }: { rating: number, comment: string }) =>
       reviewService.saveReview(user!.id!, product!.id!, rating, comment),
     onSuccess: () => {
-      toast.success("Cảm ơn bạn đã đánh giá!");
+      toast.success("Cám ơn bạn đã đánh giá!");
       queryClient.invalidateQueries({ queryKey: ['productReviews'] });
       queryClient.invalidateQueries({ queryKey: ['userProductReview'] });
     },
@@ -106,20 +149,32 @@ const ProductDetailPage = () => {
 
   const handleReviewAction = () => {
     if (!user) return toast.error("Vui lòng đăng nhập để đánh giá.");
-
-    const isEditing = !!userReview;
-    const rating = prompt(`Nhập số sao (1-5):`, (userReview?.rating || 5).toString());
-    if (rating === null) return;
-
-    const comment = prompt(`Nhập nội dung đánh giá:`, userReview?.comment || "");
-    if (comment === null) return;
-
-    if (isEditing) {
-      updateReviewMutation.mutate({ rating: parseInt(rating), comment });
-    } else {
-      saveReviewMutation.mutate({ rating: parseInt(rating), comment });
-    }
+    setReviewRating(userReview?.rating || 5);
+    setReviewComment(userReview?.comment || "");
+    setIsReviewModalOpen(true);
   };
+
+  const submitReview = () => {
+    const isEditing = !!userReview;
+    if (isEditing) {
+      updateReviewMutation.mutate({ rating: reviewRating, comment: reviewComment });
+    } else {
+      saveReviewMutation.mutate({ rating: reviewRating, comment: reviewComment });
+    }
+    setIsReviewModalOpen(false);
+  };
+
+  // Scroll Lock logic
+  React.useEffect(() => {
+    if (isReviewModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isReviewModalOpen]);
   
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
@@ -133,6 +188,14 @@ const ProductDetailPage = () => {
       width,
       height
     });
+  };
+
+  const handleBuyNow = () => {
+    if (!user) {
+      toast.error("Vui lòng đăng nhập để mua hàng.");
+      return;
+    }
+    buyNowMutation.mutate();
   };
 
   if (isLoading) {
@@ -199,15 +262,13 @@ const ProductDetailPage = () => {
                         return { left, top, width: lensSize, height: lensSize };
                       })()}
                     >
-                      {/* ── CLIP WRAPPER: tất cả content bên trong đều bị clip tròn ── */}
                       <div style={{
                         position: 'absolute',
                         inset: 0,
                         borderRadius: '50%',
-                        overflow: 'hidden',   // ← fix lòi khung
+                        overflow: 'hidden',
                         backgroundColor: '#020617'
                       }}>
-                        {/* Ảnh zoom chính — màu gốc, không filter */}
                         <img
                           src={currentImage!}
                           alt="Zoomed"
@@ -221,16 +282,12 @@ const ProductDetailPage = () => {
                             transformOrigin: `${mousePos.x}px ${mousePos.y}px`,
                           }}
                         />
-
-                        {/* Distortion overlay — làm tối rìa, sáng giữa */}
                         <div style={{
                           position: 'absolute', inset: 0,
                           borderRadius: '50%',
                           background: 'radial-gradient(circle, transparent 40%, rgba(0,0,0,0.35) 100%)',
                           pointerEvents: 'none',
                         }} />
-
-                        {/* Specular highlight — ánh phản chiếu góc trên trái */}
                         <div style={{
                           position: 'absolute', inset: 0,
                           borderRadius: '50%',
@@ -238,9 +295,6 @@ const ProductDetailPage = () => {
                           pointerEvents: 'none',
                         }} />
                       </div>
-
-                      {/* ── CHROMATIC ABERRATION: chỉ ở rìa, không ảnh hưởng màu ảnh ── */}
-                      {/* Fringe tím/đỏ bên ngoài viền */}
                       <div style={{
                         position: 'absolute', inset: 0,
                         borderRadius: '50%',
@@ -251,8 +305,6 @@ const ProductDetailPage = () => {
                         `,
                         pointerEvents: 'none',
                       }} />
-
-                      {/* Lens rim chính */}
                       <div style={{
                         position: 'absolute', inset: 0,
                         borderRadius: '50%',
@@ -268,7 +320,6 @@ const ProductDetailPage = () => {
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
               
-              {/* Zoom hint overlay */}
               {!isZooming && (
                 <div className="absolute bottom-8 right-8 bg-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none flex items-center gap-2">
                    <div className="w-1.5 h-1.5 rounded-full bg-[#e9c349] animate-pulse"></div>
@@ -297,7 +348,7 @@ const ProductDetailPage = () => {
               <h1 className="text-6xl font-black tracking-tighter leading-tight">{product.productName}</h1>
               <div className="flex items-center space-x-6 pt-2">
                 <div className="flex text-yellow-500">
-                  {[...Array(5)].map((_, i) => <Star key={i} fill="currentColor" size={14} className={i === 4 ? "opacity-50" : ""} />)}
+                  {[...Array(5)].map((_, i) => <Star key={i} fill="currentColor" size={14} className={i >= Math.floor(Number(averageRating)) ? "opacity-30" : ""} />)}
                 </div>
                 <span className="text-[10px] font-bold text-slate-500 tracking-[0.15em] border-l border-white/10 pl-6 uppercase">Đánh giá sản phẩm</span>
               </div>
@@ -350,15 +401,19 @@ const ProductDetailPage = () => {
               >
                 {cartMutation.isPending ? "ĐANG XỬ LÝ..." : "Thêm vào giỏ hàng"}
               </button>
-              <button className="bg-white/5 border border-white/10 hover:bg-white/10 py-5 rounded-xl font-bold text-white tracking-widest uppercase text-sm transition-all">
-                Mua ngay
+              <button 
+                onClick={handleBuyNow}
+                disabled={buyNowMutation.isPending}
+                className="bg-white/5 border border-white/10 hover:bg-white/10 py-5 rounded-xl font-bold text-white tracking-widest uppercase text-sm transition-all disabled:opacity-50"
+              >
+                {buyNowMutation.isPending ? "ĐANG XỬ LÝ..." : "Mua ngay"}
               </button>
             </div>
 
             <div className="flex justify-between items-center py-8 border-t border-white/5 mt-10">
               <div className="flex items-center space-x-4 text-[11px] font-bold text-slate-500 tracking-widest group">
                 <Truck className="h-5 w-5 text-slate-400 group-hover:text-blue-500 transition-colors" />
-                <span>GIAO HÀNG HỎA TỐC MIỄN PHÍ</span>
+                <span>GIAO HÀNG HỎA TỐC GIÁ RẺ</span>
               </div>
               <div className="flex items-center space-x-4 text-[11px] font-bold text-slate-500 tracking-widest group">
                 <RefreshCcw className="h-5 w-5 text-slate-400 group-hover:text-yellow-500 transition-colors" />
@@ -366,10 +421,7 @@ const ProductDetailPage = () => {
               </div>
             </div>
 
-            <div className="flex space-x-6 pt-4">
-              <button className="p-4 rounded-xl border border-white/10 hover:bg-white/10 transition group"><Heart size={20} className="group-hover:fill-pink-500 group-hover:text-pink-500" /></button>
-              <button className="p-4 rounded-xl border border-white/10 hover:bg-white/10 transition group"><Share2 size={20} className="group-hover:text-blue-500" /></button>
-            </div>
+
           </div>
         </div>
 
@@ -386,15 +438,20 @@ const ProductDetailPage = () => {
                 <p className="text-[10px] font-black tracking-[0.3em] text-slate-500 uppercase">Dựa trên {reviews.length} đánh giá thực tế</p>
 
                 <div className="w-full pt-10 space-y-4">
-                  {[5, 4, 3, 2, 1].map((n, i) => (
-                    <div key={n} className="flex items-center space-x-4">
-                      <span className="text-[10px] font-bold text-slate-500">{n}</span>
-                      <div className="flex-1 h-1 bg-white/5 rounded-full overflow-hidden">
-                        <div className="h-full bg-yellow-500 rounded-full" style={{ width: `${90 - i * 15}%` }} />
+                  {[5, 4, 3, 2, 1].map((n) => {
+                    // @ts-ignore
+                    const count = ratingStats[n];
+                    const percentage = ratingStats.total > 0 ? (count / ratingStats.total) * 100 : 0;
+                    return (
+                      <div key={n} className="flex items-center space-x-4">
+                        <span className="text-[10px] font-bold text-slate-500">{n}</span>
+                        <div className="flex-1 h-1 bg-white/5 rounded-full overflow-hidden">
+                          <div className="h-full bg-yellow-500 rounded-full transition-all duration-1000" style={{ width: `${percentage}%` }} />
+                        </div>
+                        <span className="text-[10px] font-bold text-slate-400 w-8">{count}</span>
                       </div>
-                      <span className="text-[10px] font-bold text-slate-400 w-8">{100 - i * 20}</span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 <button
@@ -406,37 +463,39 @@ const ProductDetailPage = () => {
             </div>
 
             <div className="lg:w-2/3 space-y-12">
-              {reviews.length === 0 ? (
+              {sortedReviews.length === 0 ? (
                 <div className="p-20 border-2 border-dashed border-white/5 rounded-[40px] text-center text-slate-500 font-bold uppercase tracking-widest">
                   Chưa có đánh giá nào cho sản phẩm này.
                 </div>
               ) : (
-                reviews.map((rev: any, idx: number) => (
+                sortedReviews.map((rev: any, idx: number) => (
                   <motion.div
                     key={idx}
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className={`p-10 rounded-[32px] bg-white/[0.02] border border-white/5 space-y-6 hover:bg-white/[0.04] transition-all ${rev.userId === user?.id ? 'ring-1 ring-[#e9c349]/20 bg-[#e9c349]/5' : ''}`}
+                    className={`p-10 rounded-[32px] bg-white/[0.02] border border-white/5 space-y-6 hover:bg-white/[0.04] transition-all ${rev.userId === user?.id ? 'ring-2 ring-[#e9c349]/40 bg-[#e9c349]/5' : ''}`}
                   >
                     <div className="flex justify-between items-start">
                       <div className="flex text-yellow-500">
-                        {[...Array(rev.rating)].map((_, i) => <Star key={i} fill="currentColor" size={14} />)}
-                        {[...Array(5 - rev.rating)].map((_, i) => <Star key={i} size={14} className="opacity-20" />)}
+                        {[...Array(Math.max(0, Math.min(5, Math.floor(rev.rating || 0))))].map((_, i) => <Star key={`fill-${i}`} fill="currentColor" size={14} />)}
+                        {[...Array(Math.max(0, 5 - Math.floor(rev.rating || 0)))].map((_, i) => <Star key={`empty-${i}`} size={14} className="opacity-20" />)}
                       </div>
                       <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
                         {rev.createdAt ? new Date(rev.createdAt).toLocaleDateString('vi-VN') : "Hôm nay"}
                       </span>
                     </div>
-                    <h4 className="text-2xl font-bold tracking-tight uppercase">Đánh giá từ {rev.userName || ""}</h4>
-                    <p className="text-slate-400 font-medium leading-relaxed italic">{rev.comment ? `"${rev.comment}"` : ""}</p>
+                    <h4 className="text-2xl font-bold tracking-tight uppercase">
+                      {rev.userId === user?.id ? "Đánh giá của bạn" : `Đánh giá từ ${rev.userName || ""}`}
+                    </h4>
+                    <p className="text-slate-400 font-medium leading-relaxed">{rev.comment ? `"${rev.comment}"` : ""}</p>
 
                     {rev.adminResponse && (
                       <div className="ml-10 p-6 bg-[#e9c349]/10 border-l-2 border-[#e9c349] rounded-2xl animate-in slide-in-from-left-2">
                         <p className="text-[10px] font-black text-[#e9c349] uppercase tracking-widest mb-2 flex items-center gap-2">
                           <Shield size={12} className="lucide lucide-shield" /> Phản hồi từ Admin:
                         </p>
-                        <p className="text-slate-300 text-sm italic">"{rev.adminResponse}"</p>
+                        <p className="text-slate-300 text-sm">"{rev.adminResponse}"</p>
                       </div>
                     )}
 
@@ -445,7 +504,9 @@ const ProductDetailPage = () => {
                         {(rev.userName || "U")[0]}
                       </div>
                       <div>
-                        <p className="text-xs font-bold tracking-widest text-white uppercase">{rev.userName || ""} {rev.userId === user?.id && <span className="text-[#e9c349] ml-2">(Bạn)</span>}</p>
+                        <p className="text-xs font-bold tracking-widest text-white uppercase">
+                          {rev.userId === user?.id ? "Bạn" : (rev.userName || "")}
+                        </p>
                         <p className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Nhà sưu tầm đã xác thực</p>
                       </div>
                     </div>
@@ -459,6 +520,112 @@ const ProductDetailPage = () => {
           </div>
         </section>
       </main>
+
+      {/* Atelier-style Review Modal */}
+      {isReviewModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 backdrop-blur-2xl transition-all duration-500">
+          {/* Bluish Glow Background */}
+          <div className="absolute inset-0 bg-[#020617]/80" />
+          <div className="absolute inset-0 bg-radial-at-c from-blue-500/10 via-transparent to-transparent pointer-events-none" />
+          
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-[#131b2e] w-full max-w-xl rounded-[2.5rem] border border-white/10 shadow-[0_30px_100px_rgba(0,0,0,0.5)] relative overflow-hidden"
+          >
+            {/* Modal Header */}
+            <div className="px-12 py-10 flex justify-between items-center border-b border-white/5 bg-linear-to-r from-white/[0.02] to-transparent">
+              <div>
+                <h2 className="text-3xl font-headline font-black text-white tracking-tighter uppercase">
+                  {userReview ? "CẬP NHẬT ĐÁNH GIÁ" : "ĐÁNH GIÁ SẢN PHẨM"}
+                </h2>
+                <p className="text-slate-500 text-[10px] uppercase font-black tracking-widest mt-1">
+                  {userReview 
+                    ? "Lần cập nhật cuối sẽ được ghi nhận vào lịch sử." 
+                    : `CHIA SẺ TRẢI NGHIỆM CỦA QUÝ KHÁCH VỀ ${product.productName}`}
+                </p>
+              </div>
+              <button 
+                onClick={() => setIsReviewModalOpen(false)}
+                className="p-3 bg-white/5 rounded-full text-slate-500 hover:text-white hover:bg-white/10 transition-all"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-12 space-y-10">
+              <div className="flex items-center gap-6 p-6 rounded-2xl bg-[#0b1326] border border-white/5">
+                <div className="w-16 h-20 bg-[#131b2e] rounded-xl overflow-hidden border border-white/10 flex-shrink-0">
+                  <img src={currentImage!} alt="" className="w-full h-full object-cover" />
+                </div>
+                <div>
+                  <h4 className="text-white font-bold text-lg">{product.productName}</h4>
+                </div>
+              </div>
+
+              <div className="space-y-6 text-center">
+                <label className="text-[10px] font-black uppercase text-[#e9c349] tracking-[0.3em] block">CHẤT LƯỢNG SẢN PHẨM</label>
+                <div className="flex justify-center gap-4">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      onClick={() => setReviewRating(star)}
+                      className="group relative transition-transform active:scale-90"
+                    >
+                      <Star
+                        size={48}
+                        className={`transition-all duration-300 ${star <= reviewRating ? "fill-[#e9c349] text-[#e9c349] drop-shadow-[0_0_15px_rgba(233,195,73,0.5)]" : "text-white/5"}`}
+                      />
+                    </button>
+                  ))}
+                </div>
+                <p className="text-slate-400 text-sm font-medium animate-in fade-in slide-in-from-top-2 duration-500">
+                  {reviewRating === 1 && "Rất tệ"}
+                  {reviewRating === 2 && "Tệ"}
+                  {reviewRating === 3 && "Bình thường"}
+                  {reviewRating === 4 && "Hài lòng"}
+                  {reviewRating === 5 && "Tuyệt vời"}
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <label className="text-[10px] font-black uppercase text-slate-500 tracking-[0.2em]">BÌNH LUẬN CHI TIẾT</label>
+                <div className="relative group">
+                  <textarea
+                    value={reviewComment}
+                    onChange={(e) => setReviewComment(e.target.value)}
+                    rows={4}
+                    placeholder="Hãy chia sẻ những điều bạn thích về sản phẩm này nhé..."
+                    className="w-full bg-[#0b1326] border border-white/5 rounded-2xl p-6 text-white placeholder:text-slate-700 outline-none focus:ring-1 focus:ring-[#e9c349]/30 transition-all resize-none shadow-inner text-base font-light"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="px-12 py-10 bg-white/[0.02] border-t border-white/5 flex gap-4 items-center justify-between">
+              <button
+                onClick={() => setIsReviewModalOpen(false)}
+                className="text-slate-500 font-black uppercase text-[10px] tracking-widest hover:text-white transition-all px-6"
+              >
+                HỦY
+              </button>
+              <button
+                onClick={submitReview}
+                disabled={saveReviewMutation.isPending || updateReviewMutation.isPending}
+                className="flex-[1.5] py-4 bg-[#e9c349] rounded-2xl text-[#0b1326] font-black uppercase text-xs tracking-widest hover:bg-white transition-all shadow-[0_0_40px_rgba(233,195,73,0.2)] flex items-center justify-center gap-3 disabled:opacity-50"
+              >
+                {saveReviewMutation.isPending || updateReviewMutation.isPending ? (
+                  <Loader2 className="animate-spin" size={18} />
+                ) : (
+                  userReview ? <Save size={18} /> : <span><Send size={18} /></span>
+                )}
+                {userReview ? "LƯU THAY ĐỔI" : "GỬI ĐÁNH GIÁ"}
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       <Footer />
     </div>

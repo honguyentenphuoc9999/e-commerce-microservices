@@ -26,12 +26,13 @@ export const shopService = {
   },
 
   // Thực hiện đặt hàng (Chốt đơn)
-  // Trong Postman guide yêu cầu truyền userId vào param (VD: /api/shop/order/2)
-  checkout: async (userId: string | number, voucherCodes?: string) => {
-    const url = voucherCodes 
-      ? `/shop/order/${userId}?voucherCodes=${voucherCodes}` 
-      : `/shop/order/${userId}`;
-    const res = await apiClient.post(url);
+  checkout: async (userId: string | number, voucherCodes?: string, shippingMethod: string = "standard", shippingAddress?: string) => {
+    const params = new URLSearchParams();
+    if (voucherCodes) params.append("voucherCodes", voucherCodes);
+    if (shippingMethod) params.append("shippingMethod", shippingMethod);
+    if (shippingAddress) params.append("shippingAddress", shippingAddress);
+    
+    const res = await apiClient.post(`/shop/order/${userId}?${params.toString()}`);
     return res.data;
   },
 
@@ -43,12 +44,12 @@ export const shopService = {
 
   // --- ADMIN METHODS ---
   adminGetAllOrders: async () => {
-    const res = await apiClient.get('/shop/orders');
+    const res = await apiClient.get('/admin-bff/orders');
     return res.data;
   },
 
   adminUpdateOrderStatus: async (orderId: number | string, status: string) => {
-    const res = await apiClient.put(`/shop/orders/${orderId}/status?status=${status}`);
+    const res = await apiClient.put(`/admin-bff/orders/${orderId}`, { orderStatus: status });
     return res.data;
   },
 
@@ -60,6 +61,26 @@ export const shopService = {
 
   getAvailableVouchers: async () => {
     const res = await apiClient.get('/shop/vouchers/available');
+    return res.data;
+  },
+
+  adminGetAllVouchers: async () => {
+    const res = await apiClient.get('/shop/vouchers/admin/all');
+    return res.data;
+  },
+
+  adminCreateVoucher: async (voucherData: any) => {
+    const res = await apiClient.post('/shop/vouchers/admin/create', voucherData);
+    return res.data;
+  },
+
+  adminUpdateVoucher: async (id: number | string, voucherData: any) => {
+    const res = await apiClient.put(`/shop/vouchers/admin/${id}`, voucherData);
+    return res.data;
+  },
+
+  adminDeleteVoucher: async (id: number | string) => {
+    const res = await apiClient.delete(`/shop/vouchers/admin/${id}`);
     return res.data;
   }
 };

@@ -56,7 +56,7 @@ const ForgotPasswordPage = () => {
         <Link href="/terms" className="hover:text-slate-400 transition">ĐIỀU KHOẢN DỊCH VỤ</Link>
         <Link href="/support" className="hover:text-slate-400 transition">LIÊN HỆ HỖ TRỢ</Link>
       </div>
-      <p className="mt-6 text-[10px] font-medium text-slate-700 uppercase tracking-widest">© 2024 Digital Atelier. BẢO LƯU MỌI QUYỀN.</p>
+      <p className="mt-6 text-[10px] font-medium text-slate-700 uppercase tracking-widest">© 2026 Phuoc Techno. BẢO LƯU MỌI QUYỀN.</p>
     </div>
   );
 };

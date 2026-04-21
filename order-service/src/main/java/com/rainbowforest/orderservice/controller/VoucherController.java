@@ -112,4 +112,35 @@ public class VoucherController {
                 .toList();
         return new ResponseEntity<>(available, HttpStatus.OK);
     }
+
+    // ADMIN: Lấy tất cả voucher (không lọc)
+    @GetMapping("/admin/all")
+    public ResponseEntity<List<Voucher>> getAllVouchers() {
+        return new ResponseEntity<>(voucherRepository.findAll(), HttpStatus.OK);
+    }
+
+    // ADMIN: Cập nhật Voucher
+    @PutMapping("/admin/{id}")
+    public ResponseEntity<?> updateVoucher(@PathVariable Long id, @RequestBody Voucher voucherDetails) {
+        return voucherRepository.findById(id).map(v -> {
+            v.setCode(voucherDetails.getCode());
+            v.setType(voucherDetails.getType());
+            v.setDiscountAmount(voucherDetails.getDiscountAmount());
+            v.setMinOrderValue(voucherDetails.getMinOrderValue());
+            v.setUsageLimit(voucherDetails.getUsageLimit());
+            v.setExpirationDate(voucherDetails.getExpirationDate());
+            v.setActive(voucherDetails.isActive());
+            return new ResponseEntity<>(voucherRepository.save(v), HttpStatus.OK);
+        }).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    // ADMIN: Xóa Voucher
+    @DeleteMapping("/admin/{id}")
+    public ResponseEntity<Void> deleteVoucher(@PathVariable Long id) {
+        if (voucherRepository.existsById(id)) {
+            voucherRepository.deleteById(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
 }

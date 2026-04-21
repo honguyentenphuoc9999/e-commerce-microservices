@@ -11,7 +11,7 @@ import {
   CheckCircle
 } from "lucide-react";
 import Link from "next/link";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { shopService } from "@/services/shopService";
 import { authService } from "@/services/authService";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -21,6 +21,7 @@ import { useEffect } from "react";
 const CheckoutPage = () => {
   const { user } = useAuthStore();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const voucherParam = searchParams.get("vouchers");
   const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
@@ -30,7 +31,7 @@ const CheckoutPage = () => {
   const [shippingMethod, setShippingMethod] = useState("standard");
 
   const { data: cartData, isLoading } = useQuery({
-    queryKey: ['cart'],
+    queryKey: ['cart', user?.id || 'guest'],
     queryFn: shopService.getCart,
     enabled: !!user,
   });
@@ -52,6 +53,81 @@ const CheckoutPage = () => {
     phone: ""
   });
 
+  const VN_POSTAL_CODES: Record<string, string> = {
+    "An Giang": "90000",
+    "Bà Rịa Vũng Tàu": "78000",
+    "Bạc Liêu": "97000",
+    "Bắc Kạn": "23000",
+    "Bắc Giang": "26000",
+    "Bắc Ninh": "16000",
+    "Bến Tre": "86000",
+    "Bình Dương": "75000",
+    "Bình Định": "55000",
+    "Bình Phước": "67000",
+    "Bình Thuận": "77000",
+    "Cà Mau": "98000",
+    "Cao Bằng": "21000",
+    "Cần Thơ": "94000",
+    "Đà Nẵng": "50000",
+    "Điện Biên": "32000",
+    "Đắk Lắk": "63000",
+    "Đắk Nông": "65000",
+    "Đồng Nai": "76000",
+    "Đồng Tháp": "81000",
+    "Gia Lai": "61000",
+    "Hà Giang": "20000",
+    "Hà Nam": "18000",
+    "Hà Nội": "10000",
+    "Hà Tĩnh": "45000",
+    "Hải Dương": "03000",
+    "Hải Phòng": "04000",
+    "Hậu Giang": "95000",
+    "Hòa Bình": "36000",
+    "Hồ Chí Minh": "70000",
+    "Hưng Yên": "17000",
+    "Khánh Hòa": "57000",
+    "Kiên Giang": "91000",
+    "Kon Tum": "60000",
+    "Lai Châu": "30000",
+    "Lạng Sơn": "25000",
+    "Lào Cai": "31000",
+    "Lâm Đồng": "66000",
+    "Long An": "82000",
+    "Nam Định": "07000",
+    "Nghệ An": "43000",
+    "Ninh Bình": "08000",
+    "Ninh Thuận": "59000",
+    "Phú Thọ": "35000",
+    "Phú Yên": "56000",
+    "Quảng Bình": "47000",
+    "Quảng Nam": "51000",
+    "Quảng Ngãi": "53000",
+    "Quảng Ninh": "01000",
+    "Quảng Trị": "48000",
+    "Sóc Trăng": "96000",
+    "Sơn La": "34000",
+    "Tây Ninh": "80000",
+    "Thái Bình": "06000",
+    "Thái Nguyên": "24000",
+    "Thanh Hoá": "40000",
+    "Thừa Thiên Huế": "49000",
+    "Tiền Giang": "84000",
+    "Trà Vinh": "87000",
+    "Tuyên Quang": "22000",
+    "Vĩnh Long": "85000",
+    "Vĩnh Phúc": "15000",
+    "Yên Bái": "33000"
+  };
+
+  // Tự động cập nhật Zip Code khi Thành phố thay đổi
+  useEffect(() => {
+    const city = formData.city;
+    const foundCode = VN_POSTAL_CODES[city] || VN_POSTAL_CODES[Object.keys(VN_POSTAL_CODES).find(k => city.includes(k)) || ""] || "40000";
+    if (formData.zipCode !== foundCode) {
+      setFormData(prev => ({ ...prev, zipCode: foundCode }));
+    }
+  }, [formData.city]);
+
   // Tự động điền thông tin khi profile load xong
   useEffect(() => {
     if (profile && profile.userDetails) {
@@ -65,55 +141,95 @@ const CheckoutPage = () => {
         ud.district      // Quận / Huyện
       ].filter(Boolean).join(", ");
 
+      const city = ud.locality || "Hồ Chí Minh";
+      const initialZip = VN_POSTAL_CODES[city] || "70000";
+
       setFormData({
         firstName: ud.lastName || "",  // Tên (Khach)
         lastName: ud.firstName || "", // Họ & Tên lót (Nguyen)
         phone: ud.phoneNumber || "",
-        city: ud.locality || "Hồ Chí Minh",
-        zipCode: "70000",
+        city: city,
+        zipCode: initialZip,
         address: detailedAddress || ""
       });
     }
   }, [profile]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  // Tự động kiểm tra voucher từ URL nếu có
-  const { data: voucherData } = useQuery({
-    queryKey: ['validate-voucher', voucherParam],
-    queryFn: () => shopService.validateVoucher(voucherParam!, subtotal),
-    enabled: !!voucherParam && !!cartData,
-  });
-
-  const rawItems = cartData?.items || cartData?.cartItems || (Array.isArray(cartData) ? cartData : []) || [];
-  const cartItems = rawItems.map((item: any) => ({
-    id: item.product?.id || item.productId || item.id,
+  const rawItems = [...(cartData?.items || cartData?.cartItems || (Array.isArray(cartData) ? cartData : []) || [])]
+    .sort((a: any, b: any) => (b.addedAt || 0) - (a.addedAt || 0));
+    
+  const cartItems = rawItems.map((item: any, index: number) => ({
+    id: item.id || `item-${item.product?.id || item.productId || index}`,
+    productId: item.product?.id || item.productId,
     name: item.product?.productName || item.productName || "Sản phẩm",
     price: item.product?.price || item.price || 0,
     quantity: item.quantity || 1,
     image: item.product?.image || item.image || "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&q=80&w=800"
   }));
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  // Calculate Summary
   const subtotal = cartItems.reduce((acc: number, item: any) => acc + item.price * item.quantity, 0);
-  const discount = voucherData?.discountAmount || 0;
-  const taxableAmount = Math.max(0, subtotal - discount);
+  
+  // Support multiple vouchers if provided as comma-separated list
+  const voucherCodes = voucherParam ? voucherParam.split(',').map(v => v.split(':')[0].trim()) : [];
+  
+  // We'll use a local query to fetch all applied vouchers info
+  const { data: vouchersInfo = [] } = useQuery({
+    queryKey: ['validate-vouchers-list', voucherCodes],
+    queryFn: async () => {
+      const results = await Promise.all(
+        voucherCodes.map(code => shopService.validateVoucher(code, subtotal).catch(() => null))
+      );
+      return results.filter(Boolean);
+    },
+    enabled: voucherCodes.length > 0 && !!cartData,
+  });
+
+  const itemDiscount = vouchersInfo
+    .filter((v: any) => v.type === 'DISCOUNT')
+    .reduce((acc: number, v: any) => acc + (v.discountAmount || 0), 0);
+
+  const shippingDiscount = vouchersInfo
+    .filter((v: any) => v.type === 'FREESHIP')
+    .reduce((acc: number, v: any) => acc + (v.discountAmount || 0), 0);
+
+  const taxableAmount = Math.max(0, subtotal - itemDiscount);
   const tax = taxableAmount * 0.08;
-  const total = taxableAmount + tax + shippingFee;
+  const finalShippingFee = Math.max(0, shippingFee - shippingDiscount);
+  const total = taxableAmount + tax + finalShippingFee;
 
   const checkoutMutation = useMutation({
     mutationFn: async () => {
       if (!user?.id) throw new Error("Chưa có user id");
-      const orderRes = await shopService.checkout(user.id, voucherParam || undefined);
+      
+      // Làm sạch mã voucher: Nếu có dạng "CODE:1" thì chỉ lấy "CODE"
+      // Hoặc nếu có nhiều voucher cách nhau bởi dấu phẩy, làm sạch từng cái
+      let cleanVouchers = undefined;
+      if (voucherParam) {
+        cleanVouchers = voucherParam.split(',').map(v => v.split(':')[0].trim()).join(',');
+      }
+
+      const orderRes = await shopService.checkout(user.id, cleanVouchers, shippingMethod, formData.address);
 
       const orderId = orderRes?.id || orderRes?.orderId || orderRes?.data?.id || orderRes;
+      if (!orderId) throw new Error("Không lấy được Order ID");
+
       const qrRes = await shopService.getVietQrPayment(orderId);
-      return qrRes?.paymentUrl || qrRes; // Tuỳ thuộc format trả về
+      return qrRes?.paymentUrl || qrRes;
     },
     onSuccess: (url) => {
       setPaymentUrl(typeof url === 'string' ? url : url?.paymentUrl);
+      // Xóa cache giỏ hàng để khi quay lại giỏ hàng sẽ trống
+      queryClient.invalidateQueries({ queryKey: ['cart', user?.id || 'guest'] });
+    },
+    onError: (error: any) => {
+      const msg = error.response?.data?.message || (typeof error.response?.data === 'string' ? error.response?.data : null) || error.message || "Lỗi thanh toán";
+      alert("Thanh toán thất bại: " + msg);
     }
   });
 
@@ -139,22 +255,30 @@ const CheckoutPage = () => {
     <div className="min-h-screen bg-[#0b1326] text-[#dae2fd]">
       {/* Simple Nav */}
       <nav className="fixed top-0 w-full z-50 bg-[#0b1326]/60 backdrop-blur-xl border-b border-white/5">
-        <div className="flex justify-between items-center w-full px-8 py-5 max-w-7xl mx-auto">
-          <Link href="/" className="text-2xl font-black tracking-tighter text-white uppercase italic font-headline">
-            Atelier
-          </Link>
-          <div className="flex items-center gap-8 text-slate-400 font-bold text-xs uppercase tracking-widest">
-
-            <div className="flex items-center gap-3 text-[#e9c349]">
+        <div className="flex justify-between items-center w-full px-8 py-5 max-w-[1440px] mx-auto">
+          {/* Left: Logo & Status */}
+          <div className="flex items-center gap-6">
+            <Link href="/" className="inline-block transition-transform hover:scale-105">
+              <img
+                src="https://res.cloudinary.com/de0de4yum/image/upload/v1776774968/logo_yc7qyw.png"
+                alt="Phuoc Techno Logo"
+                className="h-10 w-auto object-contain"
+              />
+            </Link>
+            <div className="hidden md:flex items-center gap-3 text-[#e9c349] font-bold text-[10px] uppercase tracking-widest border-l border-white/10 pl-6">
               <span className="w-1.5 h-1.5 rounded-full bg-[#e9c349] animate-pulse"></span>
               Thanh toán bảo mật
             </div>
           </div>
+
+          {/* Right: User Info */}
           <div className="flex items-center gap-6">
-            <Link href="/cart" className="text-white hover:scale-110 transition-transform relative">
-              <ShoppingCart size={20} />
-              <span className="absolute -top-2 -right-2 bg-[#e9c349] text-[#0b1326] text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center">2</span>
-            </Link>
+            <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-full border border-white/5 shadow-inner">
+              <div className="w-6 h-6 bg-[#e9c349] text-black font-bold rounded-full flex items-center justify-center text-[10px]">
+                {user?.userName?.charAt(0).toUpperCase()}
+              </div>
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-300">{user?.userName}</span>
+            </div>
           </div>
         </div>
       </nav>
@@ -184,7 +308,7 @@ const CheckoutPage = () => {
           <section className="space-y-10 group">
             <header className="space-y-4">
               <h1 className="text-5xl font-headline font-black tracking-tighter text-white italic">Chi tiết vận chuyển</h1>
-              <p className="text-slate-500 font-medium text-lg">Cung cấp địa chỉ của quý khách để nhận dịch vụ giao hàng ưu tiên Atelier Core.</p>
+              <p className="text-slate-500 font-medium text-lg">Cung cấp địa chỉ của quý khách để nhận dịch vụ giao hàng ưu tiên từ Phuoc Techno.</p>
             </header>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-[#131b2e]/40 p-10 rounded-[2.5rem] border border-white/5 backdrop-blur-3xl shadow-2xl">
@@ -197,6 +321,7 @@ const CheckoutPage = () => {
                   className="w-full bg-[#0b1326] border-none rounded-2xl px-8 py-5 text-white focus:ring-1 focus:ring-[#e9c349]/40 transition-all placeholder:text-slate-700 font-medium italic"
                   placeholder="VD: Julian"
                   type="text"
+                  suppressHydrationWarning
                 />
               </div>
               <div className="space-y-3">
@@ -208,6 +333,7 @@ const CheckoutPage = () => {
                   className="w-full bg-[#0b1326] border-none rounded-2xl px-8 py-5 text-white focus:ring-1 focus:ring-[#e9c349]/40 transition-all placeholder:text-slate-700 font-medium italic"
                   placeholder="VD: Voss"
                   type="text"
+                  suppressHydrationWarning
                 />
               </div>
               <div className="md:col-span-2 space-y-3">
@@ -219,6 +345,7 @@ const CheckoutPage = () => {
                   className="w-full bg-[#0b1326] border-none rounded-2xl px-8 py-5 text-white focus:ring-1 focus:ring-[#e9c349]/40 transition-all placeholder:text-slate-700 font-medium italic"
                   placeholder="Số nhà, tên đường, khu phố..."
                   type="text"
+                  suppressHydrationWarning
                 />
               </div>
               <div className="space-y-3">
@@ -230,6 +357,7 @@ const CheckoutPage = () => {
                   className="w-full bg-[#0b1326] border-none rounded-2xl px-8 py-5 text-white focus:ring-1 focus:ring-[#e9c349]/40 transition-all placeholder:text-slate-700 font-medium italic"
                   placeholder="Hồ Chí Minh"
                   type="text"
+                  suppressHydrationWarning
                 />
               </div>
               <div className="space-y-3">
@@ -237,10 +365,11 @@ const CheckoutPage = () => {
                 <input
                   name="zipCode"
                   value={formData.zipCode}
-                  onChange={handleInputChange}
-                  className="w-full bg-[#0b1326] border-none rounded-2xl px-8 py-5 text-white focus:ring-1 focus:ring-[#e9c349]/40 transition-all placeholder:text-slate-700 font-medium italic"
+                  readOnly
+                  className="w-full bg-[#131b2e] border-none rounded-2xl px-8 py-5 text-[#e9c349] font-bold italic cursor-not-allowed opacity-80"
                   placeholder="70000"
                   type="text"
+                  suppressHydrationWarning
                 />
               </div>
               <div className="md:col-span-2 space-y-3">
@@ -252,6 +381,7 @@ const CheckoutPage = () => {
                   className="w-full bg-[#0b1326] border-none rounded-2xl px-8 py-5 text-white focus:ring-1 focus:ring-[#e9c349]/40 transition-all placeholder:text-slate-700 font-medium italic"
                   placeholder="+84 XXX XXX XXX"
                   type="tel"
+                  suppressHydrationWarning
                 />
               </div>
             </div>
@@ -329,16 +459,26 @@ const CheckoutPage = () => {
                   <span>Tạm tính</span>
                   <span className="text-white font-black">{subtotal.toLocaleString()}đ</span>
                 </div>
+                
+                {vouchersInfo.map((v: any, idx: number) => (
+                   <div key={idx} className="flex justify-between text-sm text-[#e9c349] font-medium">
+                     <span>Giảm giá ({v.code})</span>
+                     <span className="font-black">-{v.discountAmount.toLocaleString()}đ</span>
+                   </div>
+                ))}
+
                 <div className="flex justify-between text-sm text-slate-400 font-medium">
                   <span>Phí vận chuyển</span>
-                  <span className="text-white font-black">{shippingFee.toLocaleString()}đ</span>
-                </div>
-                {discount > 0 && (
-                  <div className="flex justify-between text-sm text-[#e9c349] font-medium">
-                    <span>Giảm giá ({voucherParam})</span>
-                    <span className="font-black">-{discount.toLocaleString()}đ</span>
+                  <div className="flex flex-col items-end">
+                    {shippingDiscount > 0 && (
+                      <span className="text-[10px] text-slate-500 line-through">
+                        {shippingFee.toLocaleString()}đ
+                      </span>
+                    )}
+                    <span className="text-white font-black">{finalShippingFee.toLocaleString()}đ</span>
                   </div>
-                )}
+                </div>
+                
                 <div className="flex justify-between text-sm text-slate-400 font-medium">
                   <span>Thuế (VAT 8%)</span>
                   <span className="text-white font-black">{tax.toLocaleString()}đ</span>
@@ -355,7 +495,7 @@ const CheckoutPage = () => {
                   disabled={checkoutMutation.isPending || cartItems.length === 0}
                   className="w-full py-6 bg-[#e9c349] text-[#0b1326] font-black rounded-2xl shadow-3xl shadow-[#e9c349]/10 hover:scale-[1.02] active:scale-95 transition-all text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {checkoutMutation.isPending ? "Đang xử lý thanh toán..." : "Thanh toán & Lấy mã QR"}
+                  {checkoutMutation.isPending ? "Đang xử lý thanh toán..." : "Thanh toán"}
                   <ChevronRight size={18} />
                 </button>
               </div>
@@ -365,7 +505,7 @@ const CheckoutPage = () => {
                   <Lock size={12} />
                   Mã hóa SSL 256-bit bảo mật
                 </div>
-                <p className="text-[10px] text-slate-600 font-medium italic">Bằng cách tiếp tục, quý khách đồng ý với các Điều khoản & Chính sách của Atelier.</p>
+                <p className="text-[10px] text-slate-600 font-medium italic">Bằng cách tiếp tục, quý khách đồng ý với các Điều khoản & Chính sách của Phuoc Techno.</p>
               </div>
             </div>
           </div>
@@ -387,8 +527,8 @@ const CheckoutPage = () => {
           <ArrowLeft size={16} />
           Quay lại giỏ hàng
         </Link>
-        <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.5em]">Atelier Checkout System</span>
-        <p className="text-slate-500 text-[8px] uppercase font-bold">© 2024 Digital Atelier. All Rights Reserved.</p>
+        <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.5em]">Phuoc Techno Checkout System</span>
+        <p className="text-slate-500 text-[8px] uppercase font-bold">© 2026 Phuoc Techno. All Rights Reserved.</p>
       </footer>
     </div>
   );

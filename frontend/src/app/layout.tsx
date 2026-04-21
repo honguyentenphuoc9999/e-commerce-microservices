@@ -16,7 +16,7 @@ const beVietnamPro = Be_Vietnam_Pro({
 import Providers from "@/components/Providers";
 
 export const metadata: Metadata = {
-  title: "Digital Atelier | E-Commerce Microservices",
+  title: "Phuoc Techno | E-Commerce Microservices",
   description: "Next-generation digital art and technology retail experience.",
 };
 

@@ -9,7 +9,7 @@ import java.util.List;
 
 @Entity
 @Table (name = "items")
-@EqualsAndHashCode
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Item {
 	
     @Id
@@ -27,20 +27,25 @@ public class Item {
 
     @ManyToOne
     @JoinColumn (name = "product_id")
+    @EqualsAndHashCode.Include
     private Product product;
 
     @ManyToMany (mappedBy = "items")
     @JsonIgnore
     private List<Order> orders;
+
+    @Column (name = "added_at")
+    private Long addedAt;
     
     public Item() {
-    	
+    	this.addedAt = System.currentTimeMillis();
     }
 
     public Item(@NotNull int quantity, Product product, BigDecimal subTotal) {
         this.quantity = quantity;
         this.product = product;
         this.subTotal = subTotal;
+        this.addedAt = System.currentTimeMillis();
     }
 
 	public Long getId() {
@@ -82,4 +87,12 @@ public class Item {
 	public void setOrders(List<Order> orders) {
 		this.orders = orders;
 	}
+
+    public Long getAddedAt() {
+        return addedAt;
+    }
+
+    public void setAddedAt(Long addedAt) {
+        this.addedAt = addedAt;
+    }
 }

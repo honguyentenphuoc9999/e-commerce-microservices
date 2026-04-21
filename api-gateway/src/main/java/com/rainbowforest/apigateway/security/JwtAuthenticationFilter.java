@@ -32,18 +32,20 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         String path = request.getPath().toString();
         String method = request.getMethod().name();
 
-        // 1. Define Public routes (No login required)
-        if (path.contains("/api/accounts/login") 
-            || (path.contains("/api/accounts/users") && method.equals("POST")) // Register is public
+        // 1. Check if it's a public route
+        boolean isPublic = path.contains("/api/accounts/login") 
+            || (path.contains("/api/accounts/users") && method.equals("POST"))
             || (path.contains("/api/accounts/registration") && method.equals("POST"))
-            || (path.contains("/api/catalog/products") && method.equals("GET")) // Read products is public
-            || (path.contains("/api/catalog/categories") && method.equals("GET")) // Read categories is public
-            || (path.contains("/api/review/recommendations") && method.equals("GET"))) { // Read reviews is public
-            return chain.filter(exchange);
-        }
+            || (path.contains("/api/catalog/products") && method.equals("GET"))
+            || (path.contains("/api/catalog/categories") && method.equals("GET"))
+            || path.contains("/api/shop/cart")
+            || (path.contains("/api/review/recommendations") && method.equals("GET"));
 
         // 2. Token extraction & validation
         if (!request.getHeaders().containsKey("Authorization")) {
+            if (isPublic) {
+                return chain.filter(exchange); // Public route with no token is OK
+            }
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }

@@ -43,14 +43,14 @@ const getStatusInfo = (status: string) => {
   }
 };
 
-const OrderDetail = ({ params }: { params: { id: string } }) => {
+const OrderDetail = ({ params }: { params: Promise<{ id: string }> }) => {
+  const { id: orderId } = React.use(params);
   const { token } = useAuthStore();
-  const orderId = params.id;
 
   const { data: order, isLoading, error } = useQuery({
     queryKey: ["adminOrder", orderId],
     queryFn: async () => {
-      const response = await axios.get(`http://localhost:8900/api/shop/orders/${orderId}`, {
+      const response = await axios.get(`http://localhost:8900/api/admin-bff/orders/${orderId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       return response.data;
@@ -167,11 +167,13 @@ const OrderDetail = ({ params }: { params: { id: string } }) => {
                 </div>
                 <div className="flex justify-between text-sm text-slate-400">
                   <span>Phí vận chuyển</span>
-                  <span className="text-emerald-400 font-bold uppercase text-[10px] tracking-widest">Miễn phí</span>
+                  <span className="text-emerald-400 font-bold uppercase text-[10px] tracking-widest">
+                    {order.shippingMethod === 'express' ? formatPrice(50000) : formatPrice(20000)}
+                  </span>
                 </div>
                 <div className="flex justify-between text-xl font-headline font-black text-[#e9c349] pt-4 border-t border-white/10">
                   <span>Tổng cộng</span>
-                  <span>{formatPrice((order.total || 0) - (order.discountAmount || 0))}</span>
+                  <span>{formatPrice(order.total || 0)}</span>
                 </div>
               </div>
             </div>
@@ -179,29 +181,42 @@ const OrderDetail = ({ params }: { params: { id: string } }) => {
 
           {/* Timeline / Activity */}
           <div className="bg-[#131b2e] rounded-2xl border border-white/5 shadow-2xl p-8 space-y-8">
-            <h2 className="font-headline text-xl font-bold text-white">Lịch sử hoạt động</h2>
+            <h2 className="font-headline text-xl font-bold text-white">Theo dõi hành trình</h2>
             <div className="relative space-y-8 before:absolute before:inset-0 before:ml-[11px] before:w-0.5 before:bg-white/5">
+              {/* Step 4: Delivered */}
               <div className="relative pl-10">
-                <span className="absolute left-0 top-1 w-6 h-6 rounded-full bg-emerald-400 flex items-center justify-center text-[#0b1326] shadow-lg shadow-emerald-400/20">
+                <span className={`absolute left-0 top-1 w-6 h-6 rounded-full flex items-center justify-center text-[#0b1326] shadow-lg transition-all duration-700 ${order.orderStatus === 'DELIVERED' ? 'bg-indigo-400 shadow-indigo-400/40 animate-pulse' : 'bg-[#171f33] border border-white/10 text-slate-500'}`}>
                   <CheckCircle size={14} />
                 </span>
-                <p className="text-sm font-bold text-white uppercase tracking-widest">Đơn hàng hoàn tất</p>
-                <p className="text-xs text-slate-500 mt-1">Hôm nay, 10:42 AM</p>
-                <p className="text-sm text-slate-400 mt-2 bg-white/5 p-4 rounded-xl border border-white/5 italic">"Khách hàng đã ký nhận kiện hàng tại 722 Metropolitan Ave."</p>
+                <p className={`text-sm font-bold uppercase tracking-widest ${order.orderStatus === 'DELIVERED' ? 'text-white' : 'text-slate-500'}`}>Giao hàng thành công</p>
+                <p className="text-xs text-slate-500 mt-1">{order.orderStatus === 'DELIVERED' ? 'Khách đã nhận kiện hàng' : 'Chưa hoàn tất'}</p>
               </div>
+
+              {/* Step 3: Shipped */}
               <div className="relative pl-10">
-                <span className="absolute left-0 top-1 w-6 h-6 rounded-full bg-blue-400 flex items-center justify-center text-[#0b1326] shadow-lg shadow-blue-400/20">
+                <span className={`absolute left-0 top-1 w-6 h-6 rounded-full flex items-center justify-center text-[#0b1326] shadow-lg transition-all duration-700 ${order.orderStatus === 'SHIPPED' || order.orderStatus === 'DELIVERED' ? 'bg-blue-400 shadow-blue-400/40' : 'bg-[#171f33] border border-white/10 text-slate-500'}`}>
                   <Truck size={14} />
                 </span>
-                <p className="text-sm font-bold text-white uppercase tracking-widest">Đang vận chuyển</p>
-                <p className="text-xs text-slate-500 mt-1">26 tháng 10, 09:15 AM</p>
+                <p className={`text-sm font-bold uppercase tracking-widest ${order.orderStatus === 'SHIPPED' || order.orderStatus === 'DELIVERED' ? 'text-white' : 'text-slate-500'}`}>Đang giao hàng</p>
+                <p className="text-xs text-slate-500 mt-1">{order.orderStatus === 'SHIPPED' || order.orderStatus === 'DELIVERED' ? 'Kiện hàng đang trên đường' : 'Chờ vận chuyển'}</p>
               </div>
+
+              {/* Step 2: Paid */}
               <div className="relative pl-10">
-                <span className="absolute left-0 top-1 w-6 h-6 rounded-full bg-[#171f33] border border-white/10 flex items-center justify-center text-slate-400">
+                <span className={`absolute left-0 top-1 w-6 h-6 rounded-full flex items-center justify-center text-[#0b1326] shadow-lg transition-all duration-700 ${order.paymentStatus === 'PAID' ? 'bg-emerald-400 shadow-emerald-400/40' : 'bg-[#171f33] border border-white/10 text-slate-500'}`}>
+                  <CreditCard size={14} />
+                </span>
+                <p className={`text-sm font-bold uppercase tracking-widest ${order.paymentStatus === 'PAID' ? 'text-white' : 'text-slate-500'}`}>Đã thanh toán</p>
+                <p className="text-xs text-slate-500 mt-1">{order.paymentStatus === 'PAID' ? 'Giao dịch đã được xác nhận' : 'Đang chờ tiền vào ví'}</p>
+              </div>
+
+              {/* Step 1: Placed */}
+              <div className="relative pl-10">
+                <span className="absolute left-0 top-1 w-6 h-6 rounded-full bg-white flex items-center justify-center text-[#0b1326] shadow-lg shadow-white/20">
                   <Package size={14} />
                 </span>
-                <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Đã đóng gói xong</p>
-                <p className="text-xs text-slate-500 mt-1">25 tháng 10, 14:20 PM</p>
+                <p className="text-sm font-bold text-white uppercase tracking-widest">Đơn hàng đã đặt</p>
+                <p className="text-xs text-slate-500 mt-1">Hệ thống đã tiếp nhận đơn hàng</p>
               </div>
             </div>
           </div>
@@ -257,10 +272,8 @@ const OrderDetail = ({ params }: { params: { id: string } }) => {
                 <span className="p-2 bg-[#e9c349]/10 rounded-lg text-[#e9c349] h-fit"><MapPin size={16} /></span>
                 <div>
                   <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1">Địa chỉ giao hàng</p>
-                  <p className="text-sm font-medium text-slate-300 leading-relaxed">
-                    722 Metropolitan Ave,<br />
-                    Brooklyn, NY 11211,<br />
-                    Hoa Kỳ
+                  <p className="text-sm font-medium text-slate-300 leading-relaxed italic opacity-80">
+                    {order.shippingAddress || 'Chưa cập nhật địa chỉ'}
                   </p>
                 </div>
               </div>
@@ -268,7 +281,9 @@ const OrderDetail = ({ params }: { params: { id: string } }) => {
                 <span className="p-2 bg-[#e9c349]/10 rounded-lg text-[#e9c349] h-fit"><Truck size={16} /></span>
                 <div>
                   <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1">Phương thức</p>
-                  <p className="text-sm font-medium text-slate-300">Giao hàng Ưu tiên (Atelier Express)</p>
+                  <p className="text-sm font-medium text-slate-300">
+                    {order.shippingMethod === 'express' ? 'Giao hàng Hỏa tốc (Express)' : 'Giao hàng Tiêu chuẩn (Standard)'}
+                  </p>
                 </div>
               </div>
             </div>
@@ -282,10 +297,14 @@ const OrderDetail = ({ params }: { params: { id: string } }) => {
             <h2 className="font-headline text-lg font-bold text-white uppercase tracking-widest">Thanh toán</h2>
             <div className="space-y-6 relative z-10">
               <div className="flex gap-4">
-                <span className="p-2 bg-emerald-400/10 rounded-lg text-emerald-400 h-fit"><CreditCard size={16} /></span>
+                <span className={`p-2 rounded-lg h-fit ${order.paymentStatus === 'PAID' ? 'bg-emerald-400/10 text-emerald-400' : 'bg-[#e9c349]/10 text-[#e9c349]'}`}>
+                  <CreditCard size={16} />
+                </span>
                 <div>
                   <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1">Trạng thái</p>
-                  <p className="text-sm font-bold text-emerald-400 uppercase">{order.paymentStatus === 'PAID' ? 'Đã thanh toán (Captured)' : 'Chờ thanh toán (Pending)'}</p>
+                  <p className={`text-sm font-bold uppercase ${order.paymentStatus === 'PAID' ? 'text-emerald-400' : 'text-[#e9c349]'}`}>
+                    {order.paymentStatus === 'PAID' ? 'Đã thanh toán (Captured)' : 'Chờ thanh toán (Pending)'}
+                  </p>
                 </div>
               </div>
               <div className="flex gap-4">

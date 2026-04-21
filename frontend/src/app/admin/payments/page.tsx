@@ -15,7 +15,8 @@ import {
   Save,
   Building,
   Loader2,
-  Inbox
+  Inbox,
+  RotateCcw
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { adminService } from "@/services/adminService";
@@ -52,10 +53,10 @@ const PaymentsPage = () => {
       method: o.paymentMethod || "VietQR / MB Bank",
       amount: `$${(o.total || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       date: o.orderedDate || new Date().toISOString().split('T')[0],
-      status: o.paymentStatus === 'PAID' ? "Thành công" : (o.paymentStatus === 'FAILED' ? "Thất bại" : "Chờ xử lý"),
+      status: o.paymentStatus === 'PAID' ? "Thành công" : (o.paymentStatus === 'REFUNDED' ? "Đã hoàn tiền" : (o.paymentStatus === 'FAILED' ? "Thất bại" : "Chờ xử lý")),
       statusColor: o.paymentStatus === 'PAID' 
          ? "text-emerald-400 bg-emerald-400/10 border-emerald-400/20" 
-         : (o.paymentStatus === 'FAILED' ? "text-rose-400 bg-rose-400/10 border-rose-400/20" : "text-slate-400 bg-slate-400/10 border-white/5"),
+         : (o.paymentStatus === 'REFUNDED' ? "text-slate-400 bg-slate-400/10 border-slate-400/20" : (o.paymentStatus === 'FAILED' ? "text-rose-400 bg-rose-400/10 border-rose-400/20" : "text-slate-400 bg-slate-400/10 border-white/5")),
     }));
   }, [allOrders]);
 
@@ -262,6 +263,7 @@ const PaymentsPage = () => {
                     <td className="px-10 py-8 text-center">
                       <span className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.15em] border inline-flex items-center gap-2 shadow-2xl ${payment.statusColor}`}>
                         {payment.status === "Thành công" && <CheckCircle size={10} />}
+                        {payment.status === "Đã hoàn tiền" && <RotateCcw size={10} />}
                         {payment.status === "Chờ xử lý" && <Clock size={10} />}
                         {payment.status === "Thất bại" && <AlertCircle size={10} />}
                         {payment.status}

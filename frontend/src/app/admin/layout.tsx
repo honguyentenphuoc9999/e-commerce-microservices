@@ -17,7 +17,8 @@ import {
   UserCircle,
   CreditCard,
   Mail,
-  Globe
+  Globe,
+  Ticket
 } from "lucide-react";
 
 const AdminLayout = ({ children }: { children: React.ReactNode }) => {
@@ -53,6 +54,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
     { name: "Đơn hàng", icon: <ShoppingCart size={20} />, href: "/admin/orders" },
     { name: "Khách hàng", icon: <Users size={20} />, href: "/admin/users" },
     { name: "Đánh giá", icon: <Star size={20} />, href: "/admin/reviews" },
+    { name: "Mã khuyến mãi", icon: <Ticket size={20} />, href: "/admin/vouchers" },
     { name: "Thanh toán", icon: <CreditCard size={20} />, href: "/admin/payments" },
     { name: "Email", icon: <Mail size={20} />, href: "/admin/emails" },
     { name: "Cài đặt", icon: <Settings size={20} />, href: "/admin/settings" },
@@ -63,7 +65,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
       {/* Sidebar */}
       <aside className="fixed left-0 top-0 h-full flex flex-col p-6 bg-[#0f172a]/60 backdrop-blur-xl w-72 border-r border-white/10 z-50">
         <div className="mb-10 px-2">
-          <h1 className="text-2xl font-bold tracking-tighter text-white italic font-headline">Atelier Admin</h1>
+          <h1 className="text-2xl font-bold tracking-tighter text-white italic font-headline">Phuoc Techno Admin</h1>
           <p className="tracking-tight text-xs font-semibold text-slate-400 mt-1 uppercase">Premium Management</p>
         </div>
 

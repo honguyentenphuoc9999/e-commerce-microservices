@@ -59,6 +59,23 @@ public class UserServiceImpl implements UserService {
     public User saveUser(User user) {
         user.setActive(1);
         
+        // Manual validation for uniqueness (Aggregated)
+        java.util.List<String> duplicates = new java.util.ArrayList<>();
+        if (userRepository.existsByUserName(user.getUserName())) {
+            duplicates.add("TÊN ĐĂNG NHẬP");
+        }
+        if (user.getUserDetails() != null) {
+            if (userRepository.existsByUserDetailsEmail(user.getUserDetails().getEmail())) {
+                duplicates.add("EMAIL");
+            }
+            if (user.getUserDetails().getPhoneNumber() != null && userRepository.existsByUserDetailsPhoneNumber(user.getUserDetails().getPhoneNumber())) {
+                duplicates.add("SỐ ĐIỆN THOẠI");
+            }
+        }
+        if (!duplicates.isEmpty()) {
+            throw new RuntimeException(String.join(", ", duplicates) + " ĐÃ ĐƯỢC DÙNG, VUI LÒNG DÙNG THÔNG TIN KHÁC");
+        }
+
         // Hash the password before saving
         if (user.getUserPassword() != null) {
             user.setUserPassword(passwordEncoder.encode(user.getUserPassword()));
@@ -136,6 +153,30 @@ public class UserServiceImpl implements UserService {
                 }
             }
 
+            // Manual validation before saving update (Aggregated)
+            java.util.List<String> duplicates = new java.util.ArrayList<>();
+            
+            // Check Username
+            if (user.getUserName() != null && !existingUser.getUserName().equals(user.getUserName()) && 
+                userRepository.existsByUserNameAndIdNot(user.getUserName(), id)) {
+                duplicates.add("TÊN ĐĂNG NHẬP");
+            }
+
+            if (existingUser.getUserDetails() != null) {
+                String email = existingUser.getUserDetails().getEmail();
+                String phone = existingUser.getUserDetails().getPhoneNumber();
+                
+                if (email != null && userRepository.existsByUserDetailsEmailAndIdNot(email, id)) {
+                    duplicates.add("EMAIL");
+                }
+                if (phone != null && userRepository.existsByUserDetailsPhoneNumberAndIdNot(phone, id)) {
+                    duplicates.add("SỐ ĐIỆN THOẠI");
+                }
+            }
+
+            if (!duplicates.isEmpty()) {
+                throw new RuntimeException(String.join(", ", duplicates) + " ĐÃ ĐƯỢC DÙNG, VUI LÒNG DÙNG THÔNG TIN KHÁC");
+            }
 
             User updated = userRepository.save(existingUser);
             

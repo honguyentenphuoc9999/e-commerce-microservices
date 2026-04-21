@@ -183,20 +183,36 @@ async function seed() {
   let currentVouchers = [];
   try {
     const res = await fetch(`${GATEWAY_URL}/shop/vouchers`, { headers: authHeader });
-    if (res.ok) currentVouchers = await res.json();
+    if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) currentVouchers = data;
+    }
   } catch (e) {}
 
-  const voucherCode = "TECH-PRO";
-  if (!currentVouchers.some(v => v.code === voucherCode)) {
-    await fetch(`${GATEWAY_URL}/shop/vouchers/admin/create`, {
-      method: 'POST', headers: authHeader,
-      body: JSON.stringify({ code: voucherCode, type: "DISCOUNT", discountAmount: 500000, minOrderValue: 5000000, usageLimit: 100, expirationDate: "2026-12-31" })
-    }).then(res => {
-      if (res.ok) console.log(`   ✅ Đã tạo Voucher: ${voucherCode}`);
-      else console.log(`   ❌ Lỗi tạo Voucher: ${res.status}`);
-    }).catch(() => { });
-  } else {
-    console.log(`   ⚠️ Voucher [${voucherCode}] đã tồn tại.`);
+  const vouchersToSeed = [
+    { code: "TECH-PRO", type: "DISCOUNT", amount: 500000, min: 5000000 },
+    { code: "FREE-SHIP", type: "FREESHIP", amount: 20000, min: 1000000 }
+  ];
+
+  for (let v of vouchersToSeed) {
+    if (!currentVouchers.some(existing => existing.code === v.code)) {
+      await fetch(`${GATEWAY_URL}/shop/vouchers/admin/create`, {
+        method: 'POST', headers: authHeader,
+        body: JSON.stringify({ 
+          code: v.code, 
+          type: v.type, 
+          discountAmount: v.amount, 
+          minOrderValue: v.min, 
+          usageLimit: 100, 
+          expirationDate: "2026-12-31" 
+        })
+      }).then(res => {
+        if (res.ok) console.log(`   ✅ Đã tạo Voucher: ${v.code}`);
+        else console.log(`   ❌ Lỗi tạo Voucher [${v.code}]: ${res.status}`);
+      });
+    } else {
+      console.log(`   ⚠️ Voucher [${v.code}] đã tồn tại.`);
+    }
   }
 
   console.log("\n🎉 ✅ TẤT CẢ DỮ LIỆU ĐÃ ĐƯỢC BƠM VÀO CÁC BẢNG THÀNH CÔNG!");

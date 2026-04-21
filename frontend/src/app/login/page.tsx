@@ -11,6 +11,12 @@ import { useAuthStore } from "@/store/useAuthStore";
 const LoginPage = () => {
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
+  const logout = useAuthStore((state) => state.logout);
+
+  // Clear any existing session data when arriving at the login page
+  React.useEffect(() => {
+    logout();
+  }, [logout]);
   
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
@@ -63,9 +69,16 @@ const LoginPage = () => {
         transition={{ duration: 0.8 }}
         className="w-full max-w-lg glass-card p-10 rounded-3xl z-10 border border-white/10"
       >
-        <div className="text-center mb-12">
+        <div className="text-center mb-12 group">
+          <Link href="/" className="inline-block mb-8">
+            <img 
+              src="https://res.cloudinary.com/de0de4yum/image/upload/v1776774968/logo_yc7qyw.png" 
+              alt="Phuoc Techno Logo" 
+              className="h-20 w-auto object-contain mx-auto hover:scale-105 transition-transform"
+            />
+          </Link>
           <h1 className="text-4xl font-bold tracking-tight mb-4">Chào mừng trở lại</h1>
-          <p className="text-slate-400 font-medium">Truy cập an toàn vào studio chuyên nghiệp của bạn.</p>
+          <p className="text-slate-400 font-medium tracking-wide">Truy cập an toàn vào hệ thống Phuoc Techno.</p>
         </div>
 
         <form className="space-y-8" onSubmit={handleLogin}>
@@ -78,6 +91,7 @@ const LoginPage = () => {
               onChange={(e) => setUserName(e.target.value)}
               placeholder="nhap_tai_khoan_..." 
               required
+              suppressHydrationWarning
               className="w-full bg-[#050816] border border-white/10 rounded-xl px-4 py-4 focus:outline-none focus:ring-1 focus:ring-blue-500/50 transition-all font-medium text-slate-300 placeholder:text-slate-600"
             />
           </div>
@@ -94,11 +108,13 @@ const LoginPage = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••" 
                 required
+                suppressHydrationWarning
                 className="w-full bg-[#050816] border border-white/10 rounded-xl px-4 py-4 pr-12 focus:outline-none focus:ring-1 focus:ring-blue-500/50 transition-all font-medium text-slate-300 placeholder:text-slate-600"
               />
               <button 
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
+                suppressHydrationWarning
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors focus:outline-none"
               >
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -109,6 +125,7 @@ const LoginPage = () => {
           <button 
             type="submit" 
             disabled={isLoading}
+            suppressHydrationWarning
             className="w-full premium-btn py-4 rounded-xl font-bold flex items-center justify-center space-x-2 text-white group disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <span>{isLoading ? "Đang xử lý..." : "Đăng Nhập"}</span>

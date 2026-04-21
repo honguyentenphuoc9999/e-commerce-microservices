@@ -31,7 +31,7 @@ public class OrderServiceApplication {
             if (repository.count() == 0) {
                 PaymentConfig config = new PaymentConfig();
                 config.setBankId("VIB");
-                config.setAccountNo("828009844");
+                config.setAccountNo("111111111");
                 config.setAccountName("NGUYEN KHAC PHUOC");
                 config.setTemplate("compact2");
                 config.setActive(true);

@@ -18,23 +18,19 @@ function CollectionsContent() {
   const categoryParam = searchParams.get("category");
   const nameParam = searchParams.get("name");
   
-  // State quản lý ô nhập liệu
-  const [searchTerm, setSearchTerm] = useState(nameParam || "");
+  const [sortBy, setSortBy] = useState("relevant"); // "relevant", "price-asc", "price-desc"
 
-  // Khi URL thay đổi (ví dụ tìm từ Header), cập nhật lại ô nhập liệu
-  useEffect(() => {
-    setSearchTerm(nameParam || "");
-  }, [nameParam]);
-
-  // Hàm xử lý tìm kiếm khi người dùng nhấn Enter hoặc mất focus
-  const handleSearchSubmit = (value: string) => {
+  // Hàm helper để xây dựng URL giữ nguyên các filter hiện tại
+  const getFilterUrl = (newParams: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams.toString());
-    if (value.trim()) {
-      params.set("name", value.trim());
-    } else {
-      params.delete("name");
-    }
-    router.push(`/collections?${params.toString()}`);
+    Object.entries(newParams).forEach(([key, value]) => {
+      if (value === null) {
+        params.delete(key);
+      } else {
+        params.set(key, value);
+      }
+    });
+    return `/collections?${params.toString()}`;
   };
 
   const { data: categoriesData = [] } = useQuery({
@@ -43,117 +39,160 @@ function CollectionsContent() {
   });
 
   const { data: productsData = [], isLoading } = useQuery({
-    // QueryKey phải chứa giá trị THẬT từ URL để đảm bảo đồng bộ
     queryKey: ['products', categoryParam, nameParam], 
     queryFn: () => catalogService.getProducts({ 
       category: categoryParam || undefined, 
-      name: nameParam || undefined 
+      name: nameParam || undefined
     })
   });
+
+  // Fetch TẤT CẢ sản phẩm khớp với từ khóa (không quan tâm category) để lấy danh sách category đầy đủ
+  const { data: allSearchProducts = [] } = useQuery({
+    queryKey: ['all-search-products', nameParam],
+    queryFn: () => catalogService.getProducts({ 
+      name: nameParam || undefined
+    }),
+    enabled: !!nameParam 
+  });
+
+  // Extract unique categories from all search results
+  const relevantCategories = React.useMemo(() => {
+    const source = (nameParam ? allSearchProducts : categoriesData);
+    if (!source || !Array.isArray(source)) return [];
+    
+    const cats = new Map();
+    if (nameParam) {
+      // Nếu đang search, lấy category từ danh sách sản phẩm khớp từ khóa
+      (source as any[]).forEach(p => {
+        if (p.category) {
+          cats.set(p.category.id, p.category);
+        }
+      });
+    } else {
+      // Nếu không search, lấy toàn bộ category từ categoriesData
+      (source as any[]).forEach(c => cats.set(c.id, c));
+    }
+    return Array.from(cats.values());
+  }, [nameParam, allSearchProducts, categoriesData]);
+
+  // Sort productsData based on sortBy
+  const sortedProducts = React.useMemo(() => {
+    if (!productsData || !Array.isArray(productsData)) return [];
+    const list = [...productsData];
+    if (sortBy === "price-asc") {
+      return list.sort((a, b) => a.price - b.price);
+    } else if (sortBy === "price-desc") {
+      return list.sort((a, b) => b.price - a.price);
+    }
+    return list;
+  }, [productsData, sortBy]);
 
   return (
     <div className="bg-[#0b1326] min-h-screen text-[#dae2fd]">
       <Header />
       
-      <main className="pt-28 pb-20 max-w-[1440px] mx-auto px-8 flex gap-8">
-        {/* Sidebar Filters */}
-        <aside className="w-72 flex-shrink-0 hidden lg:block sticky top-28 h-[calc(100vh-8rem)]">
-          <div className="flex flex-col gap-10">
-            {/* Search */}
-            <div className="space-y-4">
-              <h3 className="font-headline font-bold text-lg text-[#bec6e0] tracking-tight text-white/90">Khám Phá</h3>
-              <div className="relative">
-                <input 
-                  type="text" 
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSearchSubmit(searchTerm)}
-                  onBlur={() => handleSearchSubmit(searchTerm)}
-                  placeholder="Tên sản phẩm..."
-                  className="w-full bg-[#131b2e] border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-[#e9c349]/20 placeholder:text-[#c6c6cd]/40"
-                />
-                <Search 
-                   className="absolute right-4 top-1/2 -translate-y-1/2 text-[#c6c6cd] w-4 h-4 cursor-pointer hover:text-[#e9c349]" 
-                   onClick={() => handleSearchSubmit(searchTerm)}
-                />
-              </div>
-            </div>
-
-            {/* Categories */}
-            <div className="space-y-4">
-              <h3 className="font-headline font-bold text-xs uppercase tracking-widest text-[#c6c6cd]/60">Bộ Sưu Tập</h3>
-              <div className="flex flex-col gap-1">
-                <Link 
-                  href="/collections" 
-                  className={`flex items-center justify-between group px-4 py-2.5 rounded-xl transition-all ${!categoryParam ? 'bg-[#2d3449] text-[#e9c349]' : 'hover:bg-[#131b2e]'}`}
-                >
-                  <span className={`font-medium ${!categoryParam ? 'text-[#e9c349]' : 'text-[#c6c6cd] group-hover:text-[#bec6e0]'}`}>
-                    Tất Cả Sản Phẩm
-                  </span>
-                </Link>
-                {categoriesData.map((cat, i) => (
-                  <Link 
-                    key={cat.id || i} 
-                    href={`/collections?category=${encodeURIComponent(cat.categoryName)}`}
-                    className={`flex items-center justify-between group px-4 py-2.5 rounded-xl transition-all ${categoryParam === cat.categoryName ? 'bg-[#2d3449] text-[#e9c349]' : 'hover:bg-[#131b2e]'}`}
-                  >
-                    <span className={`font-medium ${categoryParam === cat.categoryName ? 'text-[#e9c349]' : 'text-[#c6c6cd] group-hover:text-[#bec6e0]'}`}>
-                      {cat.categoryName}
-                    </span>
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            {/* Price Range */}
-            <div className="space-y-6">
-              <h3 className="font-headline font-bold text-sm uppercase tracking-widest text-[#c6c6cd]/60">Mức Giá</h3>
-              <div className="px-2">
-                <div className="h-1.5 w-full bg-[#222a3d] rounded-full relative">
-                  <div className="absolute left-0 right-1/4 h-full bg-linear-to-r from-[#bec6e0] to-[#e9c349] rounded-full"></div>
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg border-2 border-[#bec6e0] cursor-pointer"></div>
-                  <div className="absolute right-1/4 top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg border-2 border-[#e9c349] cursor-pointer"></div>
-                </div>
-                <div className="flex justify-between mt-4 text-xs font-mono text-[#c6c6cd]">
-                  <span>0đ</span>
-                  <span>2.500.000đ</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </aside>
+      <main className="pt-28 pb-20 max-w-[1440px] mx-auto px-8">
 
         {/* Content Area */}
         <section className="flex-grow">
           {/* Page Title & Controls */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
-            <div>
-              <h1 className="font-headline text-4xl font-extrabold text-[#dae2fd] tracking-tight mb-2 uppercase italic">{categoryParam || "Tất cả sản phẩm"}</h1>
-              <p className="text-[#c6c6cd]">Khám phá các tác phẩm độc bản dành cho người theo đuổi phong cách tối giản hiện đại.</p>
+          {/* Search Result Summary - Centered */}
+          {nameParam && (
+            <div className="flex justify-center mb-8">
+              <div className="px-6 py-2.5 bg-[#131b2e] border-l-4 border-[#e9c349] rounded-r-lg inline-flex items-center shadow-lg">
+                <p className="text-sm text-[#dae2fd]">
+                  Tìm thấy <span className="text-[#e9c349] font-bold">{(Array.isArray(productsData) ? productsData.length : 0)}</span> sản phẩm cho từ khoá <span className="text-white font-medium">'{nameParam}'</span>
+                </p>
+              </div>
             </div>
-          </div>
+          )}
+          
+          {/* Relevant Category Chips & Sorting - Left aligned */}
+          {productsData.length > 0 && (
+            <div className="mb-14 space-y-8">
+              <div className="flex flex-wrap justify-start gap-3">
+                <Link 
+                  href={getFilterUrl({ category: null })}
+                  className={`px-6 py-2 rounded-xl text-sm font-medium transition-all border ${!categoryParam ? 'bg-[#e9c349] text-[#0b1326] border-[#e9c349]' : 'bg-[#131b2e] text-[#c6c6cd] border-white/5 hover:border-[#e9c349]/50'}`}
+                >
+                  Tất cả
+                </Link>
+                {relevantCategories.map(cat => (
+                  <Link 
+                    key={cat.id}
+                    href={getFilterUrl({ category: cat.categoryName })}
+                    className={`px-6 py-2 rounded-xl text-sm font-medium transition-all border ${categoryParam?.toLowerCase() === cat.categoryName.toLowerCase() ? 'bg-[#e9c349] text-[#0b1326] border-[#e9c349]' : 'bg-[#131b2e] text-[#c6c6cd] border-white/5 hover:border-[#e9c349]/50'}`}
+                  >
+                    {cat.categoryName}
+                  </Link>
+                ))}
+              </div>
+
+              <div className="flex flex-wrap justify-start items-center gap-6 text-sm">
+                <span className="text-[#c6c6cd]/40 font-medium uppercase tracking-widest text-[10px]">Sắp xếp theo</span>
+                <div className="flex bg-[#131b2e] p-1 rounded-xl border border-white/5 shadow-inner">
+                  <button 
+                    onClick={() => setSortBy("relevant")}
+                    className={`px-6 py-1.5 rounded-lg transition-all text-xs font-semibold ${sortBy === "relevant" ? 'bg-[#2d3449] text-[#e9c349] shadow-md' : 'text-[#c6c6cd]/60 hover:text-white'}`}
+                  >
+                    Liên quan
+                  </button>
+                  <button 
+                    onClick={() => setSortBy("price-asc")}
+                    className={`flex items-center gap-2 px-6 py-1.5 rounded-lg transition-all text-xs font-semibold ${sortBy === "price-asc" ? 'bg-[#2d3449] text-[#e9c349] shadow-md' : 'text-[#c6c6cd]/60 hover:text-white'}`}
+                  >
+                    <LayoutList className="w-3.5 h-3.5 rotate-180" /> Giá thấp
+                  </button>
+                  <button 
+                    onClick={() => setSortBy("price-desc")}
+                    className={`flex items-center gap-2 px-6 py-1.5 rounded-lg transition-all text-xs font-semibold ${sortBy === "price-desc" ? 'bg-[#2d3449] text-[#e9c349] shadow-md' : 'text-[#c6c6cd]/60 hover:text-white'}`}
+                  >
+                    <LayoutList className="w-3.5 h-3.5" /> Giá cao
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Results Grid */}
           {isLoading ? (
-            <div className="py-20 text-center flex justify-center text-[#c6c6cd]">
-               <div className="w-8 h-8 rounded-full border-4 border-[#e9c349] border-t-transparent animate-spin"></div>
+            <div className="py-32 text-center flex justify-center text-[#c6c6cd]">
+               <div className="w-10 h-10 rounded-full border-4 border-[#e9c349] border-t-transparent animate-spin"></div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-              {productsData.map((p) => (
-                <ProductCard 
-                  key={p.id} 
-                  id={p.id.toString()}
-                  name={p.productName}
-                  price={`${p.price.toLocaleString()}đ`}
-                  category={p.category?.categoryName || ""}
-                  image={p.image || ""} 
-                />
-              ))}
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-12">
+                {sortedProducts.map((p) => (
+                  <ProductCard 
+                    key={p.id} 
+                    id={p.id.toString()}
+                    name={p.productName}
+                    price={`${p.price.toLocaleString()}đ`}
+                    category={p.category?.categoryName || ""}
+                    image={p.image || ""} 
+                  />
+                ))}
+              </div>
               {productsData.length === 0 && (
-                <div className="col-span-3 text-center py-20 text-white/50">Không tìm thấy sản phẩm nào phù hợp.</div>
+                <div className="flex flex-col items-center justify-center py-32 text-center space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                  <div className="w-20 h-20 bg-[#131b2e] rounded-full flex items-center justify-center border border-white/5 mb-2">
+                    <Search className="w-8 h-8 text-[#c6c6cd]/30" />
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-bold text-[#dae2fd]">Không tìm thấy sản phẩm</h3>
+                    <p className="text-[#c6c6cd]/60 max-w-sm mx-auto">
+                      Rất tiếc, chúng tôi không tìm thấy kết quả nào phù hợp với yêu cầu của bạn. Hãy thử thay đổi từ khóa hoặc danh mục khác.
+                    </p>
+                  </div>
+                  <Link 
+                    href="/collections" 
+                    className="px-8 py-3 bg-[#e9c349] text-[#0b1326] font-bold rounded-xl hover:bg-[#d4b142] transition-all shadow-lg"
+                  >
+                    Xem tất cả sản phẩm
+                  </Link>
+                </div>
               )}
-            </div>
+            </>
           )}
         </section>
       </main>

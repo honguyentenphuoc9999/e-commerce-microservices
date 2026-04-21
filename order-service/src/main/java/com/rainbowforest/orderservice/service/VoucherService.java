@@ -62,14 +62,15 @@ public class VoucherService {
                 order.setShippingDiscount(v.getDiscountAmount());
             }
 
-            // Optional: UserWallet strict checking
+            /* Optional: UserWallet strict checking
             // If we enforce that user must have saved it:
             if (order.getUser() != null && order.getUser().getId() != null) {
                 Optional<UserVoucher> uv = userVoucherRepository.findByUserIdAndVoucherId(order.getUser().getId(), v.getId());
                 if (uv.isEmpty() || uv.get().isUsed()) {
                     return "You do not own this voucher or it was already used: " + code;
                 }
-            }
+            } 
+            */
         }
 
         // Apply deduction

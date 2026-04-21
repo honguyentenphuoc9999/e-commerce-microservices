@@ -10,6 +10,9 @@ public interface ProductService {
     public List<Product> getAllProductByCategory(String category);
     public Product getProductById(Long id);
     public List<Product> getAllProductsByName(String name);
+    public List<Product> getAllProductsByPriceRange(java.math.BigDecimal minPrice, java.math.BigDecimal maxPrice);
+    public List<Product> getProductsByCategoryAndPrice(String category, java.math.BigDecimal minPrice, java.math.BigDecimal maxPrice);
+    public List<Product> getProductsByNameAndPrice(String name, java.math.BigDecimal minPrice, java.math.BigDecimal maxPrice);
     public Product addProduct(Product product, MultipartFile imageFile);
     public void deleteProduct(Long productId);
     public Product updateProduct(Long id, Product product, MultipartFile imageFile);

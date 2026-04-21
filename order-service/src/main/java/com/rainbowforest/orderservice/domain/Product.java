@@ -5,12 +5,15 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.List;
+import lombok.EqualsAndHashCode;
 
 @Entity
 @Table (name = "products")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Product {
 
     @Id
+    @EqualsAndHashCode.Include
     private Long id;
 
     @Column (name = "product_name")
