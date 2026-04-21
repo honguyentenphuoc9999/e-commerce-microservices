@@ -97,10 +97,42 @@ async function seed() {
   } catch (e) {}
 
   const products = [
-    { name: "MacBook Pro M3 Max", price: 87500000, cat: "LAPTOP & PC", img: "http://res.cloudinary.com/de0de4yum/image/upload/v1776528037/rainbow-forest/products/file_v8jget.jpg", images: ["http://res.cloudinary.com/de0de4yum/image/upload/v1776528037/rainbow-forest/products/file_v8jget.jpg"] },
-    { name: "iPhone 15 Pro", price: 27500000, cat: "SMARTPHONE", img: "http://res.cloudinary.com/de0de4yum/image/upload/v1776528110/rainbow-forest/products/file_cjxgak.jpg", images: ["http://res.cloudinary.com/de0de4yum/image/upload/v1776528110/rainbow-forest/products/file_cjxgak.jpg"] },
-    { name: "ROG Strix RTX 4090", price: 50000000, cat: "LINH KIỆN PC", img: "http://res.cloudinary.com/de0de4yum/image/upload/v1776528134/rainbow-forest/products/file_b3lysz.jpg", images: ["http://res.cloudinary.com/de0de4yum/image/upload/v1776528134/rainbow-forest/products/file_b3lysz.jpg"] },
-    { name: "Keychron Q3 Max", price: 5750000, cat: "PHỤ KIỆN", img: "http://res.cloudinary.com/de0de4yum/image/upload/v1776528156/rainbow-forest/products/file_s0nntg.jpg", images: ["http://res.cloudinary.com/de0de4yum/image/upload/v1776528156/rainbow-forest/products/file_s0nntg.jpg"] }
+    { 
+      name: "MacBook Pro M3 Max", price: 87500000, cat: "LAPTOP & PC", 
+      img: "https://res.cloudinary.com/de0de4yum/image/upload/v1776528037/rainbow-forest/products/file_v8jget.jpg", 
+      images: [
+        "https://res.cloudinary.com/de0de4yum/image/upload/v1776528037/rainbow-forest/products/file_v8jget.jpg",
+        "https://res.cloudinary.com/de0de4yum/image/upload/v1776528039/rainbow-forest/products/file_n1s2yb.jpg",
+        "https://res.cloudinary.com/de0de4yum/image/upload/v1776528041/rainbow-forest/products/file_owkl5o.jpg"
+      ] 
+    },
+    { 
+      name: "iPhone 15 Pro", price: 27500000, cat: "SMARTPHONE", 
+      img: "https://res.cloudinary.com/de0de4yum/image/upload/v1776528110/rainbow-forest/products/file_cjxgak.jpg", 
+      images: [
+        "https://res.cloudinary.com/de0de4yum/image/upload/v1776528110/rainbow-forest/products/file_cjxgak.jpg",
+        "https://res.cloudinary.com/de0de4yum/image/upload/v1776528112/rainbow-forest/products/file_oiyxdg.png",
+        "https://res.cloudinary.com/de0de4yum/image/upload/v1776528114/rainbow-forest/products/file_eep7ol.png"
+      ] 
+    },
+    { 
+      name: "ROG Strix RTX 4090", price: 50000000, cat: "LINH KIỆN PC", 
+      img: "https://res.cloudinary.com/de0de4yum/image/upload/v1776528134/rainbow-forest/products/file_b3lysz.jpg", 
+      images: [
+        "https://res.cloudinary.com/de0de4yum/image/upload/v1776528134/rainbow-forest/products/file_b3lysz.jpg",
+        "https://res.cloudinary.com/de0de4yum/image/upload/v1776528136/rainbow-forest/products/file_jp7mhz.jpg",
+        "https://res.cloudinary.com/de0de4yum/image/upload/v1776528138/rainbow-forest/products/file_sc7ou2.webp"
+      ] 
+    },
+    { 
+      name: "Keychron Q3 Max", price: 5750000, cat: "PHỤ KIỆN", 
+      img: "https://res.cloudinary.com/de0de4yum/image/upload/v1776528156/rainbow-forest/products/file_s0nntg.jpg", 
+      images: [
+        "https://res.cloudinary.com/de0de4yum/image/upload/v1776528156/rainbow-forest/products/file_s0nntg.jpg",
+        "https://res.cloudinary.com/de0de4yum/image/upload/v1776528158/rainbow-forest/products/file_cdzah3.jpg",
+        "https://res.cloudinary.com/de0de4yum/image/upload/v1776528160/rainbow-forest/products/file_ni2xpk.jpg"
+      ] 
+    }
   ];
 
   for (let p of products) {
@@ -120,17 +152,29 @@ async function seed() {
 
   // 5. TẠO ĐÁNH GIÁ (Chỉ tạo nếu chưa có)
   console.log("\n5. Tạo Đánh giá...");
-  const finalProds = await (await fetch(`${GATEWAY_URL}/admin-bff/products`, { headers: authHeader })).json();
-  const userIds = [2, 3];
-  for (let p of finalProds) {
-    for (let uId of userIds) {
-      // Ở đây có thể thêm logic check review tồn tại nếu cần, tạm thời catch error
-      let rating = Math.floor(Math.random() * 2) + 4;
-      await fetch(`${GATEWAY_URL}/review/${uId}/recommendations/${p.id}?rating=${rating}`, {
-        method: 'POST', headers: authHeader
-      }).then(res => {
-        if (res.ok) console.log(`   ⭐ Đã đánh giá cho SP: ${p.productName}`);
-      }).catch(() => { });
+  let finalProds = [];
+  try {
+    const res = await fetch(`${GATEWAY_URL}/admin-bff/products`, { headers: authHeader });
+    if (res.ok) {
+      finalProds = await res.json();
+    } else {
+      console.log(`   ⚠️ Không thể lấy danh sách sản phẩm để tạo đánh giá (Lỗi: ${res.status}).`);
+    }
+  } catch (e) {
+    console.log("   ⚠️ Lỗi kết nối khi lấy sản phẩm cho Đánh giá.");
+  }
+
+  if (Array.isArray(finalProds)) {
+    const userIds = [2, 3];
+    for (let p of finalProds) {
+      for (let uId of userIds) {
+        let rating = Math.floor(Math.random() * 2) + 4;
+        await fetch(`${GATEWAY_URL}/review/${uId}/recommendations/${p.id}?rating=${rating}`, {
+          method: 'POST', headers: authHeader
+        }).then(res => {
+          if (res.ok) console.log(`   ⭐ Đã đánh giá cho SP: ${p.productName}`);
+        }).catch(() => { });
+      }
     }
   }
 

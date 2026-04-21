@@ -7,6 +7,11 @@ export const adminService = {
     return res.data;
   },
 
+  updateUser: async (id: number | string, userData: any) => {
+    const res = await apiClient.put(`/admin-bff/users/${id}`, userData);
+    return res.data;
+  },
+
   // --- REVIEW MANAGEMENT ---
   getReviews: async () => {
     const res = await apiClient.get('/admin-bff/reviews');

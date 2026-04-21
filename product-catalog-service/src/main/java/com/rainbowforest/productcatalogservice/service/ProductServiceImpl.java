@@ -80,15 +80,23 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product updateProductImages(Long id, MultipartFile[] imageFiles) {
-        if (imageFiles == null || imageFiles.length < 3 || imageFiles.length > 9) {
-            throw new IllegalArgumentException("Số lượng hình ảnh cho Gallery phải từ 3 đến 9 ảnh!");
-        }
         Product existingProduct = productRepository.findById(id).orElse(null);
-        if (existingProduct != null) {
-            handleImagesUpload(existingProduct, imageFiles);
-            return productRepository.save(existingProduct);
+        if (existingProduct == null) {
+            return null;
         }
-        return null;
+
+        // 1. Tính tổng số lượng (Ảnh hiện tại + Ảnh mới chuẩn bị upload)
+        int currentImageCount = existingProduct.getImages() != null ? existingProduct.getImages().size() : 0;
+        int newImageCount = imageFiles != null ? imageFiles.length : 0;
+        int totalCount = currentImageCount + newImageCount;
+
+        // 2. Kiểm tra giới hạn tổng từ 3 đến 9
+        if (totalCount < 3 || totalCount > 9) {
+            throw new IllegalArgumentException("Tổng số lượng hình ảnh (hiện có: " + currentImageCount + " + mới: " + newImageCount + ") phải từ 3 đến 9 ảnh!");
+        }
+
+        handleImagesUpload(existingProduct, imageFiles);
+        return productRepository.save(existingProduct);
     }
 
     private void handleImageUpload(Product product, MultipartFile imageFile) {
@@ -118,8 +126,21 @@ public class ProductServiceImpl implements ProductService {
                     }
                     if (!imageUrls.isEmpty()) {
                         System.out.println("Upload thành công " + imageUrls.size() + " ảnh lên Cloudinary.");
-                        product.setImages(imageUrls);
-                        product.setImage(imageUrls.get(0));
+                        
+                        // Lấy danh sách hiện tại
+                        java.util.List<String> currentImages = product.getImages();
+                        if (currentImages == null) {
+                            currentImages = new java.util.ArrayList<>();
+                        }
+                        
+                        // CỘNG DỒN ảnh mới vào ảnh cũ
+                        currentImages.addAll(imageUrls);
+                        product.setImages(currentImages);
+
+                        // Cập nhật ảnh đại diện nếu chưa có
+                        if (product.getImage() == null || product.getImage().isEmpty()) {
+                            product.setImage(currentImages.get(0));
+                        }
                     }
                 }
             } catch (Exception e) {

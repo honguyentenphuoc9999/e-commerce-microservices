@@ -50,5 +50,16 @@ export const shopService = {
   adminUpdateOrderStatus: async (orderId: number | string, status: string) => {
     const res = await apiClient.put(`/shop/orders/${orderId}/status?status=${status}`);
     return res.data;
+  },
+
+  // Kiểm tra voucher
+  validateVoucher: async (code: string, amount: number) => {
+    const res = await apiClient.get(`/shop/vouchers/validate?code=${code}&amount=${amount}`);
+    return res.data;
+  },
+
+  getAvailableVouchers: async () => {
+    const res = await apiClient.get('/shop/vouchers/available');
+    return res.data;
   }
 };

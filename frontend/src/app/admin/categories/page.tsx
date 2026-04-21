@@ -296,13 +296,13 @@ const AdminCategories = () => {
                     <label className="text-[11px] font-black uppercase tracking-widest text-[#e9c349]">Hình ảnh hiển thị</label>
                     <label className="min-h-[220px] border-2 border-dashed border-white/5 rounded-3xl flex flex-col items-center justify-center gap-4 hover:border-[#e9c349]/40 hover:bg-white/[0.02] transition-all cursor-pointer group/upload relative overflow-hidden shadow-inner">
                       <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
-                      
+
                       {imagePreview ? (
                         <>
-                          <img 
-                            src={imagePreview} 
-                            alt="Preview" 
-                            className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover/upload:scale-110" 
+                          <img
+                            src={imagePreview}
+                            alt="Preview"
+                            className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover/upload:scale-110"
                           />
                           <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/upload:opacity-100 transition-all duration-300 flex flex-col items-center justify-center backdrop-blur-[2px]">
                             <div className="bg-[#e9c349] p-3 rounded-full mb-2 shadow-xl shadow-[#e9c349]/20 transform -translate-y-4 group-hover/upload:translate-y-0 transition-transform duration-500">
@@ -310,7 +310,7 @@ const AdminCategories = () => {
                             </div>
                             <p className="text-[10px] font-black text-white uppercase tracking-widest">Thay đổi hình ảnh</p>
                           </div>
-                          
+
                           <button
                             type="button"
                             onClick={(e) => {

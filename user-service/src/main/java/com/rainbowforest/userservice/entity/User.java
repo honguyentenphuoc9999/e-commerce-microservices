@@ -31,6 +31,7 @@ public class User {
     @JoinColumn (name = "role_id")
     private UserRole role;
 
+
 	public Long getId() {
 		return id;
 	}
@@ -86,4 +87,5 @@ public class User {
     public void setTokenVersion(int tokenVersion) {
         this.tokenVersion = tokenVersion;
     }
+
 }

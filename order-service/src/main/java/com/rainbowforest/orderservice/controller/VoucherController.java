@@ -71,4 +71,45 @@ public class VoucherController {
         List<UserVoucher> list = userVoucherRepository.findByUserIdAndIsUsedFalse(userId);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
+
+    // USER: Kiểm tra nhanh 1 voucher để hiện thị giảm giá trên UI
+    @GetMapping("/validate")
+    public ResponseEntity<?> validateVoucher(
+            @RequestParam("code") String code,
+            @RequestParam("amount") java.math.BigDecimal amount) {
+        
+        Optional<Voucher> optV = voucherRepository.findByCode(code);
+        if (optV.isEmpty()) return new ResponseEntity<>("Voucher không tồn tại", HttpStatus.NOT_FOUND);
+
+        Voucher v = optV.get();
+        if (!v.isActive() || v.getExpirationDate().isBefore(LocalDate.now())) {
+            return new ResponseEntity<>("Voucher đã hết hạn hoặc không hoạt động", HttpStatus.BAD_REQUEST);
+        }
+        if (v.getUsedCount() >= v.getUsageLimit()) {
+            return new ResponseEntity<>("Voucher đã hết lượt sử dụng", HttpStatus.BAD_REQUEST);
+        }
+        if (amount.compareTo(v.getMinOrderValue()) < 0) {
+            return new ResponseEntity<>("Đơn hàng chưa đủ giá trị tối thiểu: " + v.getMinOrderValue() + "đ", HttpStatus.BAD_REQUEST);
+        }
+
+        // Trả về thông tin giảm giá
+        java.util.Map<String, Object> response = new java.util.HashMap<>();
+        response.put("code", v.getCode());
+        response.put("discountAmount", v.getDiscountAmount());
+        response.put("type", v.getType());
+        
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    // PUBLIC: Lấy tất cả các voucher đang hoạt động để gợi ý cho người dùng
+    @GetMapping("/available")
+    public ResponseEntity<List<Voucher>> getAvailableVouchers() {
+        List<Voucher> all = voucherRepository.findAll();
+        List<Voucher> available = all.stream()
+                .filter(v -> v.isActive() 
+                        && v.getExpirationDate().isAfter(LocalDate.now().minusDays(1))
+                        && v.getUsedCount() < v.getUsageLimit())
+                .toList();
+        return new ResponseEntity<>(available, HttpStatus.OK);
+    }
 }

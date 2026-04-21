@@ -27,13 +27,13 @@ export const catalogService = {
 
   // Lấy danh sách sản phẩm (hỗ trợ tìm kiếm theo tên hoặc danh mục)
   getProducts: async (filters?: { category?: string, name?: string }): Promise<Product[]> => {
-    const params = new URLSearchParams();
-    if (filters?.category) params.append('category', filters.category);
-    if (filters?.name) params.append('name', filters.name);
-    
-    // Nếu không có param name/category, axios sẽ loại bỏ dấu ? tự động
-    const queryString = params.toString() ? `?${params.toString()}` : '';
-    const res = await apiClient.get(`/catalog/products${queryString}`); // Postman 12, 14, 15
+    // Sử dụng params của axios để tự động encode URL (Xử lý tốt khoảng trắng trong "Laptop Gaming")
+    const res = await apiClient.get('/catalog/products', { 
+      params: { 
+        category: filters?.category || undefined,
+        name: filters?.name || undefined
+      } 
+    });
     return res.data;
   },
 

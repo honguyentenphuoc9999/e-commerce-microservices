@@ -135,7 +135,16 @@ public class UserServiceImpl implements UserService {
                     existingUser.setRole(customRole);
                 }
             }
+
+
             User updated = userRepository.save(existingUser);
+            
+            // Đảm bảo thông tin Role được nạp đầy đủ (ID và Name) trước khi trả về
+            if (updated.getRole() != null && updated.getRole().getRoleName() == null) {
+                UserRole fullRole = userRoleRepository.findById(updated.getRole().getId()).orElse(null);
+                updated.setRole(fullRole);
+            }
+            
             syncUserStatusToRedis(updated);
             return updated;
         }

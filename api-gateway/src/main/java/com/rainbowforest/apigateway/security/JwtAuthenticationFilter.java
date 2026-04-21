@@ -107,9 +107,8 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                 }
             })
             .onErrorResume(e -> {
-                logger.error("Global error in JwtAuthenticationFilter: {}", e.getMessage());
-                exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
-                return exchange.getResponse().setComplete();
+                logger.error("Redis connection error in JwtAuthenticationFilter: {}. Proceeding without Redis check.", e.getMessage());
+                return proceedWithFilter(exchange, chain, finalToken);
             });
     }
 

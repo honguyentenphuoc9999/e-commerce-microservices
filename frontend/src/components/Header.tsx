@@ -6,10 +6,19 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { shopService } from "@/services/shopService";
+import { useState } from "react";
 
 const Header = () => {
   const { user, logout } = useAuthStore();
   const router = useRouter();
+  const [searchValue, setSearchValue] = useState("");
+
+  const handleSearch = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && searchValue.trim()) {
+      router.push(`/collections?name=${encodeURIComponent(searchValue.trim())}`);
+      setSearchValue(""); // Clear after search
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -44,6 +53,9 @@ const Header = () => {
               type="text"
               placeholder="Tìm kiếm tại atelier..."
               className="bg-transparent border-none focus:ring-0 text-sm text-white placeholder:text-[#c6c6cd]/50 w-48 outline-none"
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              onKeyDown={handleSearch}
               suppressHydrationWarning
             />
           </div>

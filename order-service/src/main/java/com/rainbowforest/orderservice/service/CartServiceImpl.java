@@ -30,22 +30,27 @@ public class CartServiceImpl implements CartService {
         }
 
         if (existingItem != null) {
-            // Trường hợp đã có SP trong giỏ: Xóa cũ, cộng dồn số lượng, thêm mới
+            // Trường hợp đã có SP trong giỏ: Cập nhật số lượng (không tính vào giới hạn 100)
             cartRedisRepository.deleteItemFromCart(cartId, existingItem);
             
             int newQuantity = existingItem.getQuantity() + quantity;
-            int maxAllowed = Math.min(20, existingItem.getProduct().getAvailability());
-            int finalQuantity = Math.min(newQuantity, maxAllowed);
+            int maxAllowedInStock = existingItem.getProduct().getAvailability();
+            // Bạn có thể giới hạn số lượng của 1 món hàng ở đây, ví dụ tối đa 50 món cùng loại
+            int finalQuantity = Math.min(newQuantity, maxAllowedInStock);
             if (finalQuantity <= 0) finalQuantity = 1;
             
             existingItem.setQuantity(finalQuantity);
             existingItem.setSubTotal(CartUtilities.getSubTotalForItem(existingItem.getProduct(), finalQuantity));
             cartRedisRepository.addItemToCart(cartId, existingItem);
         } else {
-            // Trường hợp chưa có SP: Thêm bình thường
+            // Trường hợp sản phẩm MỚI: Kiểm tra giới hạn 100 loại sản phẩm
+            if (cart.size() >= 100) {
+                // Bạn có thể ném một Exception ở đây để Frontend hiển thị thông báo
+                throw new RuntimeException("Giỏ hàng đã đạt giới hạn tối đa 100 sản phẩm khác nhau.");
+            }
+
             Product product = productClient.getProductById(productId);
-            int maxAllowed = Math.min(20, product.getAvailability());
-            int finalQuantity = Math.min(quantity, maxAllowed);
+            int finalQuantity = Math.min(quantity, product.getAvailability());
             if (finalQuantity <= 0) finalQuantity = 1;
             
             Item newItem = new Item(finalQuantity, product, CartUtilities.getSubTotalForItem(product, finalQuantity));

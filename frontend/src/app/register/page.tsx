@@ -42,7 +42,7 @@ const RegisterPage = () => {
         userDetails: { firstName, lastName, email },
         role: { id: 1 } // ROLE_USER
       });
-      
+
       toast.success("Tạo tài khoản thành công! Bạn có thể đăng nhập ngay.");
       router.push("/login");
     } catch (err) {
@@ -59,7 +59,7 @@ const RegisterPage = () => {
         <p className="text-slate-400 font-medium">Tham gia cộng đồng chế tác kỹ thuật số tinh hoa.</p>
       </div>
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.8 }}
@@ -67,27 +67,27 @@ const RegisterPage = () => {
       >
         <form className="space-y-6" onSubmit={handleRegister}>
           {error && <div className="text-red-400 text-sm font-bold text-center bg-red-500/10 py-3 rounded-xl border border-red-500/20">{error}</div>}
-          
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-xs font-bold tracking-[0.1em] text-slate-500 uppercase">Tên Đăng Nhập</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 required
                 value={userName}
                 onChange={(e) => setUserName(e.target.value)}
-                placeholder="alex99..." 
+                placeholder="alex99..."
                 className="w-full bg-[#050816] border border-white/10 rounded-xl px-4 py-4 focus:outline-none focus:ring-1 focus:ring-blue-500/50 transition-all font-medium text-slate-300 placeholder:text-slate-600"
               />
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold tracking-[0.1em] text-slate-500 uppercase">Họ và Tên</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 required
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                placeholder="Alexander Thorne" 
+                placeholder="Alexander Thorne"
                 className="w-full bg-[#050816] border border-white/10 rounded-xl px-4 py-4 focus:outline-none focus:ring-1 focus:ring-blue-500/50 transition-all font-medium text-slate-300 placeholder:text-slate-600"
               />
             </div>
@@ -95,12 +95,12 @@ const RegisterPage = () => {
 
           <div className="space-y-2">
             <label className="text-xs font-bold tracking-[0.1em] text-slate-500 uppercase">Địa chỉ Email</label>
-            <input 
-              type="email" 
+            <input
+              type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="atelier@studio.com" 
+              placeholder="atelier@studio.com"
               className="w-full bg-[#050816] border border-white/10 rounded-xl px-4 py-4 focus:outline-none focus:ring-1 focus:ring-blue-500/50 transition-all font-medium text-slate-300 placeholder:text-slate-600"
             />
           </div>
@@ -109,15 +109,15 @@ const RegisterPage = () => {
             <div className="space-y-2">
               <label className="text-xs font-bold tracking-[0.1em] text-slate-500 uppercase">Mật khẩu</label>
               <div className="relative">
-                <input 
-                  type={showPassword ? "text" : "password"} 
+                <input
+                  type={showPassword ? "text" : "password"}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••" 
+                  placeholder="••••••••"
                   className="w-full bg-[#050816] border border-white/10 rounded-xl px-4 py-4 pr-12 focus:outline-none focus:ring-1 focus:ring-blue-500/50 transition-all font-medium text-slate-300 placeholder:text-slate-600"
                 />
-                <button 
+                <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors focus:outline-none"
@@ -129,15 +129,15 @@ const RegisterPage = () => {
             <div className="space-y-2">
               <label className="text-xs font-bold tracking-[0.1em] text-slate-500 uppercase">Xác nhận mật khẩu</label>
               <div className="relative">
-                <input 
-                  type={showConfirm ? "text" : "password"} 
+                <input
+                  type={showConfirm ? "text" : "password"}
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="••••••••" 
+                  placeholder="••••••••"
                   className="w-full bg-[#050816] border border-white/10 rounded-xl px-4 py-4 pr-12 focus:outline-none focus:ring-1 focus:ring-blue-500/50 transition-all font-medium text-slate-300 placeholder:text-slate-600"
                 />
-                <button 
+                <button
                   type="button"
                   onClick={() => setShowConfirm(!showConfirm)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors focus:outline-none"
@@ -149,17 +149,17 @@ const RegisterPage = () => {
           </div>
 
           <div className="flex items-center space-x-3 pt-4">
-            <input 
-              type="checkbox" 
-              className="w-5 h-5 rounded border-white/20 bg-white/5 text-blue-600 focus:ring-blue-500/50 transition-all" 
+            <input
+              type="checkbox"
+              className="w-5 h-5 rounded border-white/20 bg-white/5 text-blue-600 focus:ring-blue-500/50 transition-all"
             />
             <span className="text-xs text-slate-400 font-medium">
               Tôi đồng ý với <Link href="/terms" className="text-yellow-500/80 hover:text-yellow-500 hover:underline">Điều khoản Dịch vụ</Link> và <Link href="/privacy" className="text-yellow-500/80 hover:text-yellow-500 hover:underline">Chính sách Bảo mật</Link>.
             </span>
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={isLoading}
             className="w-full premium-btn py-4 rounded-xl font-bold flex items-center justify-center space-x-2 text-white group mt-10 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -180,7 +180,7 @@ const RegisterPage = () => {
         <Link href="/terms" className="hover:text-slate-400 transition">ĐIỀU KHOẢN DỊCH VỤ</Link>
         <Link href="/support" className="hover:text-slate-400 transition">TRUNG TÂM TRỢ GIÚP</Link>
       </div>
-      <p className="mt-6 text-[10px] font-medium text-slate-700 uppercase tracking-widest">© 2024 DIGITAL ATELIER. BẢO LƯU MỌI QUYỀN.</p>
+      <p className="mt-6 text-[10px] font-medium text-slate-700 uppercase tracking-widest">© 2024 Digital Atelier. BẢO LƯU MỌI QUYỀN.</p>
     </div>
   );
 };

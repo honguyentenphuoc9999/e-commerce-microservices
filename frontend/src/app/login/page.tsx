@@ -40,7 +40,11 @@ const LoginPage = () => {
         setError("Không thể trích xuất Token từ phản hồi.");
       }
     } catch (err: any) {
-      setError("Đăng nhập thất bại. Kiểm tra lại tài khoản hoặc mật khẩu.");
+      if (err.response?.status === 403) {
+        setError("Tài khoản đã bị khóa, vui lòng khiếu nại ở 'admin@rainbowforest.com'");
+      } else {
+        setError("Đăng nhập thất bại. Kiểm tra lại tài khoản hoặc mật khẩu.");
+      }
     } finally {
       setIsLoading(false);
     }

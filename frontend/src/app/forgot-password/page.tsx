@@ -9,7 +9,7 @@ const ForgotPasswordPage = () => {
     <div className="min-h-screen bg-[#050816] flex flex-col items-center justify-center p-6 bg-[linear-gradient(135deg,_#050816_0%_35%,_#1e1b4b_100%)] overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-full bg-[url('/bg-pattern.svg')] bg-[size:100px_100px] opacity-10 pointer-events-none" />
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
@@ -26,16 +26,16 @@ const ForgotPasswordPage = () => {
           <div className="space-y-2">
             <label className="text-xs font-bold tracking-[0.2em] text-slate-500 uppercase">Địa chỉ Email</label>
             <div className="relative group">
-              <input 
-                type="email" 
-                placeholder="email@cua-ban.com" 
+              <input
+                type="email"
+                placeholder="email@cua-ban.com"
                 className="w-full bg-[#050816] border border-white/10 rounded-xl px-4 py-4 focus:outline-none focus:ring-1 focus:ring-blue-500/50 transition-all font-medium text-slate-300 placeholder:text-slate-700"
               />
             </div>
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="w-full premium-btn py-4 rounded-xl font-bold flex items-center justify-center space-x-2 text-white group mt-10 transition-all active:scale-[0.98]"
           >
             <Mail className="h-5 w-5 mr-1" />
@@ -56,7 +56,7 @@ const ForgotPasswordPage = () => {
         <Link href="/terms" className="hover:text-slate-400 transition">ĐIỀU KHOẢN DỊCH VỤ</Link>
         <Link href="/support" className="hover:text-slate-400 transition">LIÊN HỆ HỖ TRỢ</Link>
       </div>
-      <p className="mt-6 text-[10px] font-medium text-slate-700 uppercase tracking-widest">© 2024 DIGITAL ATELIER. BẢO LƯU MỌI QUYỀN.</p>
+      <p className="mt-6 text-[10px] font-medium text-slate-700 uppercase tracking-widest">© 2024 Digital Atelier. BẢO LƯU MỌI QUYỀN.</p>
     </div>
   );
 };

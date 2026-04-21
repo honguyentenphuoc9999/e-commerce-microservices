@@ -23,7 +23,7 @@ const Footer = () => {
 
         {/* Copyright */}
         <div className="text-[#c6c6cd] font-semibold text-[10px] tracking-widest text-center">
-          © 2024 DIGITAL ATELIER. BẢO LƯU MỌI QUYỀN.
+          © 2024 Digital Atelier. BẢO LƯU MỌI QUYỀN.
         </div>
       </div>
     </footer>
