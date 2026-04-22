@@ -8,13 +8,12 @@ const Footer = () => {
         {/* Brand/Logo Info */}
         <div className="flex flex-col gap-4 text-center md:text-left">
           <Link href="/" className="inline-block mb-2">
-            <img 
-              src="https://res.cloudinary.com/de0de4yum/image/upload/v1776774968/logo_yc7qyw.png" 
-              alt="Phuoc Techno Logo" 
+            <img
+              src="https://res.cloudinary.com/de0de4yum/image/upload/v1776774968/logo_yc7qyw.png"
+              alt="Phuoc Techno Logo"
               className="h-10 w-auto object-contain mx-auto md:mx-0 opacity-80"
             />
           </Link>
-          <div className="text-sm font-bold text-[#bec6e0] tracking-tighter uppercase">Phuoc Techno</div>
           <p className="text-[#c6c6cd] normal-case max-w-xs tracking-normal">
             Kiến tạo tương lai của công nghệ cá nhân thông qua thiết kế tinh xảo và hiệu suất vô song.
           </p>

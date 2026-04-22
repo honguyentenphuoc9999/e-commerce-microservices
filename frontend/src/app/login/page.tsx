@@ -34,9 +34,11 @@ const LoginPage = () => {
       const token = typeof response === "string" ? response : response.token || response.accessToken;
       const role = typeof response === "string" ? "ROLE_USER" : response.role || "ROLE_USER";
       const id = typeof response === "string" ? 2 : response.id || 2;
+      const firstName = typeof response === "string" ? "" : response.firstName || "";
+      const lastName = typeof response === "string" ? "" : response.lastName || "";
       
       if (token) {
-        setAuth(token, userName, id, role);
+        setAuth(token, userName, id, role, firstName, lastName);
         if (role === "ROLE_ADMIN" || userName === "admin_tong") {
           router.push("/admin"); // Redirect to admin dashboard
         } else {

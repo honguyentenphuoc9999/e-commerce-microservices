@@ -9,6 +9,7 @@ import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { catalogService } from "@/services/catalogService";
+import { blogService } from "@/services/blogService";
 
 const HomePage = () => {
   const scrollRef = React.useRef<HTMLDivElement>(null);
@@ -33,6 +34,11 @@ const HomePage = () => {
   const { data: categories = [], isLoading: categoriesLoading } = useQuery({
     queryKey: ['categories'],
     queryFn: () => catalogService.getCategories()
+  });
+
+  const { data: latestArticles = [], isLoading: latestArticlesLoading } = useQuery({
+    queryKey: ['latest-articles'],
+    queryFn: () => blogService.getPublishedArticles()
   });
 
   return (
@@ -193,7 +199,54 @@ const HomePage = () => {
         </motion.div>
       </section>
 
-      <Footer />
+      {/* Latest News Section */}
+      <section className="py-20 px-6 bg-white/[0.02]">
+        <div className="container mx-auto">
+          <div className="flex justify-between items-end mb-16">
+            <div className="space-y-4">
+              <h2 className="text-5xl font-bold tracking-tighter">Tin Tức Công Nghệ</h2>
+              <p className="text-slate-400 font-medium">Cập nhật những xu hướng và bài viết mới nhất từ Phuoc Techno.</p>
+            </div>
+            <Link href="/blog" className="flex items-center gap-2 px-8 py-3 rounded-full border border-white/10 hover:bg-white/10 text-white font-bold text-xs uppercase tracking-widest transition-all">
+              Xem tất cả bài viết
+              <ArrowRight size={16} />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+            {latestArticlesLoading ? (
+               [1, 2, 3].map(i => (
+                <div key={i} className="h-[400px] bg-white/5 rounded-[32px] animate-pulse" />
+              ))
+            ) : (
+              latestArticles.slice(0, 3).map((article: any) => (
+                <Link key={article.id} href={`/blog/${article.id}`} className="group space-y-6">
+                  <div className="relative h-[280px] overflow-hidden rounded-[32px] border border-white/5 group-hover:border-[#e9c349]/30 transition-all">
+                    {article.thumbnailUrl ? (
+                      <img 
+                        src={article.thumbnailUrl} 
+                        alt={article.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-white/5" />
+                    )}
+                  </div>
+                  <div className="space-y-3 px-2">
+                    <div className="text-[10px] font-black uppercase tracking-widest text-[#e9c349]">
+                      {new Date(article.createdAt).toLocaleDateString('vi-VN')}
+                    </div>
+                    <h3 className="text-2xl font-bold leading-tight group-hover:text-[#e9c349] transition-colors line-clamp-2 break-all">{article.title}</h3>
+                    <p className="text-slate-400 line-clamp-2 text-sm">{article.content.replace(/<[^>]*>?/gm, '')}</p>
+                  </div>
+                </Link>
+              ))
+            )}
+          </div>
+        </div>
+      </section>
+
+       <Footer />
     </div>
   );
 };

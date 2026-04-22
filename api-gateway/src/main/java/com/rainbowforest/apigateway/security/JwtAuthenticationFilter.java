@@ -39,7 +39,10 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             || (path.contains("/api/catalog/products") && method.equals("GET"))
             || (path.contains("/api/catalog/categories") && method.equals("GET"))
             || path.contains("/api/shop/cart")
-            || (path.contains("/api/review/recommendations") && method.equals("GET"));
+            || (path.contains("/api/review/recommendations") && method.equals("GET"))
+            || (path.contains("/api/blog/articles") && method.equals("GET"))
+            || (path.contains("/api/blog/comments") && method.equals("GET"))
+            || (path.startsWith("/api/media") && method.equals("GET"));
 
         // 2. Token extraction & validation
         if (!request.getHeaders().containsKey("Authorization")) {

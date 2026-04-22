@@ -54,6 +54,10 @@ const Header = () => {
               className="h-10 w-auto object-contain hover:scale-105 transition-transform"
             />
           </Link>
+          <div className="hidden md:flex ml-10 gap-8">
+            <Link href="/collections" className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-colors">Sản Phẩm</Link>
+            <Link href="/blog" className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-[#e9c349] transition-colors">Tin Tức</Link>
+          </div>
         </div>
 
         {/* Center: Search bar */}

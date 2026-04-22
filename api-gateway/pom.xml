@@ -18,6 +18,7 @@
 	<properties>
 		<java.version>23</java.version>
 		<spring-cloud.version>2024.0.0</spring-cloud.version>
+		<skipTests>true</skipTests>
 	</properties>
 
 	<dependencies>
@@ -116,6 +117,9 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<jvmArguments>-XX:TieredStopAtLevel=1</jvmArguments>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

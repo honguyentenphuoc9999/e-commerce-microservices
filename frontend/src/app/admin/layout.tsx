@@ -18,7 +18,8 @@ import {
   CreditCard,
   Mail,
   Globe,
-  Ticket
+  Ticket,
+  FileText
 } from "lucide-react";
 
 const AdminLayout = ({ children }: { children: React.ReactNode }) => {
@@ -57,6 +58,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
     { name: "Mã khuyến mãi", icon: <Ticket size={20} />, href: "/admin/vouchers" },
     { name: "Thanh toán", icon: <CreditCard size={20} />, href: "/admin/payments" },
     { name: "Email", icon: <Mail size={20} />, href: "/admin/emails" },
+    { name: "Bài viết", icon: <FileText size={20} />, href: "/admin/blog" },
     { name: "Cài đặt", icon: <Settings size={20} />, href: "/admin/settings" },
   ];
 

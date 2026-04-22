@@ -46,7 +46,10 @@ public class AuthController {
             // Đồng bộ Redis để Gateway có thông tin mới nhất
             redisTemplate.opsForValue().set("user:status:" + user.getUserName(), user.getActive() + ":" + user.getTokenVersion());
             
-            return ResponseEntity.ok(new LoginResponse(token, user.getId(), user.getUserName(), roleName));
+            String firstName = user.getUserDetails() != null ? user.getUserDetails().getFirstName() : "";
+            String lastName = user.getUserDetails() != null ? user.getUserDetails().getLastName() : "";
+
+            return ResponseEntity.ok(new LoginResponse(token, user.getId(), user.getUserName(), roleName, firstName, lastName));
         }
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
