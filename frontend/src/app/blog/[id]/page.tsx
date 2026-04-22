@@ -13,7 +13,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 const ArticleDetailPage = () => {
     const params = useParams();
     const id = params.id as string;
-    
+
     const [article, setArticle] = useState<Article | null>(null);
     const [relatedArticles, setRelatedArticles] = useState<Article[]>([]);
     const [comments, setComments] = useState<Comment[]>([]);
@@ -25,9 +25,9 @@ const ArticleDetailPage = () => {
     const [expandedComments, setExpandedComments] = useState<number[]>([]);
 
     const toggleExpand = (commentId: number) => {
-        setExpandedComments(prev => 
-            prev.includes(commentId) 
-                ? prev.filter(id => id !== commentId) 
+        setExpandedComments(prev =>
+            prev.includes(commentId)
+                ? prev.filter(id => id !== commentId)
                 : [...prev, commentId]
         );
     };
@@ -71,8 +71,8 @@ const ArticleDetailPage = () => {
 
         setSubmitting(true);
         try {
-            const displayName = (user.lastName && user.firstName) 
-                ? `${user.lastName} ${user.firstName}` 
+            const displayName = (user.lastName && user.firstName)
+                ? `${user.lastName} ${user.firstName}`
                 : (user.userName || user.fullName || user.name || "Khách hàng");
 
             const newComment = await blogService.addComment(Number(id), {
@@ -112,11 +112,11 @@ const ArticleDetailPage = () => {
             return (
                 <div key={comment.id} className={`${depth === 1 ? 'ml-8 md:ml-12 border-l-2 border-blue-500/10 pl-6' : (depth > 1 ? 'ml-0 pl-0 border-0' : '')} space-y-6`}>
                     {renderSingleComment(comment)}
-                    
+
                     {/* Show toggle button ONLY for root comments (depth 0) */}
                     {depth === 0 && replyCount > 0 && (
                         <div className="mt-4">
-                            <button 
+                            <button
                                 onClick={() => toggleExpand(comment.id!)}
                                 className="flex items-center gap-2 text-[10px] font-black text-blue-500 hover:text-blue-400 transition-colors uppercase tracking-[0.2em] bg-blue-500/5 px-4 py-2 rounded-full border border-blue-500/10"
                             >
@@ -153,7 +153,7 @@ const ArticleDetailPage = () => {
     };
 
     const renderSingleComment = (comment: Comment) => (
-        <motion.div 
+        <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="flex gap-4 group"
@@ -171,27 +171,27 @@ const ArticleDetailPage = () => {
                             {new Date(comment.createdAt || "").toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' })}
                         </span>
                     </div>
-                    
+
                     <div className="flex items-center gap-4">
                         {/* Reply Button with restrictions: no self-reply, only one reply per comment */}
-                        {user && 
-                         replyingToId !== comment.id && 
-                         user.id.toString() !== comment.userId && 
-                         !comments.some(c => c.parentId === comment.id) && (
-                            <button 
-                                onClick={() => {
-                                    setReplyingToId(comment.id!);
-                                    setCommentText("");
-                                }}
-                                className="opacity-0 group-hover:opacity-100 transition-all text-[10px] font-black text-blue-500 uppercase tracking-widest flex items-center gap-2 hover:text-blue-400"
-                            >
-                                <Reply size={12} /> Phản hồi
-                            </button>
-                        )}
+                        {user &&
+                            replyingToId !== comment.id &&
+                            user.id.toString() !== comment.userId &&
+                            !comments.some(c => c.parentId === comment.id) && (
+                                <button
+                                    onClick={() => {
+                                        setReplyingToId(comment.id!);
+                                        setCommentText("");
+                                    }}
+                                    className="opacity-0 group-hover:opacity-100 transition-all text-[10px] font-black text-blue-500 uppercase tracking-widest flex items-center gap-2 hover:text-blue-400"
+                                >
+                                    <Reply size={12} /> Phản hồi
+                                </button>
+                            )}
 
                         {/* Self delete for user */}
                         {user && user.id.toString() === comment.userId && (
-                            <button 
+                            <button
                                 onClick={async () => {
                                     if (confirm("Bạn có chắc muốn xóa bình luận này?")) {
                                         try {
@@ -216,7 +216,7 @@ const ArticleDetailPage = () => {
                 {/* Inline Reply Input */}
                 <AnimatePresence>
                     {replyingToId === comment.id && (
-                        <motion.div 
+                        <motion.div
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: "auto", opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
@@ -229,7 +229,7 @@ const ArticleDetailPage = () => {
                                         <X size={16} />
                                     </button>
                                 </div>
-                                <textarea 
+                                <textarea
                                     value={commentText}
                                     onChange={(e) => setCommentText(e.target.value)}
                                     placeholder="Viết phản hồi..."
@@ -237,7 +237,7 @@ const ArticleDetailPage = () => {
                                     autoFocus
                                 />
                                 <div className="flex justify-end mt-2">
-                                    <button 
+                                    <button
                                         onClick={(e) => handleComment(e, comment.id!)}
                                         className="bg-blue-600 hover:bg-blue-500 text-white font-black px-6 py-2 rounded-xl flex items-center gap-2 text-xs transition-all"
                                     >
@@ -265,12 +265,12 @@ const ArticleDetailPage = () => {
     return (
         <div className="min-h-screen bg-[#050816] text-white selection:bg-blue-500/30">
             <Header />
-            
+
             {/* Massive Hero Banner */}
             <div className="relative h-[65vh] w-full">
                 {article.thumbnailUrl ? (
-                    <img 
-                        src={article.thumbnailUrl} 
+                    <img
+                        src={article.thumbnailUrl}
                         alt={article.title}
                         className="w-full h-full object-cover opacity-40"
                     />
@@ -278,13 +278,13 @@ const ArticleDetailPage = () => {
                     <div className="w-full h-full bg-slate-900/50" />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#050816] via-transparent to-transparent" />
-                
+
                 <div className="absolute bottom-0 left-0 w-full p-8 md:p-20">
                     <div className="max-w-[1400px] mx-auto">
                         <Link href="/" className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 mb-8 transition-colors bg-white/5 px-4 py-2 rounded-xl backdrop-blur-md border border-white/5 font-bold text-sm uppercase tracking-widest">
                             <ArrowLeft size={18} /> Trang chủ
                         </Link>
-                        <motion.h1 
+                        <motion.h1
                             initial={{ y: 30, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             className="text-4xl md:text-7xl font-black mb-8 leading-[1.1] break-all tracking-tight max-w-5xl"
@@ -308,7 +308,7 @@ const ArticleDetailPage = () => {
             {/* Main Content Layout */}
             <div className="max-w-[1400px] mx-auto px-8 md:px-20 py-24">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
-                    
+
                     {/* Left Column: Article Content & Comments (8/12) */}
                     <div className="lg:col-span-8 space-y-20">
                         <article className="prose prose-invert prose-blue max-w-none">
@@ -333,7 +333,7 @@ const ArticleDetailPage = () => {
                             {user?.role !== 'ROLE_ADMIN' && (
                                 <form onSubmit={(e) => handleComment(e)} className="mb-16">
                                     <div className="bg-white/5 border border-white/10 rounded-[2rem] p-6 focus-within:border-blue-500/50 transition-all shadow-xl">
-                                        <textarea 
+                                        <textarea
                                             value={commentText}
                                             onChange={(e) => setCommentText(e.target.value)}
                                             placeholder="Chia sẻ ý kiến của bạn..."
@@ -366,7 +366,7 @@ const ArticleDetailPage = () => {
                             <h3 className="text-2xl font-black tracking-tighter uppercase text-white border-b-2 border-blue-500 pb-4 inline-block">
                                 Bài viết liên quan
                             </h3>
-                            
+
                             <div className="space-y-8">
                                 {relatedArticles.length === 0 ? (
                                     <p className="text-slate-500 italic text-sm">Đang cập nhật...</p>
@@ -375,9 +375,9 @@ const ArticleDetailPage = () => {
                                         <Link key={rel.id} href={`/blog/${rel.id}`} className="flex gap-4 group cursor-pointer">
                                             <div className="w-24 h-24 shrink-0 rounded-2xl overflow-hidden border border-white/10 group-hover:border-blue-500/50 transition-colors">
                                                 {rel.thumbnailUrl ? (
-                                                    <img 
-                                                        src={rel.thumbnailUrl} 
-                                                        alt="" 
+                                                    <img
+                                                        src={rel.thumbnailUrl}
+                                                        alt=""
                                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                                     />
                                                 ) : (
