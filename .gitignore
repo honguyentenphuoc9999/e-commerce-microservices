@@ -1,0 +1,71 @@
+# OS files
+.DS_Store
+Thumbs.db
+db.lock
+
+# Build artifacts
+**/target/
+**/build/
+**/bin/
+**/out/
+**/.next/
+**/dist/
+**/coverage/
+**/.cache/
+**/*.tsbuildinfo
+
+# Dependency folders
+**/node_modules/
+
+# QUAN TRỌNG: Không ignore maven wrapper JAR → máy mới cần file này để chạy mvnw
+# **/.mvn/wrapper/maven-wrapper.jar  ← đã bỏ dòng này
+
+# Configuration / Secrets (chứa API key, password → KHÔNG push lên git)
+**/.env
+**/.env.local
+**/.env.*.local
+**/application-secret.properties
+**/application-secret.yml
+
+# Cho phép application.properties và application-*.properties thông thường
+# (chứa cấu hình port, DB, không chứa secret)
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.iml
+*.iws
+*.ipr
+*.iws
+
+# Cloudflare tunnel (binary lớn, không cần push)
+cloudflared/
+
+# Log files
+*.log
+**/logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Database & Data
+**/data/
+*.db
+*.sqlite
+
+# Testing reports
+**/playwright-report/
+**/test-results/
+
+# Redis & Local Databases
+redis_installed/
+*.rdb
+dump.rdb
+
+# Misc
+*.bak
+*.tmp
+~$*

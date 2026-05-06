@@ -1,0 +1,75 @@
+package com.rainbowforest.mediaservice.controller;
+
+import com.rainbowforest.mediaservice.service.ImageService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/")
+public class ImageController {
+
+    @Autowired
+    private ImageService imageService;
+
+    @PostMapping("/upload")
+    public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
+        try {
+            if (file.isEmpty()) {
+                return ResponseEntity.badRequest().body("Lỗi: File hình ảnh trống!");
+            }
+            Map<String, Object> result = imageService.upload(file);
+            // Trả về Link URL của Cloud cùng mã Public ID
+            return ResponseEntity.ok(Map.of(
+                    "status", "Thành công!",
+                    "url", result.get("url"),
+                    "public_id", result.get("public_id")
+            ));
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Lỗi khi tải ảnh lên Cloud: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/upload-batch")
+    public ResponseEntity<?> uploadImages(@RequestPart("files") MultipartFile[] files) {
+        try {
+            System.out.println("MediaService: Bắt đầu upload batch " + (files != null ? files.length : 0) + " ảnh.");
+            java.util.List<Map<String, Object>> results = new java.util.ArrayList<>();
+            if (files != null) {
+                for (MultipartFile file : files) {
+                    if (!file.isEmpty()) {
+                        Map<String, Object> uploadResult = imageService.upload(file);
+                        results.add(Map.of(
+                                "url", uploadResult.get("url"),
+                                "public_id", uploadResult.get("public_id")
+                        ));
+                    }
+                }
+            }
+            System.out.println("MediaService: Upload thành công " + results.size() + " ảnh.");
+            return ResponseEntity.ok(results);
+        } catch (Exception e) {
+            System.err.println("MediaService Error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Lỗi khi tải loạt ảnh lên Cloud: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/delete/{publicId}")
+    public ResponseEntity<?> deleteImage(@PathVariable String publicId) {
+        try {
+            imageService.delete("rainbow-forest/products/" + publicId);
+            return ResponseEntity.ok("Thành công! Hình ảnh đã được gỡ bỏ khỏi Cloud.");
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Lỗi khi xóa ảnh: " + e.getMessage());
+        }
+    }
+}

@@ -1,0 +1,21 @@
+package com.rainbowforest.userservice.feignclient;
+
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+@FeignClient(name = "notification-service")
+public interface NotificationClient {
+
+    @PostMapping("/send-order-email")
+    void sendOrderConfirmation(@RequestBody Object request);
+
+    @PostMapping("/send-forgot-password")
+    void sendForgotPassword(@RequestBody Object request);
+
+    @PostMapping("/send-promotion")
+    void sendPromotion(@RequestBody Object request);
+
+    @PostMapping("/send-account-recovery")
+    void sendAccountRecovery(@RequestBody Object request);
+}
